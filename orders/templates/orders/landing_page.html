@@ -1,0 +1,565 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Fast, Reliable Logistics Solutions</h1>
+        <p>Track your deliveries in real-time and manage your logistics with ease.</p>
+        <div class="hero-buttons">
+            <a href="{% url 'order_list' %}" class="btn btn-secondary">
+                <i class="fas fa-box"></i> View Orders
+            </a>
+            <a href="#track-shipment" class="btn">
+                <i class="fas fa-search"></i> Track Shipment
+            </a>
+        </div>
+        <div class="auth-links">
+            
+                <a href="{% url 'dashboard' %}" class="link">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            
+                <a href="{% url 'login' %}" class="link">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <span class="divider">|</span>
+                <div class="dropdown">
+                    <a href="#" class="link dropdown-toggle">
+                        <i class="fas fa-user-plus"></i> Register <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        
+                        <a href="{% url 'register_company' %}" class="dropdown-item">
+                            <i class="fas fa-building"></i> Company
+                        </a>
+                        <a href="{% url 'register_delivery' %}" class="dropdown-item">
+                            <i class="fas fa-truck"></i> Delivery Personnel
+                        </a>
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+    <div class="hero-image">
+        <div class="image-container">
+            <i class="fas fa-truck-moving"></i>
+        </div>
+    </div>
+</section>
+
+<!-- Track Shipment Section -->
+<section class="track-section" id="track-shipment">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Track Your Shipment</h2>
+            <span class="badge badge-transit">Real-time Updates</span>
+        </div>
+        <form class="track-form" action="{% url 'order_tracking' 0 %}" method="get" id="tracking-form">
+            <div class="track-input">
+                <input type="text" name="tracking_number" placeholder="Enter your tracking number" required>
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-search"></i> Track
+                </button>
+            </div>
+            <script>
+                document.getElementById('tracking-form').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const trackingNumber = this.querySelector('input[name="tracking_number"]').value;
+                    // Assume the tracking number is the order ID for simplicity
+                    window.location.href = "{% url 'order_tracking' 0 %}".replace('0', trackingNumber);
+                });
+            </script>
+        </form>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section class="services-section">
+    <h2 class="section-title">Our Services</h2>
+    <div class="services-grid">
+        <div class="service-card">
+            <div class="service-icon">
+                <i class="fas fa-truck"></i>
+            </div>
+            <h3>Same-Day Delivery</h3>
+            <p>Get your packages delivered on the same day with our express service.</p>
+        </div>
+        <div class="service-card">
+            <div class="service-icon">
+                <i class="fas fa-globe-americas"></i>
+            </div>
+            <h3>International Shipping</h3>
+            <p>Ship your packages worldwide with our reliable international delivery network.</p>
+        </div>
+        <div class="service-card">
+            <div class="service-icon">
+                <i class="fas fa-warehouse"></i>
+            </div>
+            <h3>Warehousing</h3>
+            <p>Store your inventory securely in our state-of-the-art facilities.</p>
+        </div>
+        <div class="service-card">
+            <div class="service-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3>Analytics</h3>
+            <p>Get insights into your logistics operations with our advanced analytics tools.</p>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-section">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">How It Works</h2>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Create an Order</h3>
+                    <p>Set up your delivery details and package information.</p>
+                    <a href="{% url 'new_order' %}" class="link-btn">Create Order <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Schedule Pickup</h3>
+                    <p>Choose when and where we should collect your package.</p>
+                    <a href="{% url 'order_list' %}" class="link-btn">View Your Orders <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Track Progress</h3>
+                    <p>Follow your delivery in real-time until it reaches its destination.</p>
+                    <a href="#track-shipment" class="link-btn">Track Now <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section">
+    <h2 class="section-title">What Our Customers Say</h2>
+    <div class="testimonials">
+        <div class="testimonial-card">
+            <div class="quote">
+                <i class="fas fa-quote-left"></i>
+            </div>
+            <p>"LogisticsCo has revolutionized how we handle our deliveries. Their tracking system is intuitive and their delivery times are exceptional."</p>
+            <div class="testimonial-author">
+                <div class="author-name">Sarah Johnson</div>
+                <div class="author-title">E-commerce Manager</div>
+            </div>
+        </div>
+        <div class="testimonial-card">
+            <div class="quote">
+                <i class="fas fa-quote-left"></i>
+            </div>
+            <p>"We've reduced our logistics costs by 25% since switching to LogisticsCo. Their analytics tools have helped us optimize our shipping routes."</p>
+            <div class="testimonial-author">
+                <div class="author-name">Michael Chen</div>
+                <div class="author-title">Operations Director</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section">
+    <div class="card">
+        <div class="cta-content">
+            <h2>Ready to Streamline Your Logistics?</h2>
+            <p>Join thousands of businesses that trust LogisticsCo for their shipping needs.</p>
+            <div class="cta-buttons">
+                <a href="{% url 'new_order' %}" class="btn btn-secondary">
+                    <i class="fas fa-plus-circle"></i> Create New Order
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Hero Section */
+    .hero {
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, var(--white) 50%, var(--primary) 50%);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .hero-content {
+        flex: 1;
+        padding: 3rem;
+    }
+    
+    .hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--dark);
+    }
+    
+    .hero p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        color: #555;
+        max-width: 500px;
+    }
+    
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .hero-image {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+    }
+    
+    .image-container {
+        background-color: var(--white);
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .hero-image i {
+        font-size: 6rem;
+        color: var(--primary);
+    }
+    
+    /* Track Section */
+    .track-section {
+        margin-bottom: 2rem;
+    }
+    
+    .track-form {
+        padding: 1rem 0;
+    }
+    
+    .track-input {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .track-input input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--gray);
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .track-input input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(255, 190, 0, 0.2);
+    }
+    
+    /* Services Section */
+    .section-title {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    
+    .services-section {
+        margin-bottom: 2rem;
+    }
+    
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .service-card {
+        background-color: var(--white);
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+    }
+    
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .service-icon {
+        margin-bottom: 1rem;
+    }
+    
+    .service-icon i {
+        font-size: 3rem;
+        color: var(--primary);
+    }
+    
+    .service-card h3 {
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    /* How It Works Section */
+    .how-section {
+        margin-bottom: 2rem;
+    }
+    
+    .steps {
+        padding: 1rem 0;
+    }
+    
+    .step {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+    
+    .step:last-child {
+        margin-bottom: 0;
+    }
+    
+    .step-number {
+        background-color: var(--primary);
+        color: var(--white);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .step-content h3 {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .step-content .link-btn {
+        display: inline-block;
+        margin-top: 0.5rem;
+        color: var(--secondary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+    
+    .step-content .link-btn:hover {
+        color: #27ae60;
+    }
+    
+    .step-content .link-btn i {
+        margin-left: 0.3rem;
+        font-size: 0.8rem;
+    }
+    
+    /* Testimonials Section */
+    .testimonials-section {
+        margin-bottom: 2rem;
+    }
+    
+    .testimonials {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .testimonial-card {
+        background-color: var(--white);
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        position: relative;
+    }
+    
+    .quote {
+        margin-bottom: 1rem;
+    }
+    
+    .quote i {
+        font-size: 2rem;
+        color: var(--gray);
+        opacity: 0.5;
+    }
+    
+    .testimonial-author {
+        margin-top: 1.5rem;
+    }
+    
+    .author-name {
+        font-weight: 600;
+        color: var(--dark);
+    }
+    
+    .author-title {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+        margin-bottom: 2rem;
+    }
+    
+    .cta-content {
+        padding: 1rem 0;
+        text-align: center;
+    }
+    
+    .cta-content h2 {
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .cta-content p {
+        margin-bottom: 1.5rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .cta-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    /* Auth Links */
+    .auth-links {
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+    
+    .link {
+        color: var(--dark);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        margin-right: 1rem;
+    }
+    
+    .link:hover {
+        color: var(--primary);
+    }
+    
+    .link i {
+        margin-right: 0.3rem;
+    }
+    
+    .divider {
+        margin: 0 0.5rem;
+        color: var(--gray);
+    }
+    
+    /* Dropdown */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .dropdown-toggle {
+        cursor: pointer;
+    }
+    
+    .dropdown-toggle i.fa-chevron-down {
+        font-size: 0.8rem;
+        margin-left: 0.3rem;
+    }
+    
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: var(--white);
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        min-width: 180px;
+        padding: 0.5rem 0;
+        z-index: 100;
+        display: none;
+    }
+    
+    .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+    
+    .dropdown-item {
+        display: block;
+        padding: 0.5rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+    
+    .dropdown-item:hover {
+        background-color: var(--gray);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hero {
+            flex-direction: column;
+            background: var(--white);
+        }
+        
+        .hero-content {
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .hero-buttons {
+            justify-content: center;
+        }
+        
+        .hero-image {
+            background-color: var(--primary);
+            width: 100%;
+            padding: 2rem 0;
+        }
+        
+        .track-input {
+            flex-direction: column;
+        }
+        
+        .track-input .btn {
+            width: 100%;
+        }
+        
+        .cta-buttons {
+            flex-direction: column;
+        }
+        
+        .cta-buttons .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

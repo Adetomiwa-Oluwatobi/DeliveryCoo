@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>Shipping Label</h1>
+    <div class="actions">
+        <a href="{% url 'order_detail' order.id %}" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i> Back to Order
+        </a>
+        <button class="btn" onclick="window.print()">
+            <i class="fas fa-print"></i> Print Label
+        </button>
+    </div>
+</div>
+<div class="card">
+    <div class="label-container" id="printableArea">
+        <div class="shipping-label">
+            <div class="label-header">
+                <div class="logo">
+                    <i class="fas fa-truck"></i> LogisticsCo
+                </div>
+                <div class="order-number">
+                    <span>Order #{{ order.id }}</span>
+                    <div class="barcode">
+                        *{{ order.id }}*
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="label-section">
+                <div class="section-title">FROM</div>
+                <div class="address">
+                    <strong>{{ order.company.name|default:"LogisticsCo" }}</strong><br>
+                    {{ order.company.address|default:"123 Logistics Way" }}<br>
+        
+                    {{ order.company.logo|default:"555-123-4567" }}
+                </div>
+            </div>
+            
+            <div class="label-section to-section">
+                <div class="section-title">SHIP TO</div>
+                <div class="address">
+                    <strong>{{ order.client_name }}</strong><br>
+                    {{ order.delivery_address }}<br>
+                    {% if order.client_phone %}
+                    Phone: {{ order.client_phone }}
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="label-footer">
+                <div class="shipping-method">
+                    <span>Shipping Method:</span>
+                    <strong>{{ order.shipping_method|default:"Standard Delivery" }}</strong>
+                </div>
+                <div class="weight">
+                    <span>Weight:</span>
+                    <strong>{{ order.weight|default:"0.0" }} kg</strong>
+                </div>
+                <div class="date">
+                    <span>Ship Date:</span>
+                    <strong>{{ order.ordered_at|date:"M d, Y" }}</strong>
+                </div>
+                <div class="delivery_cost">
+                    <span>Delivery Cost:</span>
+                    <strong>{{ order.delivery_cost|default:"0.00" }}</strong>
+                </div>
+                
+            </div>
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="card-title">Payment Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="payment-info">
+                        <div class="info-row">
+                            <div class="info-label">Payment Status:</div>
+                            <div class="info-value">
+                                {% if order.payment_status == 'paid' %}
+                                    <span class="badge badge-success">Paid</span>
+                                    {% if order.payment_date %}
+                                        <span class="payment-date">({{ order.payment_date|date:"F j, Y, g:i a" }})</span>
+                                    {% endif %}
+                                {% elif order.payment_status == 'pending' %}
+                                    <span class="badge badge-warning">Pending</span>
+                                {% elif order.payment_status == 'failed' %}
+                                    <span class="badge badge-danger">Failed</span>
+                                {% else %}
+                                    <span class="badge badge-secondary">{{ order.payment_status|title }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if order.payment_reference %}
+                        <div class="info-row">
+                            <div class="info-label">Payment Reference:</div>
+                            <div class="info-value">{{ order.payment_reference }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="info-row">
+                            <div class="info-label">Delivery Cost:</div>
+                            <div class="info-value">₦{{ order.delivery_cost }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-actions mt-3">
+                        {% if order.payment_status == 'pending' or order.payment_status == 'failed' %}
+                            <a href="{% url 'initiate_payment' order_id=order.id %}" class="btn btn-primary">
+                                {% if order.payment_status == 'pending' %}Make Payment{% else %}Retry Payment{% endif %}
+                            </a>
+                            
+                            {% if order.payment_reference %}
+                            <a href="{% url 'verify_payment' order_id=order.id %}" class="btn btn-secondary ml-2">
+                                Verify Payment Status
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+            <div class="instructions">
+                {{ order.notes|default:"" }}
+            </div>
+            
+        </div>
+        
+    </div>
+</div>
+<style>
+    @media print {
+        header, footer, .page-header, .actions, .card {
+            display: none !important;
+        }
+        
+        #printableArea {
+            display: block !important;
+            width: 100% !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+        
+        .shipping-label {
+            width: 100% !important;
+            border: 1px solid #000 !important;
+            margin: 0 !important;
+            padding: 1cm !important;
+            box-shadow: none !important;
+        }
+        
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    }
+    
+    .label-container {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .shipping-label {
+        width: 800px;
+        max-width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        font-family: Arial, sans-serif;
+        position: relative;
+    }
+    
+    .label-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #000;
+        margin-bottom: 1.5rem;
+    }
+    
+    .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    
+    .logo i {
+        color: #2c3e50;
+        margin-right: 0.5rem;
+    }
+    
+    .order-number {
+        text-align: right;
+    }
+    
+    .order-number span {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    
+    .barcode {
+        font-family: 'Libre Barcode 39', cursive;
+        font-size: 2rem;
+        margin-top: 0.5rem;
+        letter-spacing: 2px;
+    }
+    
+    .label-section {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+    }
+    
+    .to-section {
+        background-color: #e9f7fe;
+        border-color: #4a90e2;
+    }
+    
+    .section-title {
+        font-weight: bold;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        color: #555;
+        letter-spacing: 1px;
+    }
+    
+    .address {
+        line-height: 1.4;
+    }
+    
+    .label-footer {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #ddd;
+    }
+    
+    .shipping-method, .weight, .date {
+        font-size: 0.9rem;
+    }
+    
+    .shipping-method span, .weight span, .date span {
+        color: #777;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    
+    .qr-code {
+        position: absolute;
+        bottom: 2rem;
+        right: 2rem;
+        text-align: center;
+    }
+    
+    .qr-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .qr-square {
+        width: 100px;
+        height: 100px;
+        background: repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 50% / 10px 10px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .qr-text {
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: #555;
+    }
+    
+    .instructions {
+        margin-top: 2rem;
+        font-style: italic;
+        color: #555;
+        max-width: 70%;
+    }
+    .payment-info {
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-row {
+        display: flex;
+        margin-bottom: 0.75rem;
+    }
+    
+    .info-label {
+        font-weight: 500;
+        width: 40%;
+        max-width: 200px;
+    }
+    
+    .info-value {
+        flex: 1;
+    }
+    
+    .payment-date {
+        font-size: 0.85rem;
+        color: #666;
+        margin-left: 0.5rem;
+    }
+    
+    .payment-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    @media (max-width: 768px) {
+        .shipping-label {
+            padding: 1rem;
+        }
+        
+        .label-footer {
+            flex-direction: column;
+        }
+        
+        .shipping-method, .weight, .date {
+            margin-bottom: 0.5rem;
+        }
+        
+        .qr-code {
+            position: static;
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+        
+        .qr-placeholder {
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}

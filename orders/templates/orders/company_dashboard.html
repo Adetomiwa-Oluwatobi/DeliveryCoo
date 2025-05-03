@@ -1,0 +1,670 @@
+{% extends 'base.html' %}
+
+{% block title %}Company Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container py-4">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header mb-4">
+        {% if company.logo %}
+            <img src="{{ company.logo.url }}" alt="{{ company.name }}" class="company-logo">
+        {% endif %}
+        <h2 class="dashboard-title">{{ company.name }} Dashboard</h2>
+        <div class="dashboard-actions">
+            <a href="{% url 'new_order' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> New Order
+            </a>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card primary">
+            <div class="stat-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-title">Total Orders</p>
+                <h2 class="stat-value">{{ total_orders }}</h2>
+                <p class="stat-change">
+                    <i class="fas fa-arrow-up"></i> 12% from last month
+                </p>
+            </div>
+            <a href="{% url 'order_list' %}" class="stat-link">
+                <span>View Details</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        
+        <div class="stat-card success">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-title">Pending Orders</p>
+                <h2 class="stat-value">{{ pending_count }}</h2>
+                <p class="stat-change">
+                    <i class="fas fa-arrow-down"></i> 5% from last month
+                </p>
+            </div>
+            <a href="{% url 'order_list' %}?status=pending" class="stat-link">
+                <span>View Details</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        
+        <div class="stat-card warning">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-title">Delivered Orders</p>
+                <h2 class="stat-value">{{ delivered_count }}</h2>
+                <p class="stat-change">
+                    <i class="fas fa-arrow-up"></i> 18% from last month
+                </p>
+            </div>
+            <a href="{% url 'order_list' %}?status=delivered" class="stat-link">
+                <span>View Details</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        
+        <div class="stat-card danger">
+            <div class="stat-icon">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-title">Canceled Orders</p>
+                <h2 class="stat-value">{{ canceled_count }}</h2>
+                <p class="stat-change">
+                    <i class="fas fa-arrow-down"></i> 2% from last month
+                </p>
+            </div>
+            <a href="{% url 'order_list' %}?status=canceled" class="stat-link">
+                <span>View Details</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Main Content Grid -->
+    <div class="dashboard-grid mt-4">
+        <!-- Recent Orders Table -->
+        <div class="dashboard-card orders-table">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-table"></i> Recent Orders
+                </h3>
+                <div class="card-actions">
+                    <select class="form-select form-select-sm me-2">
+                        <option selected>All Orders</option>
+                        <option>Pending</option>
+                        <option>Delivered</option>
+                        <option>Canceled</option>
+                    </select>
+                    <a href="{% url 'order_list' %}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Client</th>
+                                <th>Status</th>
+                                <th>Delivery Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td class="order-id">#{{ order.id }}</td>
+                                <td class="client-name">{{ order.client.name }}</td>
+                                <td>
+                                    {% if order.status == 'pending' %}
+                                        <span class="status-badge pending">Pending</span>
+                                    {% elif order.status == 'delivered' %}
+                                        <span class="status-badge delivered">Delivered</span>
+                                    {% elif order.status == 'canceled' %}
+                                        <span class="status-badge canceled">Canceled</span>
+                                    {% else %}
+                                        <span class="status-badge other">{{ order.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="delivery-time">{{ order.delivery_time }}</td>
+                                <td class="actions">
+                                    <a href="{% url 'order_detail' order.id %}" class="action-btn view" title="View Order">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'edit_order' order.id %}" class="action-btn edit" title="Edit Order">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-3">
+                                    <div class="empty-state">
+                                        <i class="fas fa-box-open empty-icon"></i>
+                                        <p>No orders found.</p>
+                                        <a href="{% url 'new_order' %}" class="btn btn-sm btn-primary">Create New Order</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions & Personnel Column -->
+        <div class="dashboard-sidebar">
+            <!-- Quick Actions Card -->
+            <div class="dashboard-card quick-actions">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-bolt"></i> Quick Actions
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="action-buttons">
+                        <a href="{% url 'new_order' %}" class="action-button">
+                            <i class="fas fa-box"></i>
+                            <span>Create Order</span>
+                        </a>
+                        <a href="{% url 'register_delivery' %}" class="action-button">
+                            <i class="fas fa-truck"></i>
+                            <span>Add Personnel</span>
+                        </a>
+                        
+                        <a href="#" class="action-button">
+                            <i class="fas fa-file-export"></i>
+                            <span>Export Reports</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Delivery Personnel Card -->
+            <div class="dashboard-card personnel">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-users"></i> Delivery Personnel
+                    </h3>
+                    <a href="{% url 'register_delivery' %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-plus"></i> Add
+                    </a>
+                </div>
+                <div class="card-body">
+                    <ul class="personnel-list">
+                        {% for personnel in delivery_personnel %}
+                        <li class="personnel-item">
+                            <div class="personnel-info">
+                                <div class="personnel-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="personnel-details">
+                                    <h4>{{ personnel.user.get_full_name }}</h4>
+                                    <p class="personnel-id">ID: #{{ personnel.id }}</p>
+                                </div>
+                            </div>
+                            <span class="personnel-status {% if personnel.available %}available{% else %}busy{% endif %}">
+                                {% if personnel.available %}Available{% else %}Busy{% endif %}
+                            </span>
+                        </li>
+                        {% empty %}
+                        <div class="empty-state">
+                            <i class="fas fa-users empty-icon"></i>
+                            <p>No delivery personnel found.</p>
+                            <a href="{% url 'register_delivery' %}" class="btn btn-sm btn-primary">Add Personnel</a>
+                        </div>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS for Dashboard -->
+<style>
+    .dashboard-container {
+        padding: 0 1.5rem;
+    }
+    .company-logo {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+      }
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .dashboard-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+    
+    /* Stats Cards */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 7px;
+        height: 100%;
+        border-radius: 10px 0 0 10px;
+    }
+    
+    .stat-card.primary::before { background-color: var(--primary); }
+    .stat-card.success::before { background-color: var(--secondary); }
+    .stat-card.warning::before { background-color: #f39c12; }
+    .stat-card.danger::before { background-color: #e74c3c; }
+    
+    .stat-icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.75rem;
+        display: inline-block;
+        padding: 0.75rem;
+        border-radius: 8px;
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .stat-card.primary .stat-icon { color: var(--primary); }
+    .stat-card.success .stat-icon { color: var(--secondary); }
+    .stat-card.warning .stat-icon { color: #f39c12; }
+    .stat-card.danger .stat-icon { color: #e74c3c; }
+    
+    .stat-title {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+    
+    .stat-value {
+        margin: 0.5rem 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+    }
+    
+    .stat-change {
+        font-size: 0.8125rem;
+        margin: 0;
+        color: #6c757d;
+    }
+    
+    .stat-change i {
+        margin-right: 0.25rem;
+    }
+    
+    .stat-change .fa-arrow-up { color: var(--secondary); }
+    .stat-change .fa-arrow-down { color: #e74c3c; }
+    
+    .stat-link {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-decoration: none;
+        color: #495057;
+        padding-top: 1rem;
+        margin-top: 1rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+    
+    .stat-link:hover {
+        color: var(--primary);
+    }
+    
+    .stat-link i {
+        transition: transform 0.2s ease;
+    }
+    
+    .stat-link:hover i {
+        transform: translateX(3px);
+    }
+    
+    /* Dashboard Grid */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 1.5rem;
+    }
+    
+    .dashboard-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        background-color: white;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .card-title {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-title i {
+        margin-right: 0.5rem;
+        color: var(--primary);
+    }
+    
+    .card-actions {
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Table Styles */
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .table th {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #495057;
+        text-align: left;
+        padding: 0.75rem 1rem;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        font-size: 0.9375rem;
+        vertical-align: middle;
+    }
+    
+    .table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .table tr:hover {
+        background-color: rgba(0, 0, 0, 0.01);
+    }
+    
+    .order-id {
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .client-name {
+        font-weight: 500;
+    }
+    
+    .delivery-time {
+        color: #6c757d;
+    }
+    
+    .actions {
+        white-space: nowrap;
+    }
+    
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+        transition: all 0.2s ease;
+        color: #6c757d;
+    }
+    
+    .action-btn.view {
+        background-color: rgba(var(--primary-rgb), 0.1);
+        color: var(--primary);
+    }
+    
+    .action-btn.edit {
+        background-color: rgba(var(--secondary-rgb), 0.1);
+        color: var(--secondary);
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.375rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-badge.pending {
+        background-color: rgba(243, 156, 18, 0.1);
+        color: #f39c12;
+    }
+    
+    .status-badge.delivered {
+        background-color: rgba(46, 204, 113, 0.1);
+        color: var(--secondary);
+    }
+    
+    .status-badge.canceled {
+        background-color: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+    }
+    
+    .status-badge.other {
+        background-color: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+    }
+    
+    /* Quick Actions */
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .action-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.25rem;
+        background-color: rgba(0, 0, 0, 0.02);
+        border-radius: 8px;
+        text-decoration: none;
+        color: #495057;
+        transition: all 0.2s ease;
+    }
+    
+    .action-button:hover {
+        background-color: var(--primary);
+        color: white;
+        transform: translateY(-3px);
+    }
+    
+    .action-button i {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .action-button span {
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-align: center;
+    }
+    
+    /* Personnel List */
+    .personnel-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .personnel-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .personnel-item:last-child {
+        border-bottom: none;
+    }
+    
+    .personnel-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .personnel-avatar {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: #6c757d;
+    }
+    
+    .personnel-details h4 {
+        margin: 0;
+        font-size: 0.9375rem;
+        font-weight: 600;
+    }
+    
+    .personnel-id {
+        margin: 0;
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+    
+    .personnel-status {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .personnel-status.available {
+        background-color: rgba(46, 204, 113, 0.1);
+        color: var(--secondary);
+    }
+    
+    .personnel-status.busy {
+        background-color: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .empty-icon {
+        font-size: 2.5rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state p {
+        margin: 0 0 1rem;
+        color: #6c757d;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .action-buttons {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

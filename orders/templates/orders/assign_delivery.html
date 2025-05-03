@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Assign Delivery to Order #{{ order.id }}</h2>
+        <span class="badge badge-pending">Assignment Required</span>
+    </div>
+    
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                {% for field in form %}
+                    <div class="form-field">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="help-text">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="field-error">
+                                {% for error in field.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-truck"></i> Assign Delivery
+                </button>
+                <a href="{% url 'order_list' %}" class="btn">
+                    <i class="fas fa-arrow-left"></i> Back to Orders
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        padding: 1rem 0;
+    }
+    
+    .form-group {
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-field {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .form-field label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+    }
+    
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+        padding: 0.75rem;
+        border: 1px solid var(--gray);
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: border 0.3s ease;
+    }
+    
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(255, 190, 0, 0.2);
+    }
+    
+    .help-text {
+        margin-top: 0.25rem;
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+    
+    .field-error {
+        margin-top: 0.5rem;
+        color: #dc3545;
+        font-size: 0.85rem;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .form-actions .btn i {
+        margin-right: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-actions .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}

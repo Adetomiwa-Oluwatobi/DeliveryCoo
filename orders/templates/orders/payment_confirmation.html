@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Payment Processing</h2>
+        <span class="badge badge-primary">Payment</span>
+    </div>
+    
+    <div class="payment-processing">
+        <div class="payment-info">
+            <h3>Order #{{ order.id }} - Payment Details</h3>
+            
+            <div class="payment-details">
+                <div class="detail-row">
+                    <div class="detail-label">Client:</div>
+                    <div class="detail-value">{{ order.client_name }}</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Delivery Address:</div>
+                    <div class="detail-value">{{ order.delivery_address }}</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Delivery Cost:</div>
+                    <div class="detail-value">₦{{ order.delivery_cost }}</div>
+                </div>
+                
+                {% if order.client_email %}
+                <div class="detail-row">
+                    <div class="detail-label">Client Email:</div>
+                    <div class="detail-value">{{ order.client_email }}</div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="payment-instruction">
+                <p>You will be redirected to Paystack to complete your payment securely.</p>
+                <p>After payment, you will automatically return to your order dashboard.</p>
+            </div>
+            
+            <div class="payment-actions">
+                <a href="#" id="proceed-button" class="btn btn-primary">Proceed to Payment</a>
+                <a href="{% url 'order_list' %}" class="btn">Cancel</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .payment-processing {
+        padding: 2rem;
+    }
+    
+    .payment-info {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .payment-info h3 {
+        margin-bottom: 1.5rem;
+        color: var(--dark);
+        text-align: center;
+    }
+    
+    .payment-details {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .detail-row {
+        display: flex;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.5rem;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .detail-label {
+        font-weight: 500;
+        width: 40%;
+        color: #555;
+    }
+    
+    .detail-value {
+        width: 60%;
+    }
+    
+    .payment-instruction {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .payment-instruction p {
+        margin-bottom: 0.5rem;
+        color: #666;
+    }
+    
+    .payment-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .payment-actions .btn {
+        min-width: 150px;
+    }
+    
+    #proceed-button {
+        background-color: var(--primary);
+        color: var(--dark);
+        font-weight: 500;
+    }
+    
+    /* Animation for the proceed button */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    #proceed-button {
+        animation: pulse 2s infinite;
+    }
+    
+    #proceed-button:hover {
+        animation: none;
+        transform: scale(1.05);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-redirect to payment URL after a short delay
+        const paymentUrl = "{{ payment_url }}";
+        const proceedButton = document.getElementById('proceed-button');
+        
+        proceedButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = paymentUrl;
+        });
+        
+        // Optional: Auto-redirect after 3 seconds
+        setTimeout(function() {
+            window.location.href = paymentUrl;
+        }, 3000);
+    });
+</script>
+{% endblock %}

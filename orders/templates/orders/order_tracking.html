@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Order Tracking #{{ order.id }}</h2>
+        <span class="badge badge-{{ order.status }}">{{ order.status|title }}</span>
+    </div>
+    
+    <div class="order-details" style="margin-bottom: 1.5rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Order Information</h3>
+                <p><strong>Client:</strong> {{ order.client_name }}</p>
+                <p><strong>Email:</strong> {{ order.client_email }}</p>
+                <p><strong>Phone:</strong> {{ order.client_phone }}</p>
+                <p><strong>Ordered:</strong> {{ order.ordered_at|date:"F j, Y, g:i a" }}</p>
+                <p><strong>Order Value:</strong> ${{ order.order_value }}</p>
+                <p><strong>Delivery Cost:</strong> ${{ order.delivery_cost }}</p>
+            </div>
+            <div>
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Delivery Information</h3>
+                <p><strong>From:</strong> {{ order.pickup_address }}</p>
+                <p><strong>To:</strong> {{ order.delivery_address }}</p>
+                {% if tracking_info.first %}
+                <p><strong>Assigned To:</strong> {{ tracking_info.first.assigned_to.user.get_full_name }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div id="map" style="height: 400px; width: 100%; margin-bottom: 1.5rem; border-radius: 8px;"></div>
+    
+    <div class="tracking-timeline" style="margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Tracking Timeline</h3>
+        {% if tracking_info %}
+            <div class="timeline" style="position: relative; padding-left: 30px;">
+                <div class="timeline-line" style="position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background-color: var(--gray);"></div>
+                {% for tracking in tracking_info %}
+                    <div class="timeline-item" style="position: relative; margin-bottom: 1.5rem;">
+                        <div class="timeline-point" style="position: absolute; left: -30px; width: 20px; height: 20px; border-radius: 50%; background-color: var(--secondary); display: flex; justify-content: center; align-items: center;">
+                            <i class="fas fa-check" style="color: white; font-size: 0.7rem;"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <p style="margin-bottom: 0.2rem; font-weight: 600;">{{ tracking.status_update }}</p>
+                            <p style="font-size: 0.9rem; color: #777;">{{ tracking.timestamp|date:"F j, Y, g:i a" }}</p>
+                            <p>{{ tracking.notes }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No tracking updates available yet.</p>
+        {% endif %}
+    </div>
+    
+    {% if user.is_authenticated and user.role == 'DELIVERY_PERSONNEL' and order.ordertracking.assigned_to.user == user %}
+    <div class="update-section card" style="margin-top: 1.5rem; padding: 1rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Update Order Status</h3>
+        <form method="post" action="{% url 'order_update' order.id %}">
+            {% csrf_token %}
+            <div style="margin-bottom: 1rem;">
+                <label for="status" style="display: block; margin-bottom: 0.5rem;">New Status:</label>
+                <select name="status" id="status" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd;">
+                    <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="transit" {% if order.status == 'transit' %}selected{% endif %}>In Transit</option>
+                    <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                    <option value="canceled" {% if order.status == 'canceled' %}selected{% endif %}>Canceled</option>
+                </select>
+            </div>
+            <button type="submit" class="btn">Update Status</button>
+        </form>
+    </div>
+    
+    <div class="delivery-log-section card" style="margin-top: 1.5rem; padding: 1rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Add Delivery Log</h3>
+        <form method="post" action="{% url 'add_delivery_log' order.id %}">
+            {% csrf_token %}
+            <div style="margin-bottom: 1rem;">
+                <label for="distance_traveled" style="display: block; margin-bottom: 0.5rem;">Distance Traveled (km):</label>
+                <input type="number" name="distance_traveled" id="distance_traveled" step="0.1" min="0" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd;">
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label for="feedback" style="display: block; margin-bottom: 0.5rem;">Feedback/Notes:</label>
+                <textarea name="feedback" id="feedback" rows="3" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd;"></textarea>
+            </div>
+            <button type="submit" class="btn">Add Log</button>
+        </form>
+    </div>
+    {% endif %}
+    
+    {% if user.is_authenticated and user.role == 'ADMIN' %}
+    <div class="admin-actions" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <a href="{% url 'edit_order' order.id %}" class="btn">Edit Order</a>
+        <a href="{% url 'print_label' order.id %}" class="btn btn-secondary" target="_blank">Print Label</a>
+        <a href="{% url 'delete_order' order.id %}" class="btn" style="background-color: #e74c3c;">Delete Order</a>
+        {% if not order.ordertracking_set.exists %}
+        <a href="{% url 'assign_delivery' order.id %}" class="btn" style="background-color: #3498db;">Assign Delivery Personnel</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if user.is_authenticated and user.role == 'COMPANY' and order.company == user.company_profile %}
+    <div class="company-actions" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <a href="{% url 'edit_order' order.id %}" class="btn">Edit Order</a>
+        <a href="{% url 'print_label' order.id %}" class="btn btn-secondary" target="_blank">Print Label</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+  let map;
+  let directionsService;
+  let directionsRenderer;
+  let marker;
+  let deliveryCoords = {lat: {{ order.delivery_address_lat|default:'0' }}, lng: {{ order.delivery_address_lng|default:'0' }}};
+  let pickupCoords = {lat: {{ order.pickup_address_lat|default:'0' }}, lng: {{ order.pickup_address_lng|default:'0' }}};
+  
+  function initMap() {
+    // Initialize map
+    map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 12,
+      center: deliveryCoords
+    });
+    
+    // Initialize directions service
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({
+      suppressMarkers: true,
+      polylineOptions: {
+        strokeColor: '#ffbe00',
+        strokeWeight: 5
+      }
+    });
+    directionsRenderer.setMap(map);
+    
+    // Add markers for pickup and delivery
+    if (pickupCoords.lat !== 0 && pickupCoords.lng !== 0) {
+      new google.maps.Marker({
+        position: pickupCoords,
+        map: map,
+        icon: {
+          url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+          scaledSize: new google.maps.Size(40, 40)
+        },
+        title: 'Pickup Location'
+      });
+    }
+    
+    if (deliveryCoords.lat !== 0 && deliveryCoords.lng !== 0) {
+      new google.maps.Marker({
+        position: deliveryCoords,
+        map: map,
+        icon: {
+          url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+          scaledSize: new google.maps.Size(40, 40)
+        },
+        title: 'Delivery Location'
+      });
+    }
+    
+    // Show route if both coordinates are available
+    if (pickupCoords.lat !== 0 && pickupCoords.lng !== 0 && 
+        deliveryCoords.lat !== 0 && deliveryCoords.lng !== 0) {
+      calculateAndDisplayRoute();
+    }
+    
+    // If order is in transit, simulate current location
+    {% if order.status == 'transit' %}
+    simulateCurrentLocation();
+    {% endif %}
+  }
+  
+  function calculateAndDisplayRoute() {
+    directionsService.route(
+      {
+        origin: pickupCoords,
+        destination: deliveryCoords,
+        travelMode: google.maps.TravelMode.DRIVING
+      },
+      (response, status) => {
+        if (status === "OK") {
+          directionsRenderer.setDirections(response);
+        } else {
+          console.error("Directions request failed due to " + status);
+        }
+      }
+    );
+  }
+  
+  function simulateCurrentLocation() {
+    // For demonstration - this simulates a vehicle in transit
+    // In a real app, you would fetch the actual GPS coordinates from your backend
+    const path = [
+      pickupCoords,
+      {
+        lat: (pickupCoords.lat + deliveryCoords.lat) * 0.25 + (Math.random() * 0.01),
+        lng: (pickupCoords.lng + deliveryCoords.lng) * 0.25 + (Math.random() * 0.01)
+      },
+      {
+        lat: (pickupCoords.lat + deliveryCoords.lat) * 0.5 + (Math.random() * 0.01),
+        lng: (pickupCoords.lng + deliveryCoords.lng) * 0.5 + (Math.random() * 0.01)
+      },
+      {
+        lat: (pickupCoords.lat + deliveryCoords.lat) * 0.75 + (Math.random() * 0.01),
+        lng: (pickupCoords.lng + deliveryCoords.lng) * 0.75 + (Math.random() * 0.01)
+      },
+      deliveryCoords
+    ];
+    
+    // The current position in the path (would be determined by real-time tracking)
+    const currentPosition = Math.floor(Math.random() * 4) + 1;
+    
+    // Add a vehicle marker
+    const vehicleMarker = new google.maps.Marker({
+      position: path[currentPosition],
+      map: map,
+      icon: {
+        url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+        scaledSize: new google.maps.Size(40, 40)
+      },
+      title: 'Delivery Vehicle'
+    });
+    
+    // Animation for demonstration purposes
+    let i = currentPosition;
+    function animateMarker() {
+      if (i < path.length - 1) {
+        i++;
+        setTimeout(() => {
+          vehicleMarker.setPosition(path[i]);
+          animateMarker();
+        }, 5000);
+      }
+    }
+    
+    // Only animate if in development/demo
+    {% if debug %}
+    animateMarker();
+    {% endif %}
+  }
+  
+  // Poll for updates every 30 seconds (in a real app)
+  function pollForUpdates() {
+    // This would fetch the latest tracking info from your server
+    // and update the page without a full refresh
+    console.log("Polling for updates...");
+  }
+  
+  // Uncomment to enable polling in production
+  // setInterval(pollForUpdates, 30000);
+</script>
+
+{% if order.delivery_address_lat and order.delivery_address_lng %}
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
+{% else %}
+<script>
+  document.getElementById('map').innerHTML = '<div style="height: 100%; display: flex; justify-content: center; align-items: center; background-color: #f5f5f5; border-radius: 8px;"><p>No location data available for mapping</p></div>';
+</script>
+{% endif %}
+{% endblock %}

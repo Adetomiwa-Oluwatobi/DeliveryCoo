@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 1000px; margin: 0 auto;">
+    <div class="card-header">
+        <h2 class="card-title">Register Your Company</h2>
+    </div>
+    <div style="padding: 0;">
+        <div style="display: flex; flex-wrap: wrap;">
+            <!-- Left sidebar with info -->
+            <div style="flex: 1; min-width: 300px; background-color: var(--secondary); color: var(--white); padding: 2rem; display: flex; flex-direction: column;">
+                <h3 style="font-weight: 600; margin-bottom: 1.5rem;">Join Our Business Network</h3>
+                
+                <div style="margin: 1rem 0;">
+                    <h5 style="font-weight: 600;"><i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i>Simple Process</h5>
+                    <p style="opacity: 0.9;">Register your company in minutes with our streamlined form.</p>
+                </div>
+                
+                <div style="margin: 1rem 0;">
+                    <h5 style="font-weight: 600;"><i class="fas fa-shield-alt" style="margin-right: 0.5rem;"></i>Secure Platform</h5>
+                    <p style="opacity: 0.9;">Your data is encrypted and protected with industry-standard security.</p>
+                </div>
+                
+                <div style="margin: 1rem 0;">
+                    <h5 style="font-weight: 600;"><i class="fas fa-chart-line" style="margin-right: 0.5rem;"></i>Grow Your Business</h5>
+                    <p style="opacity: 0.9;">Access tools and resources to expand your company's reach.</p>
+                </div>
+                
+                <div style="margin-top: auto; text-align: center;">
+                    <p>Already have an account?</p>
+                    <a href="{% url 'login' %}" class="btn" style="background-color: transparent; border: 1px solid var(--white); color: var(--white);">Sign In</a>
+                </div>
+            </div>
+            
+            <!-- Registration form -->
+            <div style="flex: 2; min-width: 350px; padding: 2rem;">
+                <h3 style="font-weight: 600; margin-bottom: 1.5rem; text-align: center;">Create Your Company Account</h3>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div style="background-color: {% if message.tags == 'error' %}#f8d7da{% elif message.tags == 'success' %}#d4edda{% else %}#cce5ff{% endif %}; 
+                                    color: {% if message.tags == 'error' %}#721c24{% elif message.tags == 'success' %}#155724{% else %}#004085{% endif %}; 
+                                    padding: 0.75rem 1.25rem; 
+                                    margin-bottom: 1rem; 
+                                    border-radius: 4px; 
+                                    position: relative;">
+                            {{ message }}
+                            <button type="button" style="position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; font-size: 1.25rem; cursor: pointer;" onclick="this.parentElement.style.display='none';">&times;</button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Progress steps -->
+                    <div style="margin-bottom: 2rem;">
+                        <div style="display: flex; border-bottom: 1px solid var(--gray); margin-bottom: 1.5rem;">
+                            <button type="button" id="account-tab" class="tab-button active" 
+                                    style="flex: 1; padding: 0.75rem; border: none; background: none; cursor: pointer; font-weight: 500; position: relative;" 
+                                    onclick="showTab('account-info')">
+                                <i class="fas fa-user-circle" style="margin-right: 0.5rem;"></i> Account
+                                <span class="tab-indicator" style="position: absolute; bottom: -1px; left: 0; right: 0; height: 3px; background-color: var(--primary);"></span>
+                            </button>
+                            <button type="button" id="company-tab" class="tab-button" 
+                                    style="flex: 1; padding: 0.75rem; border: none; background: none; cursor: pointer; font-weight: 500; position: relative;" 
+                                    onclick="showTab('company-info')">
+                                <i class="fas fa-building" style="margin-right: 0.5rem;"></i> Company
+                                <span class="tab-indicator" style="position: absolute; bottom: -1px; left: 0; right: 0; height: 3px; background-color: var(--primary); display: none;"></span>
+                            </button>
+                        </div>
+                        
+                        <div id="tab-content">
+                            <!-- Account Information Tab -->
+                            <div id="account-info" class="tab-pane active">
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                                    <div>
+                                        <label for="{{ form.first_name.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">First Name</label>
+                                        <input type="text" id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.name }}" 
+                                               style="width: 100%; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 4px; font-size: 1rem;"
+                                               {% if form.first_name.value %}value="{{ form.first_name.value }}"{% endif %}>
+                                        {% if form.first_name.errors %}
+                                            <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">{{ form.first_name.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="{{ form.last_name.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Last Name</label>
+                                        <input type="text" id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.name }}" 
+                                               style="width: 100%; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 4px; font-size: 1rem;"
+                                               {% if form.last_name.value %}value="{{ form.last_name.value }}"{% endif %}>
+                                        {% if form.last_name.errors %}
+                                            <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">{{ form.last_name.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div style="grid-column: span 2;">
+                                        <label for="{{ form.email.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Email Address</label>
+                                        <div style="display: flex; align-items: center;">
+                                            <span style="display: flex; align-items: center; justify-content: center; background-color: #e9ecef; padding: 0.75rem; border: 1px solid #e9ecef; border-right: none; border-radius: 4px 0 0 4px;">
+                                                <i class="fas fa-envelope"></i>
+                                            </span>
+                                            <input type="email" id="{{ form.email.id_for_label }}" name="{{ form.email.name }}" 
+                                                   style="flex: 1; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 0 4px 4px 0; font-size: 1rem;"
+                                                   {% if form.email.value %}value="{{ form.email.value }}"{% endif %}>
+                                        </div>
+                                        {% if form.email.errors %}
+                                            <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">{{ form.email.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div style="grid-column: span 2;">
+                                        <label for="{{ form.username.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Username</label>
+                                        <div style="display: flex; align-items: center;">
+                                            <span style="display: flex; align-items: center; justify-content: center; background-color: #e9ecef; padding: 0.75rem; border: 1px solid #e9ecef; border-right: none; border-radius: 4px 0 0 4px;">
+                                                <i class="fas fa-user"></i>
+                                            </span>
+                                            <input type="text" id="{{ form.username.id_for_label }}" name="{{ form.username.name }}" 
+                                                   style="flex: 1; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 0 4px 4px 0; font-size: 1rem;"
+                                                   {% if form.username.value %}value="{{ form.username.value }}"{% endif %}>
+                                        </div>
+                                        {% if form.username.errors %}
+                                            <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">{{ form.username.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="{{ form.password1.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Password</label>
+                                        <input type="password" id="{{ form.password1.id_for_label }}" name="{{ form.password1.name }}" 
+                                               style="width: 100%; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 4px; font-size: 1rem;">
+                                        {% if form.password1.errors %}
+                                            <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">{{ form.password1.errors }}</div>
+                                        {% endif %}
+                                        <div style="font-size: 0.875rem; color: #6c757d; margin-top: 0.5rem;">
+                                            Use at least 8 characters with letters, numbers and symbols
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="{{ form.password2.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Confirm Password</label>
+                                        <input type="password" id="{{ form.password2.id_for_label }}" name="{{ form.password2.name }}" 
+                                               style="width: 100%; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 4px; font-size: 1rem;">
+                                        {% if form.password2.errors %}
+                                            <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">{{ form.password2.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div style="grid-column: span 2; display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+                                        <button type="button" class="btn" onclick="showTab('company-info')">
+                                            Continue to Company Details <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Company Information Tab -->
+                            <div id="company-info" class="tab-pane" style="display: none;">
+                                <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                                    <div>
+                                        <label for="{{ form.name.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Company Name</label>
+                                        <div style="display: flex; align-items: center;">
+                                            <span style="display: flex; align-items: center; justify-content: center; background-color: #e9ecef; padding: 0.75rem; border: 1px solid #e9ecef; border-right: none; border-radius: 4px 0 0 4px;">
+                                                <i class="fas fa-building"></i>
+                                            </span>
+                                            <input type="text" id="{{ form.name.id_for_label }}" name="{{ form.name.name }}" 
+                                                   style="flex: 1; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 0 4px 4px 0; font-size: 1rem;"
+                                                   {% if form.name.value %}value="{{ form.name.value }}"{% endif %}>
+                                        </div>
+                                        {% if form.name.errors %}
+                                            <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">{{ form.name.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="{{ form.address.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Company Address</label>
+                                        <div style="display: flex; align-items: center;">
+                                            <span style="display: flex; align-items: center; justify-content: center; background-color: #e9ecef; padding: 0.75rem; border: 1px solid #e9ecef; border-right: none; border-radius: 4px 0 0 4px;">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                            </span>
+                                            <input type="text" id="{{ form.address.id_for_label }}" name="{{ form.address.name }}" 
+                                                   style="flex: 1; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 0 4px 4px 0; font-size: 1rem;"
+                                                   {% if form.address.value %}value="{{ form.address.value }}"{% endif %}>
+                                        </div>
+                                        {% if form.address.errors %}
+                                            <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">{{ form.address.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="{{ form.logo.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Company Logo</label>
+                                        <div style="display: flex; align-items: center;">
+                                            <span style="display: flex; align-items: center; justify-content: center; background-color: #e9ecef; padding: 0.75rem; border: 1px solid #e9ecef; border-right: none; border-radius: 4px 0 0 4px;">
+                                                <i class="fas fa-image"></i>
+                                            </span>
+                                            <input type="file" id="{{ form.logo.id_for_label }}" name="{{ form.logo.name }}" 
+                                                   style="flex: 1; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 0 4px 4px 0; font-size: 1rem;">
+                                        </div>
+                                        {% if form.logo.errors %}
+                                            <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">{{ form.logo.errors }}</div>
+                                        {% endif %}
+                                        <div style="font-size: 0.875rem; color: #6c757d; margin-top: 0.5rem;">
+                                            Recommended size: 300x300 pixels. Max file size: 2MB
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-top: 1rem;">
+                                        <div style="display: flex; align-items: flex-start;">
+                                            <input type="checkbox" id="terms-check" required 
+                                                   style="margin-top: 0.25rem; margin-right: 0.5rem;">
+                                            <label for="terms-check">
+                                                I agree to the <a href="#" style="color: var(--primary);">Terms of Service</a> and <a href="#" style="color: var(--primary);">Privacy Policy</a>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+                                        <button type="button" class="btn" style="background-color: var(--gray); color: var(--dark);" onclick="showTab('account-info')">
+                                            <i class="fas fa-arrow-left" style="margin-right: 0.5rem;"></i> Back to Account
+                                        </button>
+                                        
+                                        <button type="submit" class="btn btn-secondary">
+                                            <i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i> Complete Registration
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                        <div style="background-color: #f8d7da; color: #721c24; padding: 0.75rem 1.25rem; margin-top: 1rem; border-radius: 4px;">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="max-width: 1000px; margin: 1.5rem auto 0; text-align: center; color: #6c757d; font-size: 0.875rem;">
+    <p>
+        By registering, you acknowledge that you have read and understood our 
+        <a href="#" style="color: var(--primary);">Terms of Service</a> and <a href="#" style="color: var(--primary);">Privacy Policy</a>.
+    </p>
+</div>
+
+<script>
+function showTab(tabId) {
+    // Hide all tab panes
+    document.querySelectorAll('.tab-pane').forEach(function(pane) {
+        pane.style.display = 'none';
+    });
+    
+    // Show the selected tab pane
+    document.getElementById(tabId).style.display = 'block';
+    
+    // Update tab buttons
+    document.querySelectorAll('.tab-button').forEach(function(button) {
+        button.classList.remove('active');
+        button.querySelector('.tab-indicator').style.display = 'none';
+    });
+    
+    // Highlight the active tab
+    if (tabId === 'account-info') {
+        document.getElementById('account-tab').classList.add('active');
+        document.getElementById('account-tab').querySelector('.tab-indicator').style.display = 'block';
+    } else {
+        document.getElementById('company-tab').classList.add('active');
+        document.getElementById('company-tab').querySelector('.tab-indicator').style.display = 'block';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Password strength indicator
+    const password1 = document.getElementById('{{ form.password1.id_for_label }}');
+    if (password1) {
+        password1.addEventListener('input', function() {
+            // Simple password strength indicator logic
+            const value = this.value;
+            let strength = 0;
+            
+            if (value.length >= 8) strength += 1;
+            if (value.match(/[A-Z]/)) strength += 1;
+            if (value.match(/[0-9]/)) strength += 1;
+            if (value.match(/[^A-Za-z0-9]/)) strength += 1;
+            
+            // Update UI based on strength
+            console.log('Password strength:', strength);
+        });
+    }
+});
+</script>
+{% endblock %}

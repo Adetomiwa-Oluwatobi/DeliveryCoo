@@ -1,0 +1,489 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Order Details #{{ order.id }}</h1>
+    <div class="actions">
+        <a href="{% url 'edit_order' order.id %}" class="btn btn-secondary">
+            <i class="fas fa-edit"></i> Edit Order
+        </a>
+        <a href="{% url 'print_label' order.id %}" class="btn">
+            <i class="fas fa-print"></i> Print Label
+        </a>
+    </div>
+</div>
+
+<div class="card order-detail-card">
+    <div class="card-header">
+        <h2 class="card-title">Order Information</h2>
+        <div>
+            {% if order.status == "delivered" %}
+                <span class="badge badge-delivered">Delivered</span>
+            {% elif order.status == "transit" %}
+                <span class="badge badge-transit">In Transit</span>
+            {% elif order.status == "processing" %}
+                <span class="badge badge-processing">Processing</span>
+            {% else %}
+                <span class="badge badge-pending">Pending</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="order-info">
+        <div class="info-group">
+            <div class="info-item">
+                <span class="info-label">Client:</span>
+                <span class="info-value">{{ order.client_name }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Contact:</span>
+                <span class="info-value">{{ order.client_email }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Phone:</span>
+                <span class="info-value">{{ order.client_phone|default:"Not provided" }}</span>
+            </div>
+        </div>
+        
+        <div class="info-group">
+            <div class="info-item">
+                <span class="info-label">Destination:</span>
+                <span class="info-value">{{ order.delivery_address }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Created Date:</span>
+                <span class="info-value">{{ order.ordered_at|date:"F j, Y" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Ready For delivery at:</span>
+                <span class="info-value">{{ order.delivery_time|date:"F j, Y" }}</span>
+                <span class="info-value">{{ order.delivery_time|time:"MM:SS" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Delivery Cost:</span>
+                <span class="info-value">${{ order.delivery_cost|default:"0.00" }}</span>
+            </div>
+        </div>
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3 class="card-title">Payment Information</h3>
+            </div>
+            <div class="card-body">
+                <div class="payment-info">
+                    <div class="info-row">
+                        <div class="info-label">Payment Status:</div>
+                        <div class="info-value">
+                            {% if order.payment_status == 'paid' %}
+                                <span class="badge badge-success">Paid</span>
+                                {% if order.payment_date %}
+                                    <span class="payment-date">({{ order.payment_date|date:"F j, Y, g:i a" }})</span>
+                                {% endif %}
+                            {% elif order.payment_status == 'pending' %}
+                                <span class="badge badge-warning">Pending</span>
+                            {% elif order.payment_status == 'failed' %}
+                                <span class="badge badge-danger">Failed</span>
+                            {% else %}
+                                <span class="badge badge-secondary">{{ order.payment_status|title }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if order.payment_reference %}
+                    <div class="info-row">
+                        <div class="info-label">Payment Reference:</div>
+                        <div class="info-value">{{ order.payment_reference }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="info-row">
+                        <div class="info-label">Delivery Cost:</div>
+                        <div class="info-value">₦{{ order.delivery_cost }}</div>
+                    </div>
+                </div>
+                
+                <div class="payment-actions mt-3">
+                    {% if order.payment_status == 'pending' or order.payment_status == 'failed' %}
+                        <a href="{% url 'initiate_payment' order_id=order.id %}" class="btn btn-primary">
+                            {% if order.payment_status == 'pending' %}Make Payment{% else %}Retry Payment{% endif %}
+                        </a>
+                        
+                        {% if order.payment_reference %}
+                        <a href="{% url 'verify_payment' order_id=order.id %}" class="btn btn-secondary ml-2">
+                            Verify Payment Status
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        {% if order.notes %}
+        <div class="info-item full-width">
+            <span class="info-label">Notes:</span>
+            <span class="info-value">{{ order.notes }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if tracking_info %}
+<div class="card tracking-card">
+    <div class="card-header">
+        <h2 class="card-title">Tracking History</h2>
+    </div>
+    
+    <div class="tracking-timeline">
+        {% for track in tracking_info %}
+        <div class="timeline-item">
+            <div class="timeline-marker {% if forloop.first %}active{% endif %}"></div>
+            <div class="timeline-content">
+                <h3 class="timeline-title">{{ track.status }}</h3>
+                <div class="timeline-info">
+                    <span class="timeline-date">{{ track.timestamp|date:"F j, Y" }}</span>
+                    <span class="timeline-time">{{ track.timestamp|time:"g:i A" }}</span>
+                </div>
+                {% if track.location %}
+                <div class="timeline-location">
+                    <i class="fas fa-map-marker-alt"></i> {{ track.location }}
+                </div>
+                {% endif %}
+                {% if track.notes %}
+                <p class="timeline-notes">{{ track.notes }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="card actions-card">
+    <div class="card-header">
+        <h2 class="card-title">Order Actions</h2>
+    </div>
+    
+    <div class="order-actions">
+        <div class="action-group">
+            <a href="{% url 'assign_delivery' order.id %}" class="action-btn">
+                <i class="fas fa-user-plus"></i>
+                <span>Assign Delivery</span>
+            </a>
+            <a href="{% url 'order_tracking' order.id %}" class="action-btn">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>Track Order</span>
+            </a>
+            <a href="#" class="action-btn" id="updateStatusBtn">
+                <i class="fas fa-sync-alt"></i>
+                <span>Update Status</span>
+            </a>
+            <a href="#" class="action-btn danger" id="deleteOrderBtn">
+                <i class="fas fa-trash"></i>
+                <span>Delete Order</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Status Update Modal -->
+<div class="modal" id="statusModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Update Order Status</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <form action="{% url 'order_update' order.id %}" method="POST" class="modal-body">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="status">New Status:</label>
+                <select name="status" id="status" class="form-control">
+                    <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+                    <option value="transit" {% if order.status == 'transit' %}selected{% endif %}>In Transit</option>
+                    <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="cancelStatus">Cancel</button>
+                <button type="submit" class="btn btn-secondary">Update Status</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirm Deletion</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <form action="{% url 'delete_order' order.id %}" method="POST" class="modal-body">
+            {% csrf_token %}
+            <p>Are you sure you want to delete Order #{{ order.id }}? This action cannot be undone.</p>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="cancelDelete">Cancel</button>
+                <button type="submit" class="btn btn-danger">Delete Order</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .order-detail-card, .tracking-card, .actions-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .order-info {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 1rem;
+    }
+    
+    .info-group {
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    .info-item {
+        margin-bottom: 1rem;
+    }
+    
+    .full-width {
+        width: 100%;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #666;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+    }
+    
+    /* Timeline styles */
+    .tracking-timeline {
+        position: relative;
+        padding: 1.5rem;
+    }
+    
+    .tracking-timeline:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 24px;
+        width: 2px;
+        background-color: var(--gray);
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-left: 50px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .timeline-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .timeline-marker {
+        position: absolute;
+        left: 15px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background-color: var(--gray);
+        border: 3px solid var(--white);
+    }
+    
+    .timeline-marker.active {
+        background-color: var(--secondary);
+    }
+    
+    .timeline-content {
+        background-color: var(--white);
+        border-radius: 6px;
+        padding: 1rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    
+    .timeline-title {
+        margin: 0 0 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .timeline-info {
+        display: flex;
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .timeline-time {
+        margin-left: 1rem;
+    }
+    
+    .timeline-location {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .timeline-notes {
+        margin: 0.5rem 0 0;
+        font-size: 0.95rem;
+    }
+    
+    /* Action buttons */
+    .order-actions {
+        padding: 1rem;
+    }
+    
+    .action-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        text-decoration: none;
+        color: var(--dark);
+        flex: 1;
+        min-width: 120px;
+        transition: all 0.2s;
+    }
+    
+    .action-btn i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--secondary);
+    }
+    
+    .action-btn:hover {
+        background-color: var(--gray);
+        transform: translateY(-3px);
+    }
+    
+    .action-btn.danger i {
+        color: #e74c3c;
+    }
+    .payment-info {
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-row {
+        display: flex;
+        margin-bottom: 0.75rem;
+    }
+    
+    .info-label {
+        font-weight: 500;
+        width: 40%;
+        max-width: 200px;
+    }
+    
+    .info-value {
+        flex: 1;
+    }
+    
+    .payment-date {
+        font-size: 0.85rem;
+        color: #666;
+        margin-left: 0.5rem;
+    }
+    
+    .payment-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .tracking-timeline:before {
+            left: 20px;
+        }
+        
+        .timeline-item {
+            padding-left: 40px;
+        }
+        
+        .timeline-marker {
+            left: 11px;
+        }
+    }
+</style>
+
+<script>
+    // Status Update Modal
+    const updateStatusBtn = document.getElementById('updateStatusBtn');
+    const statusModal = document.getElementById('statusModal');
+    const cancelStatus = document.getElementById('cancelStatus');
+    const closeStatusModal = statusModal.querySelector('.close-modal');
+    
+    updateStatusBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        statusModal.style.display = 'flex';
+    });
+    
+    if (cancelStatus) {
+        cancelStatus.addEventListener('click', () => {
+            statusModal.style.display = 'none';
+        });
+    }
+    
+    if (closeStatusModal) {
+        closeStatusModal.addEventListener('click', () => {
+            statusModal.style.display = 'none';
+        });
+    }
+    
+    // Delete Order Modal
+    const deleteOrderBtn = document.getElementById('deleteOrderBtn');
+    const deleteModal = document.getElementById('deleteModal');
+    const cancelDelete = document.getElementById('cancelDelete');
+    const closeDeleteModal = deleteModal.querySelector('.close-modal');
+    
+    deleteOrderBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        deleteModal.style.display = 'flex';
+    });
+    
+    if (cancelDelete) {
+        cancelDelete.addEventListener('click', () => {
+            deleteModal.style.display = 'none';
+        });
+    }
+    
+    if (closeDeleteModal) {
+        closeDeleteModal.addEventListener('click', () => {
+            deleteModal.style.display = 'none';
+        });
+    }
+    
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === statusModal) {
+            statusModal.style.display = 'none';
+        }
+        if (e.target === deleteModal) {
+            deleteModal.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

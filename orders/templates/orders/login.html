@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 0 auto;">
+    <div class="card-header">
+        <h2 class="card-title">Login to Your Account</h2>
+    </div>
+    <div style="padding: 1.5rem;">
+        {% if messages %}
+            {% for message in messages %}
+                <div style="background-color: {% if message.tags == 'error' %}#f8d7da{% elif message.tags == 'success' %}#d4edda{% else %}#cce5ff{% endif %}; 
+                            color: {% if message.tags == 'error' %}#721c24{% elif message.tags == 'success' %}#155724{% else %}#004085{% endif %}; 
+                            padding: 0.75rem 1.25rem; 
+                            margin-bottom: 1rem; 
+                            border-radius: 4px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label for="{{ form.username.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Email:</label>
+                <input type="{{ form.username.field.widget.input_type }}" 
+                       name="{{ form.username.name }}" 
+                       id="{{ form.username.id_for_label }}" 
+                       style="width: 100%; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 4px; font-size: 1rem;"
+                       {% if form.username.value %}value="{{ form.username.value }}"{% endif %}>
+                {% if form.username.errors %}
+                    <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">
+                        {{ form.username.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label for="{{ form.password.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Password:</label>
+                <input type="password"
+                       name="{{ form.password.name }}" 
+                       id="{{ form.password.id_for_label }}" 
+                       style="width: 100%; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 4px; font-size: 1rem;">
+                {% if form.password.errors %}
+                    <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">
+                        {{ form.password.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if form.non_field_errors %}
+                <div style="background-color: #f8d7da; color: #721c24; padding: 0.75rem 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            <button type="submit" class="btn" style="width: 100%; margin-bottom: 1rem;">Login</button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--gray);">
+            <p style="margin-bottom: 1rem;">Don't have an account?</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="{% url 'register_company' %}" class="btn btn-secondary">Register as Company</a>
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

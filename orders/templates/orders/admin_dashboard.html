@@ -1,0 +1,893 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Header with greeting and date -->
+    <div class="dashboard-header">
+        <div>
+            <h1>Admin Dashboard</h1>
+            <p class="text-muted">Welcome back, Admin. Here's what's happening today.</p>
+        </div>
+        <div class="dashboard-actions">
+            <button class="btn">
+                <i class="fas fa-download"></i> Export Report
+            </button>
+            <button class="btn btn-secondary">
+                <i class="fas fa-plus"></i> New Action
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Overview Cards -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary-light">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="stat-details">
+                <h3>{{ companies.count }}</h3>
+                <p>Companies</p>
+                <div class="stat-progress">
+                    <div class="progress-bar" style="width: 75%"></div>
+                </div>
+                <small>+12% from last month</small>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon bg-success-light">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-details">
+                <h3>{{ total_orders }}</h3>
+                <p>Orders</p>
+                <div class="stat-progress">
+                    <div class="progress-bar" style="width: 68%"></div>
+                </div>
+                <small>+5% from last month</small>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon bg-warning-light">
+                <i class="fas fa-truck"></i>
+            </div>
+            <div class="stat-details">
+                <h3>{{ total_delivery_personnel }}</h3>
+                <p>Delivery Personnel</p>
+                <div class="stat-progress">
+                    <div class="progress-bar" style="width: 45%"></div>
+                </div>
+                <small>+2% from last month</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Dashboard Content -->
+    <div class="dashboard-content">
+        <!-- Main Content Section -->
+        <div class="main-content-area">
+            <!-- Companies Table Section -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title collapsible-header">
+                            <i class="fas fa-building"></i> Companies
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </h2>
+                        <p class="text-muted">Manage your registered companies</p>
+                    </div>
+                    <div class="card-actions">
+                        <div class="search-container">
+                            <input type="text" placeholder="Search companies..." class="search-input">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        <a href="{% url 'register_company' %}" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add New
+                        </a>
+                    </div>
+                </div>
+                <div class="collapsible-content">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Company Name</th>
+                                    <th>Address</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for company in companies %}
+                                <tr>
+                                    <td>{{ company.id }}</td>
+                                    <td>
+                                        <div class="company-info">
+                                            <div class="company-avatar">
+                                                {% if company.logo %}
+                                                    <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" class="company-logo">
+                                                {% else %}
+                                                    {{ company.name|slice:":1" }}
+                                                {% endif %}
+                                            </div>
+                                            
+                                    </td>
+                                    <td>{{ company.address }}</td>
+                                    <td><span class="badge badge-delivered">Active</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-ellipsis-v"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">
+                                        <div class="empty-state">
+                                            <i class="fas fa-building"></i>
+                                            <p>No companies found</p>
+                                            <a href="{% url 'register_company' %}" class="btn btn-secondary">Add Company</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <div class="pagination-info">
+                            Showing <strong>1-{{ companies.count }}</strong> of <strong>{{ companies.count }}</strong> companies
+                        </div>
+                        <div class="pagination-controls">
+                            <button class="btn-pagination" disabled><i class="fas fa-chevron-left"></i></button>
+                            <span class="pagination-page">Page 1</span>
+                            <button class="btn-pagination" disabled><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Delivery Personnel Table Section -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title collapsible-header">
+                            <i class="fas fa-truck"></i> Delivery Personnel
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </h2>
+                        <p class="text-muted">Manage your delivery team members</p>
+                    </div>
+                    <div class="card-actions">
+                        <div class="search-container">
+                            <input type="text" placeholder="Search personnel..." class="search-input">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        <a href="{% url 'register_delivery' %}" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add New
+                        </a>
+                    </div>
+                </div>
+                <div class="collapsible-content">
+                    <div class="table-responsive">
+                        <table class="table personnel-list">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Firstname</th>
+                                    <th>Lastname</th>
+                                    <th>Contact</th>
+                                    <th>Email</th>
+                                    <th>Vehicle</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if delivery_personnel %}
+                                    {% for person in delivery_personnel %}
+                                    <tr>
+                                        <td>{{ person.id }}</td>
+                                        <td>{{ person.user.first_name }}</td>
+                                        <td>{{ person.user.last_name }}</td>
+                                        <td>{{ person.phone_number }}</td>
+                                        <td>{{ person.user.email }}</td>
+                                        <td>
+                                            <div class="vehicle-info">
+                                                <span class="vehicle-type">
+                                                    <i class="fas fa-{% if person.vehicle_type == 'Van' %}truck-moving{% elif person.vehicle_type == 'Motorcycle' %}motorcycle{% else %}truck{% endif %}"></i>
+                                                    {{ person.vehicle_type }}
+                                                </span>
+                                                <small class="text-muted">Plate: {{ person.plate_number }}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge {% if person.available %}badge-delivered{% else %}badge-pending{% endif %}">
+                                                {% if person.available %}Available{% else %}Off Duty{% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-icon"><i class="fas fa-ellipsis-v"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" class="text-center">
+                                            <div class="empty-state">
+                                                <i class="fas fa-truck"></i>
+                                                <p>No delivery personnel found</p>
+                                                <a href="{% url 'register_delivery' %}" class="btn btn-secondary">Add Personnel</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <div class="pagination-info">
+                            Showing <strong>1-{{ delivery_personnel|length }}</strong> of <strong>{{ total_delivery_personnel }}</strong> personnel
+                        </div>
+                        <div class="pagination-controls">
+                            <button class="btn-pagination" disabled><i class="fas fa-chevron-left"></i></button>
+                            <span class="pagination-page">Page 1</span>
+                            <button class="btn-pagination" {% if delivery_personnel|length < total_delivery_personnel %}{% else %}disabled{% endif %}><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar Content Section -->
+        <div class="dashboard-sidebar">
+            <!-- Quick Actions Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h2>
+                </div>
+                <div class="quick-actions">
+                    <a href="{% url 'register_company' %}" class="quick-action-btn">
+                        <div class="quick-action-icon bg-primary-light">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="quick-action-text">
+                            <h4>Add Company</h4>
+                            <p>Register a new company</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'register_delivery' %}" class="quick-action-btn">
+                        <div class="quick-action-icon bg-success-light">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="quick-action-text">
+                            <h4>Add Delivery</h4>
+                            <p>Create a new delivery</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'new_order' %}" class="quick-action-btn">
+                        <div class="quick-action-icon bg-warning-light">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="quick-action-text">
+                            <h4>Create Order</h4>
+                            <p>Create a new order</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Recent Activity Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-history"></i> Recent Activity</h2>
+                </div>
+                <div class="activity-timeline">
+                    <div class="activity-item">
+                        <div class="activity-icon bg-success-light">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>New Order Created</h4>
+                            <p>Order #12378 has been created for Company A</p>
+                            <small>5 minutes ago</small>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon bg-primary-light">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Company Updated</h4>
+                            <p>Company B details have been updated</p>
+                            <small>2 hours ago</small>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon bg-warning-light">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Delivery Assigned</h4>
+                            <p>John Doe assigned to delivery #45632</p>
+                            <small>1 day ago</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Dashboard Container */
+    .dashboard-container {
+        padding: 1.5rem;
+        max-width: 100%;
+    }
+    
+    /* Dashboard Header */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--dark);
+    }
+    
+    .text-muted {
+        color: #6c757d;
+    }
+    
+    .dashboard-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    /* Stats Container */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-card {
+        background-color: var(--white);
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+    
+    .stat-icon i {
+        font-size: 1.5rem;
+        color: var(--white);
+    }
+    
+    .bg-primary-light {
+        background-color: var(--primary);
+    }
+    
+    .bg-success-light {
+        background-color: var(--secondary);
+    }
+    
+    .bg-warning-light {
+        background-color: #ff9800;
+    }
+    
+    .stat-details {
+        flex: 1;
+    }
+    
+    .stat-details h3 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        color: var(--dark);
+    }
+    
+    .stat-details p {
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+    
+    .stat-progress {
+        height: 5px;
+        background-color: #e9ecef;
+        border-radius: 3px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-progress .progress-bar {
+        height: 100%;
+        border-radius: 3px;
+        background-color: var(--primary);
+    }
+    
+    .stat-details small {
+        font-size: 0.75rem;
+        color: #28a745;
+    }
+    
+    /* Dashboard Content */
+    .dashboard-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    .main-content-area {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    /* Card Styles - Using base.html card styles */
+    .card-header {
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray);
+    }
+    
+    .card-header h2.card-title {
+        display: flex;
+        align-items: center;
+        font-size: 1.25rem;
+        margin-bottom: 0;
+    }
+    
+    .card-header h2.card-title i {
+        margin-right: 0.5rem;
+    }
+    
+    /* Table Styles */
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .table thead th {
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        color: var(--dark);
+        background-color: var(--gray);
+        text-align: left;
+    }
+    
+    .table tbody td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--gray);
+        vertical-align: middle;
+    }
+    
+    /* Company Info */
+    .company-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .company-avatar {
+        width: 36px;
+        height: 36px;
+        background-color: var(--primary);
+        color: var(--white);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 0.75rem;
+        font-size: 1.2rem;
+        overflow: hidden;
+    }
+    
+    .company-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        padding: 0;
+        background-color: var(--gray);
+        border: none;
+        color: var(--dark);
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    .btn-icon:hover {
+        background-color: var(--primary);
+        color: var(--white);
+    }
+    
+    /* Card Footer */
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background-color: var(--gray);
+    }
+    
+    .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-pagination {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        padding: 0;
+        background-color: var(--white);
+        border: 1px solid var(--gray);
+        color: var(--dark);
+        cursor: pointer;
+    }
+    
+    .btn-pagination:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .pagination-page {
+        padding: 0 0.5rem;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #6c757d;
+    }
+    
+    .empty-state p {
+        margin-bottom: 1rem;
+        color: #6c757d;
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+        padding: 1rem;
+    }
+    
+    .quick-action-btn {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--dark);
+        background-color: var(--gray);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .quick-action-btn:hover {
+        transform: translateX(5px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .quick-action-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+    
+    .quick-action-icon i {
+        color: var(--white);
+    }
+    
+    .quick-action-text h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 0.25rem;
+    }
+    
+    .quick-action-text p {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin: 0;
+    }
+    
+    /* Activity Timeline */
+    .activity-timeline {
+        padding: 1rem;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 1rem 0;
+        position: relative;
+    }
+    
+    .activity-item:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        left: 20px;
+        top: 52px;
+        bottom: 0;
+        width: 2px;
+        background-color: var(--gray);
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .activity-icon i {
+        color: var(--white);
+    }
+    
+    .activity-content {
+        flex: 1;
+    }
+    
+    .activity-content h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 0.25rem;
+    }
+    
+    .activity-content p {
+        font-size: 0.85rem;
+        color: var(--dark);
+        margin: 0 0 0.25rem;
+    }
+    
+    .activity-content small {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+    
+    /* Vehicle Info */
+    .vehicle-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .vehicle-type {
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+    }
+    
+    .vehicle-type i {
+        margin-right: 0.5rem;
+    }
+    
+    /* Search Container */
+    .search-container {
+        position: relative;
+        margin-right: 0.5rem;
+    }
+    
+    .search-input {
+        padding: 0.5rem 1rem 0.5rem 2.5rem;
+        border-radius: 20px;
+        border: 1px solid var(--gray);
+        width: 200px;
+        transition: width 0.3s ease;
+    }
+    
+    .search-input:focus {
+        width: 250px;
+        outline: none;
+        border-color: var(--primary);
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+    
+    /* Card Actions */
+    .card-actions {
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Collapsible Table Styles */
+    .collapsible-header {
+        cursor: pointer;
+    }
+    
+    .toggle-icon {
+        margin-left: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .collapsible-header.collapsed .toggle-icon {
+        transform: rotate(-90deg);
+    }
+    
+    .collapsible-content {
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+        max-height: 2000px;
+        opacity: 1;
+        overflow: hidden;
+    }
+    
+    .collapsible-content.collapsed {
+        max-height: 0;
+        opacity: 0;
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 1200px) {
+        .dashboard-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .dashboard-sidebar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .dashboard-actions {
+            margin-top: 1rem;
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .card-actions {
+            margin-top: 1rem;
+            width: 100%;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .search-container {
+            width: 100%;
+            margin-bottom: 0.5rem;
+            margin-right: 0;
+        }
+        
+        .search-input {
+            width: 100%;
+        }
+        
+        .card-actions .btn {
+            width: 100%;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+        
+        .card-footer {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .pagination-controls {
+            margin-top: 0.5rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .table {
+            min-width: 600px;
+        }
+    }
+</style>
+
+<script>
+    // Collapsible functionality for table sections
+    document.addEventListener('DOMContentLoaded', function() {
+        const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
+        
+        collapsibleHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                // Toggle the collapsed class on the header
+                this.classList.toggle('collapsed');
+                
+                // Find the next sibling which is the collapsible content
+                const content = this.closest('.card-header').nextElementSibling;
+                
+                // Toggle the collapsed class on the content
+                content.classList.toggle('collapsed');
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Create New Order</h2>
+        <span class="badge badge-transit">New Order</span>
+    </div>
+    
+    <form method="post" class="order-form">
+        {% csrf_token %}
+        
+        {% if user.role != 'COMPANY' %}
+        <div class="form-group">
+            <label for="{{ form.company.id_for_label }}">Company:</label>
+            {{ form.company }}
+            {% if form.company.errors %}
+                <div class="form-error">{{ form.company.errors }}</div>
+            {% endif %}
+        </div>
+        {% else %}
+            {{ form.company }}
+        {% endif %}
+        
+        <!-- Client Information Section -->
+        <div class="form-section">
+            <h3 class="section-title">Client Information</h3>
+            
+            <div class="form-group">
+                <label for="{{ form.client_name.id_for_label }}">Client Name:</label>
+                {{ form.client_name }}
+                {% if form.client_name.errors %}
+                    <div class="form-error">{{ form.client_name.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.client_phone.id_for_label }}">Client Phone Number:</label>
+                    {{ form.client_phone }}
+                    {% if form.client_phone.errors %}
+                        <div class="form-error">{{ form.client_phone.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.client_email.id_for_label }}">Client Email:</label>
+                    {{ form.client_email }}
+                    {% if form.client_email.errors %}
+                        <div class="form-error">{{ form.client_email.errors }}</div>
+                    {% endif %}
+                    <div class="form-help">Email is optional but recommended for updates</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Delivery Information Section -->
+        <div class="form-section">
+            <h3 class="section-title">Delivery Details</h3>
+            
+            <div class="form-group">
+                <label for="{{ form.delivery_address.id_for_label }}">Delivery Address:</label>
+                {{ form.delivery_address }}
+                {% if form.delivery_address.errors %}
+                    <div class="form-error">{{ form.delivery_address.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.weight.id_for_label }}">Weight:</label>
+                {{ form.weight }}
+                {% if form.weight.errors %}
+                    <div class="form-error">{{ form.weight.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.delivery_cost.id_for_label }}">Delivery Cost:</label>
+                {{ form.delivery_cost }}
+                {% if form.delivery_cost.errors %}
+                    <div class="form-error">{{ form.delivery_cost.errors }}</div>
+                {% endif %}
+            </div>
+            
+            
+            <div class="form-group">
+                <label for="{{ form.delivery_time.id_for_label }}">Delivery Time:</label>
+                <div class="datetime-picker-wrapper">
+                    <div class="date-picker-container">
+                        <input type="text" id="datepicker" class="date-picker" placeholder="Select Date" readonly>
+                        <i class="fas fa-calendar-alt date-icon"></i>
+                    </div>
+                    <div class="time-picker-container">
+                        <input type="text" id="timepicker" class="time-picker" placeholder="Select Time" readonly>
+                        <i class="fas fa-clock time-icon"></i>
+                    </div>
+                    {{ form.delivery_time }}
+                </div>
+                {% if form.delivery_time.errors %}
+                    <div class="form-error">{{ form.delivery_time.errors }}</div>
+                {% endif %}
+                <div class="form-help">Please select the requested delivery date and time</div>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-secondary">Create Order</button>
+            <a href="{% url 'order_list' %}" class="btn">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<!-- Include Flatpickr CSS from CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+<!-- Include Flatpickr JS from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+
+<style>
+    .order-form {
+        margin-top: 1.5rem;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--gray);
+        padding-bottom: 1.5rem;
+    }
+    
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        margin-bottom: 1.25rem;
+        color: var(--dark);
+    }
+    
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-row .form-group {
+        flex: 1;
+        margin-bottom: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .form-row {
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        
+        .form-row .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-row .form-group:last-child {
+            margin-bottom: 0;
+        }
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--dark);
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--gray);
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(255, 190, 0, 0.2);
+    }
+    
+    .form-error {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    .form-help {
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .form-actions .btn {
+        min-width: 120px;
+    }
+    
+    /* Calendar and time input styling */
+    .datetime-picker-wrapper {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .date-picker-container, 
+    .time-picker-container {
+        position: relative;
+        flex: 1;
+    }
+    
+    .date-picker,
+    .time-picker {
+        padding-right: 2.5rem;
+        background-color: var(--white);
+        cursor: pointer;
+    }
+    
+    .date-icon,
+    .time-icon {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary);
+        pointer-events: none;
+    }
+    
+    /* Hide the original datetime input */
+    input[name="delivery_time"] {
+        display: none;
+    }
+    
+    /* Flatpickr customization */
+    .flatpickr-calendar {
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border: none;
+    }
+    
+    .flatpickr-day.selected {
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+    
+    .flatpickr-day.selected:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+    
+    .flatpickr-time .numInputWrapper span.arrowUp:after {
+        border-bottom-color: var(--primary);
+    }
+    
+    .flatpickr-time .numInputWrapper span.arrowDown:after {
+        border-top-color: var(--primary);
+    }
+    
+    /* Select styling */
+    select {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 1em;
+        padding-right: 2.5rem !important;
+    }
+    
+    /* Hidden input styling */
+    input[type="hidden"] {
+        display: none;
+    }
+    
+    @media (max-width: 768px) {
+        .datetime-picker-wrapper {
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize datepicker
+        const datePicker = flatpickr("#datepicker", {
+            enableTime: false,
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            onChange: updateDateTime
+        });
+        
+        // Initialize timepicker
+        const timePicker = flatpickr("#timepicker", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true,
+            minuteIncrement: 15,
+            onChange: updateDateTime
+        });
+        
+        // Get the original input field
+        const originalDateTimeInput = document.querySelector('input[name="delivery_time"]');
+        
+        // Set initial values if the field already has a value
+        if (originalDateTimeInput.value) {
+            const dateTime = new Date(originalDateTimeInput.value);
+            
+            // Format and set date
+            const dateStr = dateTime.getFullYear() + '-' + 
+                            padZero(dateTime.getMonth() + 1) + '-' + 
+                            padZero(dateTime.getDate());
+            document.getElementById('datepicker').value = dateStr;
+            
+            // Format and set time
+            const timeStr = padZero(dateTime.getHours()) + ':' + 
+                            padZero(dateTime.getMinutes());
+            document.getElementById('timepicker').value = timeStr;
+        }
+        
+        // Function to update the original datetime input when date or time changes
+        function updateDateTime() {
+            const dateValue = document.getElementById('datepicker').value;
+            const timeValue = document.getElementById('timepicker').value || "00:00";
+            
+            if (dateValue) {
+                // Combine date and time into datetime format
+                const combinedValue = dateValue + "T" + timeValue;
+                originalDateTimeInput.value = combinedValue;
+            }
+        }
+        
+        // Helper function to pad zeros for single digit numbers
+        function padZero(num) {
+            return num < 10 ? '0' + num : num;
+        }
+    });
+</script>
+{% endblock %}
