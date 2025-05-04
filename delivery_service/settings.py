@@ -26,7 +26,10 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'deliverycoo-lzvy.onrender.com',  # Add your Render domain here
+    '.onrender.com',  # This will match any subdomain on onrender.com
+]
 
 
 # Application definition
