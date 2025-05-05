@@ -61,6 +61,12 @@ urlpatterns = [
     path('company/<int:company_id>/', views.company_detail, name='company_detail'),
     path('category/<int:category_id>/', views.category_detail, name='category_detail'),
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
+    
+    # Cart Management
+    path('cart/', views.cart_view, name='cart_view'),
+    path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/update/<int:item_id>/', views.update_cart_item, name='update_cart_item'),
+    path('checkout/', views.checkout, name='checkout'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
    

@@ -921,3 +921,177 @@ def product_detail(request, product_id):
     }
     return render(request, 'orders/product_detail.html', context)
 
+
+
+
+
+
+def get_or_create_cart(request):
+    """Helper function to get or create cart from session"""
+    session_key = request.session.session_key
+    if not session_key:
+        request.session.save()
+        session_key = request.session.session_key
+    
+    cart, created = Cart.objects.get_or_create(session_key=session_key)
+    return cart
+
+def add_to_cart(request, product_id):
+    """Add a product to the shopping cart"""
+    product = get_object_or_404(Product, id=product_id, available=True)
+    
+    # Get quantity from form, default to 1
+    quantity = int(request.POST.get('quantity', 1))
+    
+    cart = get_or_create_cart(request)
+    
+    # Check if product is already in cart
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart,
+        product=product,
+        defaults={'quantity': quantity}
+    )
+    
+    # If product already exists in cart, update quantity
+    if not created:
+        cart_item.quantity += quantity
+        cart_item.save()
+    
+    messages.success(request, f"{product.name} added to cart.")
+    
+    # Redirect back to the product page or to the referring page
+    next_url = request.POST.get('next', request.META.get('HTTP_REFERER'))
+    if not next_url:
+        next_url = reverse('cart_view')
+    
+    return redirect(next_url)
+
+def cart_view(request):
+    """View the shopping cart contents"""
+    cart = get_or_create_cart(request)
+    cart_items = cart.items.select_related('product', 'product__company').all()
+    
+    context = {
+        'cart': cart,
+        'cart_items': cart_items,
+    }
+    return render(request, 'orders/cart.html', context)
+
+def update_cart_item(request, item_id):
+    """Update quantity of an item in cart"""
+    cart_item = get_object_or_404(CartItem, id=item_id, cart__session_key=request.session.session_key)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'increase':
+            cart_item.quantity += 1
+            cart_item.save()
+            messages.success(request, f"{cart_item.product.name} quantity increased.")
+        
+        elif action == 'decrease':
+            if cart_item.quantity > 1:
+                cart_item.quantity -= 1
+                cart_item.save()
+                messages.success(request, f"{cart_item.product.name} quantity decreased.")
+            else:
+                cart_item.delete()
+                messages.success(request, f"{cart_item.product.name} removed from cart.")
+        
+        elif action == 'remove':
+            cart_item.delete()
+            messages.success(request, f"{cart_item.product.name} removed from cart.")
+    
+    return redirect('cart_view')
+
+# Replace the checkout view with this updated version
+
+def checkout(request):
+    """Process checkout from cart to create an order"""
+    cart = get_or_create_cart(request)
+    cart_items = cart.items.select_related('product', 'product__company').all()
+    
+    if not cart_items:
+        messages.warning(request, "Your cart is empty.")
+        return redirect('cart_view')
+    
+    # Group items by company for potential multi-company checkout
+    items_by_company = {}
+    for item in cart_items:
+        company = item.product.company
+        if company not in items_by_company:
+            items_by_company[company] = []
+        items_by_company[company].append(item)
+    
+    if request.method == 'POST':
+        # Get customer details from the form
+        client_name = request.POST.get('client_name')
+        client_phone = request.POST.get('client_phone')
+        client_email = request.POST.get('client_email')
+        delivery_address = request.POST.get('delivery_address')
+        
+        # Validate required fields
+        if not all([client_name, client_phone, delivery_address]):
+            messages.error(request, "Please fill in all required fields.")
+            return redirect('checkout')
+        
+        # Create orders for each company
+        orders = []
+        for company, items in items_by_company.items():
+            # Create an order for this company
+            import datetime
+            from django.utils import timezone
+            
+            delivery_time = timezone.now() + datetime.timedelta(days=1)
+            
+            # Calculate total for this company's items
+            delivery_cost = sum(item.subtotal for item in items)
+            
+            # Create the order
+            order = Order.objects.create(
+                company=company,
+                client_name=client_name,
+                client_phone=client_phone,
+                client_email=client_email,
+                delivery_address=delivery_address,
+                delivery_time=delivery_time,
+                delivery_cost=delivery_cost,
+                status='pending',
+                payment_status='pending'
+            )
+            
+            # Store the ordered items in OrderItem model
+            for item in items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    product_name=item.product.name,
+                    quantity=item.quantity,
+                    price=item.product.price or 0
+                )
+            
+            orders.append(order)
+        
+        # Clear the cart after successful order creation
+        cart.items.all().delete()
+        
+        # If only one order was created, redirect to payment
+        if len(orders) == 1:
+            messages.success(request, f"Order #{orders[0].id} placed successfully. Proceeding to payment.")
+            return redirect('initiate_payment', order_id=orders[0].id)
+        else:
+            # For multiple orders, you might need a different approach
+            # For now, redirect to order list
+            messages.success(request, f"{len(orders)} orders placed successfully.")
+            if request.user.is_authenticated:
+                return redirect('order_list')
+            else:
+                # For non-authenticated users, show a confirmation page
+                return render(request, 'public/order_confirmation.html', {'orders': orders})
+    
+    context = {
+        'cart': cart,
+        'cart_items': cart_items,
+        'items_by_company': items_by_company,
+    }
+    return render(request, 'orders/checkout.html', context)

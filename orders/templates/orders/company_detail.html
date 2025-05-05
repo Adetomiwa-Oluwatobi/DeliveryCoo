@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">{{ company.name }}</h2>
+        <span class="badge badge-transit">Company Profile</span>
+    </div>
+    <div class="company-details">
+        {% if company.logo %}
+            <img src="{{ company.logo.url }}" alt="{{ company.name }} Logo" style="max-width: 150px; margin-bottom: 1rem;">
+        {% endif %}
+        <div class="company-info">
+            <p><strong>Email:</strong> {{ company.email }}</p>
+            <p><strong>Phone:</strong> {{ company.phone }}</p>
+            <p><strong>Address:</strong> {{ company.address }}</p>
+            {% if company.description %}
+                <p>{{ company.description }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if products_by_category %}
+    {% for category, products in products_by_category.items %}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">{{ category.name }}</h3>
+                <a href="{% url 'category_detail' category.id %}" class="btn btn-secondary">View Category</a>
+            </div>
+            <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                {% for product in products %}
+                    <div class="product-card" style="border: 1px solid var(--gray); border-radius: 8px; padding: 1rem; text-align: center;">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 100%; height: 150px; object-fit: cover; margin-bottom: 0.5rem;">
+                        {% else %}
+                            <div style="height: 150px; background-color: var(--gray); display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+                                <i class="fas fa-box" style="font-size: 3rem; color: var(--dark);"></i>
+                            </div>
+                        {% endif %}
+                        <h4>{{ product.name }}</h4>
+                        {% if product.price %}
+                            <p><strong>{{ product.price }} NGN</strong></p>
+                        {% endif %}
+                        <a href="{% url 'product_detail' product.id %}" class="btn">View Details</a>
+                        <form method="post" action="{% url 'add_to_cart' product.id %}" style="margin-top: 0.5rem;">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" class="btn btn-secondary">Add to Cart</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <div class="card-body">
+            <p>No products available from this company.</p>
+        </div>
+    </div>
+{% endif %}
+
+<div class="actions" style="margin-top: 1rem;">
+    <a href="{% url 'search_products' %}?company={{ company.id }}" class="btn">Filter Products</a>
+    <a href="{% url 'landing_page' %}" class="btn btn-secondary">Back to Home</a>
+</div>
+{% endblock %}

@@ -171,3 +171,60 @@ class Product(models.Model):
     
     def __str__(self):
         return f"{self.name} - {self.company.name}"
+    
+    
+# Add these models to your models.py file
+
+class Cart(models.Model):
+    """Shopping cart for storing items before checkout"""
+    session_key = models.CharField(max_length=255, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Cart {self.id} - {self.session_key}"
+    
+    @property
+    def total_price(self):
+        """Calculate total price of all cart items"""
+        return sum(item.subtotal for item in self.items.all())
+    
+    @property
+    def item_count(self):
+        """Count total number of items in cart"""
+        return self.items.count()
+
+class CartItem(models.Model):
+    """Individual item in a shopping cart"""
+    cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('cart', 'product')
+    
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"
+    
+    @property
+    def subtotal(self):
+        """Calculate price for this cart item"""
+        if self.product.price:
+            return self.product.price * self.quantity
+        return 0
+    
+class OrderItem(models.Model):
+    """Individual product items in an order"""
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    product_name = models.CharField(max_length=200)  # Store name in case product is deleted
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)  # Price at time of order
+    
+    def __str__(self):
+        return f"{self.quantity} x {self.product_name}"
+    
+    @property
+    def subtotal(self):
+        return self.price * self.quantity

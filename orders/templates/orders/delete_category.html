@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Delete Category</h2>
+        <span class="badge badge-pending">Caution</span>
+    </div>
+    <div class="delete-confirmation">
+        <p>Are you sure you want to delete the category <strong>"{{ category.name }}"</strong>?</p>
+        
+        {% if category.product_set.exists %}
+            <div class="alert" style="background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 4px; margin: 1rem 0;">
+                <i class="fas fa-exclamation-triangle"></i> Warning: This category has {{ category.product_set.count }} products associated with it. Deleting this category will remove it from these products.
+            </div>
+        {% endif %}
+        
+        <form method="post" style="margin-top: 1rem;">
+            {% csrf_token %}
+            <div class="actions">
+                <button type="submit" class="btn" style="background-color: #dc3545;">Delete Category</button>
+                <a href="{% url 'category_list' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

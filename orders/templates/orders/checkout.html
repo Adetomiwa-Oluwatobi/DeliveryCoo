@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Delivery Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'checkout' %}">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="client_name" class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="client_name" name="client_name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="client_phone" class="form-label">Phone Number *</label>
+                                <input type="tel" class="form-control" id="client_phone" name="client_phone" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="client_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="client_email" name="client_email">
+                            <small class="text-muted">For order confirmations and updates</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="delivery_address" class="form-label">Delivery Address *</label>
+                            <textarea class="form-control" id="delivery_address" name="delivery_address" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="order_notes" class="form-label">Order Notes</label>
+                            <textarea class="form-control" id="order_notes" name="order_notes" rows="2" placeholder="Special instructions for delivery"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success btn-lg">Place Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    {% for company, items in items_by_company.items %}
+                        <h6 class="mb-2">{{ company.name }}</h6>
+                        <ul class="list-group mb-3">
+                            {% for item in items %}
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div>
+                                        <h6 class="my-0">{{ item.product.name }}</h6>
+                                        <small class="text-muted">Quantity: {{ item.quantity }}</small>
+                                    </div>
+                                    <span class="text-muted">₦{{ item.subtotal }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Items ({{ cart.item_count }}):</span>
+                        <span>₦{{ cart.total_price }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Delivery Fee:</span>
+                        <span>₦0.00</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total:</strong>
+                        <strong>₦{{ cart.total_price }}</strong>
+                    </div>
+                    
+                    <div class="alert alert-info small">
+                        <i class="fas fa-info-circle"></i> After placing your order, you will be redirected to our payment page.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <a href="{% url 'cart_view' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Cart
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

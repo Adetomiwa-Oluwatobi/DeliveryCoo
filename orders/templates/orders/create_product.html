@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Create New Product</h2>
+        <a href="{% url 'product_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Products
+        </a>
+    </div>
+    
+    <div style="padding: 20px;">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div style="margin-bottom: 20px; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            <div style="margin-bottom: 15px;">
+                <label for="{{ form.name.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
+                    Product Name:
+                </label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.name.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="{{ form.description.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
+                    Description:
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.description.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="{{ form.category.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
+                    Category:
+                </label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.category.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="{{ form.price.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
+                    Price:
+                </label>
+                {{ form.price }}
+                {% if form.price.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.price.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="{{ form.weight.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
+                    Weight (kg):
+                </label>
+                {{ form.weight }}
+                {% if form.weight.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.weight.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="{{ form.dimensions.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
+                    Dimensions:
+                </label>
+                {{ form.dimensions }}
+                {% if form.dimensions.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.dimensions.errors }}
+                    </div>
+                {% endif %}
+                <small style="color: #6c757d; display: block; margin-top: 5px;">Format: LxWxH in cm (e.g., 30x20x10)</small>
+            </div>
+            
+            {% if form.image %}
+            <div style="margin-bottom: 15px;">
+                <label for="{{ form.image.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
+                    Product Image:
+                </label>
+                {{ form.image }}
+                {% if form.image.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.image.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            {% if form.company %}
+            <div style="margin-bottom: 15px;">
+                <label for="{{ form.company.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
+                    Company:
+                </label>
+                {{ form.company }}
+                {% if form.company.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.company.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    {{ form.available }}
+                    <span style="margin-left: 8px;">Available for ordering</span>
+                </label>
+                {% if form.available.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.available.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div style="margin-top: 25px;">
+                <button type="submit" class="btn">Create Product</button>
+                <a href="{% url 'product_list' %}" style="margin-left: 10px; text-decoration: none; color: #6c757d;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

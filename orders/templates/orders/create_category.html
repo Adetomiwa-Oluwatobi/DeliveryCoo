@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Create New Category</h2>
+        <a href="{% url 'category_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Categories
+        </a>
+    </div>
+    
+    <div style="padding: 20px;">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div style="margin-bottom: 20px; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            <div style="margin-bottom: 15px;">
+                <label for="{{ form.name.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
+                    Category Name:
+                </label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.name.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="{{ form.description.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
+                    Description:
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.description.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if form.image %}
+            <div style="margin-bottom: 15px;">
+                <label for="{{ form.image.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
+                    Category Image:
+                </label>
+                {{ form.image }}
+                {% if form.image.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.image.errors }}
+                    </div>
+                {% endif %}
+                <small style="color: #6c757d; display: block; margin-top: 5px;">Optional. Add an image to represent this category.</small>
+            </div>
+            {% endif %}
+            
+            <div style="margin-top: 25px;">
+                <button type="submit" class="btn">Create Category</button>
+                <a href="{% url 'category_list' %}" style="margin-left: 10px; text-decoration: none; color: #6c757d;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

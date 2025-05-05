@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Categories</h2>
+        <a href="{% url 'create_category' %}" class="btn">Add New Category</a>
+    </div>
+    
+    {% if categories %}
+        <div class="table-responsive">
+            <table style="width:100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--gray); text-align: left;">
+                        <th style="padding: 12px;">Name</th>
+                        <th style="padding: 12px;">Description</th>
+                        <th style="padding: 12px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                        <tr style="border-bottom: 1px solid var(--gray);">
+                            <td style="padding: 12px;">{{ category.name }}</td>
+                            <td style="padding: 12px;">{{ category.description|truncatewords:10 }}</td>
+                            <td style="padding: 12px;">
+                                <a href="{% url 'edit_category' category.id %}" style="margin-right: 10px; color: var(--secondary);">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{% url 'delete_category' category.id %}" style="color: #dc3545;">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                                <a href="{% url 'category_detail' category.id %}" style="margin-left: 10px; color: var(--primary);">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="padding: 20px; text-align: center;">
+            <p>No categories found. Click the button above to add your first category.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
