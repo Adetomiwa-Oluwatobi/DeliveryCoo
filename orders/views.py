@@ -682,7 +682,7 @@ def product_list(request):
     context = {
         'products': products,
     }
-    return render(request, 'products/product_list.html', context)
+    return render(request, 'orders/product_list.html', context)
 
 @login_required
 @user_passes_test(lambda u: u.role in [ADMIN, COMPANY])
@@ -710,7 +710,7 @@ def create_product(request):
         else:
             form = ProductForm()
     
-    return render(request, 'products/create_product.html', {'form': form})
+    return render(request, 'orders/create_product.html', {'form': form})
 
 @login_required
 @user_passes_test(lambda u: u.role in [ADMIN, COMPANY])
