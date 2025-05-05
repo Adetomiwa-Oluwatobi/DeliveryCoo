@@ -3,7 +3,7 @@ from django import forms
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .models import *
-from .forms import OrderForm, OrderTrackingForm
+from .forms import CategoryForm, OrderForm, OrderTrackingForm, ProductForm
 from django.core.mail import send_mail
 from django.conf import settings
 from twilio.rest import Client as TwilioClient
@@ -29,7 +29,17 @@ from .forms import (
 
 def landing_page(request):
     """View for the main landing page"""
-    return render(request, 'orders/landing_page.html')
+    categories = Category.objects.all().order_by('name')[:6]  # Limit to top 6 categories
+    companies = Company.objects.all().order_by('name')[:8]    # Limit to top 8 companies
+    
+    # Get a few featured products
+    featured_products = Product.objects.filter(available=True).order_by('-created_at')[:6]
+    context = {
+        'categories': categories,
+        'companies': companies,
+        'featured_products': featured_products,
+    }
+    return render(request, 'orders/landing_page.html',context)
 
 @login_required
 @user_passes_test(lambda u: u.role in [ADMIN, COMPANY])
@@ -652,3 +662,262 @@ def logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out successfully.")
     return redirect('login')
+
+
+
+@login_required
+@user_passes_test(lambda u: u.role in [ADMIN, COMPANY])
+def product_list(request):
+    """View to list products based on user role"""
+    user = request.user
+    
+    if user.role == ADMIN:
+        products = Product.objects.all().order_by('-created_at')
+    elif user.role == COMPANY:
+        company = user.company_profile
+        products = Product.objects.filter(company=company).order_by('-created_at')
+    else:
+        products = Product.objects.none()
+    
+    context = {
+        'products': products,
+    }
+    return render(request, 'products/product_list.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.role in [ADMIN, COMPANY])
+def create_product(request):
+    """View to create a new product"""
+    if request.method == 'POST':
+        if request.user.role == COMPANY:
+            form = ProductForm(request.POST, request.FILES, company=request.user.company_profile)
+        else:
+            form = ProductForm(request.POST, request.FILES)
+            
+        if form.is_valid():
+            product = form.save(commit=False)
+            
+            # If company user, set company automatically
+            if request.user.role == COMPANY:
+                product.company = request.user.company_profile
+                
+            product.save()
+            messages.success(request, "Product created successfully!")
+            return redirect('product_list')
+    else:
+        if request.user.role == COMPANY:
+            form = ProductForm(company=request.user.company_profile)
+        else:
+            form = ProductForm()
+    
+    return render(request, 'products/create_product.html', {'form': form})
+
+@login_required
+@user_passes_test(lambda u: u.role in [ADMIN, COMPANY])
+def edit_product(request, product_id):
+    """View to edit an existing product"""
+    if request.user.role == COMPANY:
+        product = get_object_or_404(Product, id=product_id, company=request.user.company_profile)
+    else:
+        product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        if request.user.role == COMPANY:
+            form = ProductForm(request.POST, request.FILES, instance=product, company=request.user.company_profile)
+        else:
+            form = ProductForm(request.POST, request.FILES, instance=product)
+            
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Product '{product.name}' updated successfully!")
+            return redirect('product_list')
+    else:
+        if request.user.role == COMPANY:
+            form = ProductForm(instance=product, company=request.user.company_profile)
+        else:
+            form = ProductForm(instance=product)
+    
+    context = {
+        'form': form,
+        'product': product,
+    }
+    return render(request, 'orders/edit_product.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.role in [ADMIN, COMPANY])
+def delete_product(request, product_id):
+    """View to delete a product"""
+    if request.user.role == COMPANY:
+        product = get_object_or_404(Product, id=product_id, company=request.user.company_profile)
+    else:
+        product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        product.delete()
+        messages.success(request, "Product deleted successfully!")
+        return redirect('product_list')
+    
+    context = {
+        'product': product,
+    }
+    return render(request, 'orders/delete_product.html', context)
+
+# Category management views
+@login_required
+@user_passes_test(is_admin)
+def category_list(request):
+    """View to list all categories (admin only)"""
+    categories = Category.objects.all().order_by('name')
+    
+    context = {
+        'categories': categories,
+    }
+    return render(request, 'orders/category_list.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def create_category(request):
+    """View to create a new category (admin only)"""
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Category created successfully!")
+            return redirect('category_list')
+    else:
+        form = CategoryForm()
+    
+    return render(request, 'orders/create_category.html', {'form': form})
+
+@login_required
+@user_passes_test(is_admin)
+def edit_category(request, category_id):
+    """View to edit an existing category (admin only)"""
+    category = get_object_or_404(Category, id=category_id)
+    
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, request.FILES, instance=category)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Category '{category.name}' updated successfully!")
+            return redirect('category_list')
+    else:
+        form = CategoryForm(instance=category)
+    
+    context = {
+        'form': form,
+        'category': category,
+    }
+    return render(request, 'orders/edit_category.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def delete_category(request, category_id):
+    """View to delete a category (admin only)"""
+    category = get_object_or_404(Category, id=category_id)
+    
+    if request.method == 'POST':
+        category.delete()
+        messages.success(request, "Category deleted successfully!")
+        return redirect('category_list')
+    
+    context = {
+        'category': category,
+    }
+    return render(request, 'orders/delete_category.html', context)
+
+
+
+
+
+def search_products(request):
+    """Search functionality for products by category, company, or keyword"""
+    query = request.GET.get('q', '')
+    category_id = request.GET.get('category', '')
+    company_id = request.GET.get('company', '')
+    
+    products = Product.objects.filter(available=True)
+    
+    # Apply filters
+    if query:
+        products = products.filter(
+            models.Q(name__icontains=query) | 
+            models.Q(description__icontains=query) |
+            models.Q(company__name__icontains=query)
+        )
+    
+    if category_id:
+        products = products.filter(category_id=category_id)
+    
+    if company_id:
+        products = products.filter(company_id=company_id)
+    
+    # Get all categories and companies for filter options
+    categories = Category.objects.all().order_by('name')
+    companies = Company.objects.all().order_by('name')
+    
+    context = {
+        'products': products,
+        'categories': categories,
+        'companies': companies,
+        'query': query,
+        'selected_category': int(category_id) if category_id else None,
+        'selected_company': int(company_id) if company_id else None,
+    }
+    return render(request, 'orders/search_results.html', context)
+
+
+def company_detail(request, company_id):
+    """View to display a company profile and its products"""
+    company = get_object_or_404(Company, id=company_id)
+    products = Product.objects.filter(company=company, available=True)
+    
+    # Group products by category
+    products_by_category = {}
+    for product in products:
+        category = product.category
+        if category not in products_by_category:
+            products_by_category[category] = []
+        products_by_category[category].append(product)
+    
+    context = {
+        'company': company,
+        'products_by_category': products_by_category,
+    }
+    return render(request, 'orders/company_detail.html', context)
+
+def category_detail(request, category_id):
+    """View to display all products in a specific category"""
+    category = get_object_or_404(Category, id=category_id)
+    products = Product.objects.filter(category=category, available=True)
+    
+    # Group products by company
+    products_by_company = {}
+    for product in products:
+        company = product.company
+        if company not in products_by_company:
+            products_by_company[company] = []
+        products_by_company[company].append(product)
+    
+    context = {
+        'category': category,
+        'products_by_company': products_by_company,
+    }
+    return render(request, 'orders/category_detail.html', context)
+
+def product_detail(request, product_id):
+    """View to display detailed information for a single product"""
+    product = get_object_or_404(Product, id=product_id, available=True)
+    
+    # Get related products (same category, different company)
+    related_products = Product.objects.filter(
+        category=product.category, 
+        available=True
+    ).exclude(id=product.id)[:4]
+    
+    context = {
+        'product': product,
+        'related_products': related_products,
+    }
+    return render(request, 'orders/product_detail.html', context)
+

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Search and Filter Section -->
+        <div class="col-lg-3">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Search & Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'search_products' %}">
+                        <div class="mb-3">
+                            <label for="search" class="form-label">Search by keyword:</label>
+                            <input type="text" class="form-control" id="search" name="q" value="{{ query }}" placeholder="Search products, companies...">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Filter by category:</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" {% if selected_category == category.id %}selected{% endif %}>{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="company" class="form-label">Filter by company:</label>
+                            <select class="form-select" id="company" name="company">
+                                <option value="">All Companies</option>
+                                {% for company in companies %}
+                                <option value="{{ company.id }}" {% if selected_company == company.id %}selected{% endif %}>{{ company.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search Results -->
+        <div class="col-lg-9">
+            <h2 class="mb-4">Search Results</h2>
+            
+            {% if products %}
+                <div class="row">
+                    {% for product in products %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light text-center py-5">
+                                        <i class="fas fa-image fa-3x text-secondary"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ product.name }}</h5>
+                                    <p class="card-text text-muted">{{ product.company.name }}</p>
+                                    <p class="card-text">{{ product.description|truncatechars:100 }}</p>
+                                    
+                                    {% if product.price %}
+                                        <h6 class="text-primary">₦{{ product.price }}</h6>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="card-footer bg-white">
+                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
+                                    <a href="{% url 'company_detail' product.company.id %}" class="btn btn-outline-secondary btn-sm">View Company</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">No products found matching your search criteria. Try adjusting your filters or search terms.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -41,6 +41,26 @@ urlpatterns = [
     path('order/<int:order_id>/payment/', views.payment_confirmation, name='initiate_payment'),
     path('payment/callback/', views.payment_callback, name='payment_callback'),
     path('order/<int:order_id>/verify-payment/', views.verify_payment, name='verify_payment'),
+    
+    
+    
+     path('products/', views.product_list, name='product_list'),
+    path('products/create/', views.create_product, name='create_product'),
+    path('products/<int:product_id>/edit/', views.edit_product, name='edit_product'),
+    path('products/<int:product_id>/delete/', views.delete_product, name='delete_product'),
+    
+    # Category management (admin only)
+    path('categories/', views.category_list, name='category_list'),
+    path('categories/create/', views.create_category, name='create_category'),
+    path('categories/<int:category_id>/edit/', views.edit_category, name='edit_category'),
+    path('categories/<int:category_id>/delete/', views.delete_category, name='delete_category'),
+    
+    # Public facing URLs
+   
+    path('search/', views.search_products, name='search_products'),
+    path('company/<int:company_id>/', views.company_detail, name='company_detail'),
+    path('category/<int:category_id>/', views.category_detail, name='category_detail'),
+    path('product/<int:product_id>/', views.product_detail, name='product_detail'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
    

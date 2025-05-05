@@ -1,6 +1,7 @@
 from django import forms
-from .models import Order, OrderTracking, DeliveryPersonnel, CustomUser, Company, COMPANY, DELIVERY_PERSONNEL
+from .models import Order, OrderTracking, DeliveryPersonnel, CustomUser,Product, Category, Company, COMPANY, DELIVERY_PERSONNEL
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+
 
 class OrderForm(forms.ModelForm):
     """Form for creating a new order with client information included"""
@@ -128,6 +129,33 @@ class DeliveryPersonnelRegistrationForm(forms.ModelForm):
         
         return delivery_personnel
 
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name', 'description', 'image']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'description', 'price', 'category', 'available', 'image']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4}),
+            'price': forms.NumberInput(attrs={'step': '0.01'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        company = kwargs.pop('company', None)
+        super(ProductForm, self).__init__(*args, **kwargs)
+        
+        # Company users should only see their own products
+        if company:
+            self.instance.company = company
+            
+            
 class CustomLoginForm(AuthenticationForm):
     """Custom login form"""
     username = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'autofocus': True}))
