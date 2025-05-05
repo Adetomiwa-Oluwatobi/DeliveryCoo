@@ -14,9 +14,9 @@
             <button class="btn">
                 <i class="fas fa-download"></i> Export Report
             </button>
-            <button class="btn btn-secondary">
-                <i class="fas fa-plus"></i> New Action
-            </button>
+            <a href="{% url 'new_order' %}" class="btn btn-secondary">
+                <i class="fas fa-plus"></i> New Order
+            </a>
         </div>
     </div>
 
@@ -114,13 +114,14 @@
                                                     {{ company.name|slice:":1" }}
                                                 {% endif %}
                                             </div>
-                                            
+                                            <a href="{% url 'company_detail' company.id %}">{{ company.name }}</a>
+                                        </div>
                                     </td>
                                     <td>{{ company.address }}</td>
                                     <td><span class="badge badge-delivered">Active</span></td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                            <a href="{% url 'company_detail' company.id %}" class="btn-icon"><i class="fas fa-eye"></i></a>
                                             <button class="btn-icon"><i class="fas fa-edit"></i></button>
                                             <button class="btn-icon"><i class="fas fa-ellipsis-v"></i></button>
                                         </div>
@@ -246,6 +247,91 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Orders Table Section -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title collapsible-header">
+                            <i class="fas fa-box"></i> Recent Orders
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </h2>
+                        <p class="text-muted">View and manage recent orders</p>
+                    </div>
+                    <div class="card-actions">
+                        <div class="search-container">
+                            <input type="text" placeholder="Search orders..." class="search-input">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        <a href="{% url 'new_order' %}" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> New Order
+                        </a>
+                    </div>
+                </div>
+                <div class="collapsible-content">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Company</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Delivery</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.company.name }}</td>
+                                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <span class="badge {% if order.status == 'Delivered' %}badge-delivered{% elif order.status == 'In Transit' %}badge-transit{% else %}badge-pending{% endif %}">
+                                            {{ order.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if order.delivery_personnel %}
+                                            {{ order.delivery_personnel.user.first_name }} {{ order.delivery_personnel.user.last_name }}
+                                        {% else %}
+                                            <a href="{% url 'assign_delivery' order.id %}" class="btn-link">Assign</a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="{% url 'order_detail' order.id %}" class="btn-icon"><i class="fas fa-eye"></i></a>
+                                            <a href="{% url 'edit_order' order.id %}" class="btn-icon"><i class="fas fa-edit"></i></a>
+                                            <a href="{% url 'print_label' order.id %}" class="btn-icon"><i class="fas fa-print"></i></a>
+                                            <a href="{% url 'order_tracking' order.id %}" class="btn-icon"><i class="fas fa-map-marker-alt"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">
+                                        <div class="empty-state">
+                                            <i class="fas fa-box"></i>
+                                            <p>No orders found</p>
+                                            <a href="{% url 'new_order' %}" class="btn btn-secondary">Create Order</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <div class="pagination-info">
+                            Showing recent orders
+                        </div>
+                        <div class="pagination-actions">
+                            <a href="{% url 'order_list' %}" class="btn-link">View All Orders</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- Sidebar Content Section -->
@@ -272,7 +358,7 @@
                         </div>
                         <div class="quick-action-text">
                             <h4>Add Delivery</h4>
-                            <p>Create a new delivery</p>
+                            <p>Register delivery personnel</p>
                         </div>
                     </a>
                     
@@ -283,6 +369,26 @@
                         <div class="quick-action-text">
                             <h4>Create Order</h4>
                             <p>Create a new order</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'create_product' %}" class="quick-action-btn">
+                        <div class="quick-action-icon bg-primary-light">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <div class="quick-action-text">
+                            <h4>Add Product</h4>
+                            <p>Create a new product</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'create_category' %}" class="quick-action-btn">
+                        <div class="quick-action-icon bg-success-light">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="quick-action-text">
+                            <h4>Add Category</h4>
+                            <p>Create a new category</p>
                         </div>
                     </a>
                 </div>
@@ -326,6 +432,44 @@
                             <small>1 day ago</small>
                         </div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- Product Management Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-tag"></i> Product Management</h2>
+                </div>
+                <div class="quick-actions">
+                    <a href="{% url 'product_list' %}" class="quick-action-btn">
+                        <div class="quick-action-icon bg-primary-light">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="quick-action-text">
+                            <h4>View Products</h4>
+                            <p>Browse all products</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'create_product' %}" class="quick-action-btn">
+                        <div class="quick-action-icon bg-success-light">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="quick-action-text">
+                            <h4>Add Product</h4>
+                            <p>Create a new product</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'category_list' %}" class="quick-action-btn">
+                        <div class="quick-action-icon bg-warning-light">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="quick-action-text">
+                            <h4>Categories</h4>
+                            <p>Manage product categories</p>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -674,6 +818,7 @@
         position: relative;
     }
     
+    
     .activity-item:not(:last-child)::after {
         content: "";
         position: absolute;
@@ -687,12 +832,11 @@
     .activity-icon {
         width: 40px;
         height: 40px;
-        border-radius: 50%;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         margin-right: 1rem;
-        position: relative;
         z-index: 1;
     }
     
@@ -712,12 +856,35 @@
     
     .activity-content p {
         font-size: 0.85rem;
-        color: var(--dark);
         margin: 0 0 0.25rem;
     }
     
     .activity-content small {
         font-size: 0.75rem;
+        color: #6c757d;
+    }
+    
+    /* Status Badges */
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .badge-delivered {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+    
+    .badge-transit {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    
+    .badge-pending {
+        background-color: rgba(108, 117, 125, 0.1);
         color: #6c757d;
     }
     
@@ -730,7 +897,7 @@
     .vehicle-type {
         display: flex;
         align-items: center;
-        font-weight: 500;
+        margin-bottom: 0.25rem;
     }
     
     .vehicle-type i {
@@ -745,39 +912,30 @@
     
     .search-input {
         padding: 0.5rem 1rem 0.5rem 2.5rem;
-        border-radius: 20px;
+        border-radius: 50px;
         border: 1px solid var(--gray);
-        width: 200px;
-        transition: width 0.3s ease;
-    }
-    
-    .search-input:focus {
         width: 250px;
-        outline: none;
-        border-color: var(--primary);
+        font-size: 0.9rem;
     }
     
     .search-icon {
         position: absolute;
-        left: 0.75rem;
+        left: 1rem;
         top: 50%;
         transform: translateY(-50%);
         color: #6c757d;
     }
     
-    /* Card Actions */
-    .card-actions {
+    /* Collapsible Content */
+    .collapsible-header {
+        cursor: pointer;
         display: flex;
+        justify-content: space-between;
         align-items: center;
     }
     
-    /* Collapsible Table Styles */
-    .collapsible-header {
-        cursor: pointer;
-    }
-    
     .toggle-icon {
-        margin-left: 0.5rem;
+        margin-left: auto;
         transition: transform 0.3s ease;
     }
     
@@ -786,15 +944,26 @@
     }
     
     .collapsible-content {
-        transition: max-height 0.3s ease, opacity 0.3s ease;
-        max-height: 2000px;
-        opacity: 1;
+        display: block;
+        transition: max-height 0.3s ease;
         overflow: hidden;
     }
     
     .collapsible-content.collapsed {
         max-height: 0;
-        opacity: 0;
+    }
+    
+    /* Card Actions */
+    .card-actions {
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
     }
     
     /* Responsive Styles */
@@ -802,24 +971,11 @@
         .dashboard-content {
             grid-template-columns: 1fr;
         }
-        
-        .dashboard-sidebar {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
     }
     
     @media (max-width: 768px) {
-        .dashboard-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .dashboard-actions {
-            margin-top: 1rem;
-            width: 100%;
-            justify-content: space-between;
+        .stats-container {
+            grid-template-columns: 1fr;
         }
         
         .card-header {
@@ -830,64 +986,65 @@
         .card-actions {
             margin-top: 1rem;
             width: 100%;
-            flex-direction: column;
-            align-items: flex-start;
         }
         
         .search-container {
+            margin-bottom: 1rem;
             width: 100%;
-            margin-bottom: 0.5rem;
-            margin-right: 0;
         }
         
         .search-input {
             width: 100%;
         }
-        
-        .card-actions .btn {
-            width: 100%;
-            margin-top: 0.5rem;
-            text-align: center;
-        }
-        
-        .card-footer {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .pagination-controls {
-            margin-top: 0.5rem;
-        }
     }
     
-    @media (max-width: 576px) {
-        .stats-container {
-            grid-template-columns: 1fr;
-        }
-        
-        .table {
-            min-width: 600px;
-        }
+    /* Button Styles */
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        background-color: var(--primary);
+        color: var(--white);
     }
-</style>
-
-<script>
-    // Collapsible functionality for table sections
+    
+    .btn i {
+        margin-right: 0.5rem;
+    }
+    
+    .btn-secondary {
+        background-color: var(--secondary);
+    }
+    
+    .btn-link {
+        background-color: transparent;
+        color: var(--primary);
+        text-decoration: underline;
+        padding: 0;
+    }
+    
+    /* JavaScript for Collapsible Components */
     document.addEventListener('DOMContentLoaded', function() {
+        // Toggle collapsible sections
         const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
         
         collapsibleHeaders.forEach(header => {
             header.addEventListener('click', function() {
-                // Toggle the collapsed class on the header
-                this.classList.toggle('collapsed');
-                
-                // Find the next sibling which is the collapsible content
-                const content = this.closest('.card-header').nextElementSibling;
-                
-                // Toggle the collapsed class on the content
+                const content = this.closest('.card').querySelector('.collapsible-content');
                 content.classList.toggle('collapsed');
+                this.classList.toggle('collapsed');
             });
         });
-    });
-</script>
-{% endblock %}
+        
+        // Initialize tooltips, if any
+        const tooltips = document.querySelectorAll('[data-toggle="tooltip"]');
+        tooltips.forEach(tooltip => {
+            new bootstrap.Tooltip(tooltip);
+        });
+});
