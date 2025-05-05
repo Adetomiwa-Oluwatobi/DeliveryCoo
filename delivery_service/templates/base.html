@@ -285,13 +285,16 @@
                     <li><a href="{% url 'landing_page' %}" class="active">Home</a></li>
                     <li><a href="{% url 'order_list' %}">Orders</a></li>
                     <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-                    
+                    <li><a href="{% url 'search_products' %}">Search product <i class="fas fa-search"></i></a></li>
+
                     
                     <li>{% if order_id %}
                         <li><a href="{% url 'order_tracking' order_id %}">Track Shipment</a></li>
                     {% else %}
                         <li><a href="#">Track Shipment</a></li>
                     {% endif %}
+
+                    
                     <li><a href="#">Support</a></li>
                 </ul>
             </nav>
