@@ -8,11 +8,11 @@
     </div>
     <div class="company-details">
         {% if company.logo %}
-            <img src="{{ company.logo.url }}" alt="{{ company.name }} Logo" style="max-width: 150px; margin-bottom: 1rem;">
+            <img src="{{ companies.logo.url }}" alt="{{ company.name }} Logo" style="max-width: 150px; margin-bottom: 1rem;">
         {% endif %}
         <div class="company-info">
-            <p><strong>Email:</strong> {{ company.email }}</p>
-            <p><strong>Phone:</strong> {{ company.phone }}</p>
+            <p><strong>Email:</strong> {{ company.user.email }}</p>
+            <p><strong>Phone:</strong> {{ company.user.phone }}</p>
             <p><strong>Address:</strong> {{ company.address }}</p>
             {% if company.description %}
                 <p>{{ company.description }}</p>
