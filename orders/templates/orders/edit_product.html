@@ -3,7 +3,7 @@
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <h2 class="card-title">Edit Product: {{ product.name }}</h2>
+        <h2 class="card-title">Create New Product</h2>
         <a href="{% url 'product_list' %}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Back to Products
         </a>
@@ -68,41 +68,9 @@
             </div>
             
             <div style="margin-bottom: 15px;">
-                <label for="{{ form.weight.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
-                    Weight (kg):
-                </label>
-                {{ form.weight }}
-                {% if form.weight.errors %}
-                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
-                        {{ form.weight.errors }}
-                    </div>
-                {% endif %}
-            </div>
-            
-            <div style="margin-bottom: 15px;">
-                <label for="{{ form.dimensions.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
-                    Dimensions:
-                </label>
-                {{ form.dimensions }}
-                {% if form.dimensions.errors %}
-                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
-                        {{ form.dimensions.errors }}
-                    </div>
-                {% endif %}
-                <small style="color: #6c757d; display: block; margin-top: 5px;">Format: LxWxH in cm (e.g., 30x20x10)</small>
-            </div>
-            
-            {% if form.image %}
-            <div style="margin-bottom: 15px;">
                 <label for="{{ form.image.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
                     Product Image:
                 </label>
-                {% if product.image %}
-                    <div style="margin-bottom: 10px;">
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 150px; max-height: 150px; border-radius: 4px;">
-                        <p style="font-size: 0.85rem; margin-top: 5px;">Current image. Upload a new one to replace it.</p>
-                    </div>
-                {% endif %}
                 {{ form.image }}
                 {% if form.image.errors %}
                     <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
@@ -110,21 +78,6 @@
                     </div>
                 {% endif %}
             </div>
-            {% endif %}
-            
-            {% if form.company %}
-            <div style="margin-bottom: 15px;">
-                <label for="{{ form.company.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 500;">
-                    Company:
-                </label>
-                {{ form.company }}
-                {% if form.company.errors %}
-                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
-                        {{ form.company.errors }}
-                    </div>
-                {% endif %}
-            </div>
-            {% endif %}
             
             <div style="margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; cursor: pointer;">
@@ -139,7 +92,7 @@
             </div>
             
             <div style="margin-top: 25px;">
-                <button type="submit" class="btn">Update Product</button>
+                <button type="submit" class="btn">Create Product</button>
                 <a href="{% url 'product_list' %}" style="margin-left: 10px; text-decoration: none; color: #6c757d;">Cancel</a>
             </div>
         </form>
