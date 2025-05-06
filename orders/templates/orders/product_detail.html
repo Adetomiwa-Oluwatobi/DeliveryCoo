@@ -43,24 +43,30 @@
                 <p>{{ product.description }}</p>
             </div>
             
-            <!-- Add to Cart Form -->
-            <form method="post" action="{% url 'add_to_cart' product.id %}">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.path }}">
-                
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="input-group">
-                            <span class="input-group-text">Quantity</span>
-                            <input type="number" class="form-control" name="quantity" value="1" min="1" max="10">
+            {% if product.available %}
+                <!-- Add to Cart Form -->
+                <form method="post" action="{% url 'add_to_cart' product.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text">Quantity</span>
+                                <input type="number" class="form-control" name="quantity" value="1" min="1" max="10">
+                            </div>
                         </div>
                     </div>
+                    
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                </form>
+            {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-circle"></i> This product is currently unavailable.
                 </div>
-                
-                <button type="submit" class="btn btn-success btn-lg">
-                    <i class="fas fa-shopping-cart"></i> Add to Cart
-                </button>
-            </form>
+            {% endif %}
         </div>
     </div>
     
@@ -91,6 +97,17 @@
                             
                             <div class="card-footer bg-white">
                                 <a href="{% url 'product_detail' related.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
+                                
+                                {% if related.available %}
+                                    <form method="post" action="{% url 'add_to_cart' related.id %}" class="d-inline ms-1">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="quantity" value="1">
+                                        <input type="hidden" name="next" value="{{ request.path }}">
+                                        <button type="submit" class="btn btn-outline-success btn-sm">
+                                            <i class="fas fa-cart-plus"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
