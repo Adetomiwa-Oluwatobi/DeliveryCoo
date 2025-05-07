@@ -477,10 +477,30 @@ def edit_order(request, order_id):
 def print_label(request, order_id):
     """View for generating a printable shipping label"""
     order = get_object_or_404(Order, id=order_id)
+     
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+     
+    # Add content to the PDF
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(100, 750, f"Shipping Label - Order #{order.id}")
+    # 
+    p.setFont("Helvetica", 12)
+    p.drawString(100, 700, f"To: {order.client_name}")
+    p.drawString(100, 680, f"Address: {order.delivery_address}")
+    p.drawString(100, 660, f"Phone: {order.client_phone}")
+    # 
+    p.save()
+    buffer.seek(0)
     
+    # Create the HTTP response with PDF
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="order_{order.id}_label.pdf"'
+    #return response
     # For HTML template rendering approach
     context = {
         'order': order,
+        'response': response,
     }
     return render(request, 'orders/print_label.html', context)
     

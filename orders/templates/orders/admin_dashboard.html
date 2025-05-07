@@ -253,7 +253,7 @@
                 <div class="card-header">
                     <div>
                         <h2 class="card-title collapsible-header">
-                            <i class="fas fa-box"></i> Recent Orders
+                            <i class="fas fa-box"></i> Orders
                             <i class="fas fa-chevron-down toggle-icon"></i>
                         </h2>
                         <p class="text-muted">View and manage recent orders</p>
@@ -282,7 +282,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for order in orders %}
+                                {% for order in order %}
                                 <tr>
                                     <td>#{{ order.id }}</td>
                                     <td>{{ order.company.name }}</td>
