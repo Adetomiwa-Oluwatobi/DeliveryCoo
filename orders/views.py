@@ -608,7 +608,7 @@ class DeliveryPersonnelRegistrationView(CreateView):
         return response
 
 class VisitorRegistrationView(FormView):
-    template_name = 'visitor_register.html'
+    template_name = 'orders/visitor_register.html'
     form_class = VisitorRegistrationForm
     success_url = reverse_lazy('login')  # Redirect to login page after registration
     
