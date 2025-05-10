@@ -29,7 +29,98 @@
         </div>
     </div>
     
-    <div id="map" style="height: 400px; width: 100%; margin-bottom: 1.5rem; border-radius: 8px;"></div>
+    <!-- Animated Road Map -->
+    <div id="road-map-container" style="height: 250px; width: 100%; margin-bottom: 2rem; position: relative; overflow: hidden; border-radius: 8px; background-color: #f8f9fa; box-shadow: inset 0 0 10px rgba(0,0,0,0.1);">
+        <!-- The Road -->
+        <div class="road" style="position: absolute; top: 50%; left: 0; right: 0; height: 20px; background-color: #e6e6e6; transform: translateY(-50%); border-radius: 10px;"></div>
+        
+        <!-- Milestones -->
+        <div class="milestones" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: center; padding: 0 10%;">
+            <!-- Order Placed -->
+            <div class="milestone" style="position: relative; display: flex; flex-direction: column; align-items: center; z-index: 2;">
+                <div class="icon-container" style="width: 50px; height: 50px; background-color: #ffbe00; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; box-shadow: 0 0 15px rgba(255,190,0,0.5);">
+                    <i class="fas fa-clipboard-list" style="color: white; font-size: 1.5rem;"></i>
+                </div>
+                <div class="label" style="font-weight: 600; text-align: center; font-size: 0.9rem;">
+                    Order Placed
+                </div>
+                <div class="date" style="font-size: 0.8rem; color: #666;">
+                    {{ order.ordered_at|date:"M j" }}
+                </div>
+                <div class="dot active" style="position: absolute; bottom: -25px; width: 24px; height: 24px; background-color: #ffbe00; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 3px #ffbe00;"></div>
+            </div>
+            
+            <!-- Processing -->
+            <div class="milestone" style="position: relative; display: flex; flex-direction: column; align-items: center; z-index: 2;">
+                <div class="icon-container {% if order.status != 'pending' %}active{% endif %}" style="width: 50px; height: 50px; background-color: {% if order.status != 'pending' %}#2ecc71{% else %}#bdc3c7{% endif %}; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; box-shadow: 0 0 15px {% if order.status != 'pending' %}rgba(46,204,113,0.5){% else %}rgba(189,195,199,0.3){% endif %};">
+                    <i class="fas fa-box-open" style="color: white; font-size: 1.5rem;"></i>
+                </div>
+                <div class="label" style="font-weight: 600; text-align: center; font-size: 0.9rem;">
+                    Processing
+                </div>
+                <div class="date" style="font-size: 0.8rem; color: #666;">
+                    {% if tracking_info.1 %}
+                        {{ tracking_info.1.timestamp|date:"M j" }}
+                    {% endif %}
+                </div>
+                <div class="dot {% if order.status != 'pending' %}active{% endif %}" style="position: absolute; bottom: -25px; width: 24px; height: 24px; background-color: {% if order.status != 'pending' %}#2ecc71{% else %}#bdc3c7{% endif %}; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 3px {% if order.status != 'pending' %}#2ecc71{% else %}#bdc3c7{% endif %};"></div>
+            </div>
+            
+            <!-- In Transit -->
+            <div class="milestone" style="position: relative; display: flex; flex-direction: column; align-items: center; z-index: 2;">
+                <div class="icon-container {% if order.status == 'transit' or order.status == 'delivered' %}active{% endif %}" style="width: 50px; height: 50px; background-color: {% if order.status == 'transit' or order.status == 'delivered' %}#3498db{% else %}#bdc3c7{% endif %}; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; box-shadow: 0 0 15px {% if order.status == 'transit' or order.status == 'delivered' %}rgba(52,152,219,0.5){% else %}rgba(189,195,199,0.3){% endif %};">
+                    <i class="fas fa-truck" style="color: white; font-size: 1.5rem;"></i>
+                </div>
+                <div class="label" style="font-weight: 600; text-align: center; font-size: 0.9rem;">
+                    In Transit
+                </div>
+                <div class="date" style="font-size: 0.8rem; color: #666;">
+                    {% if tracking_info.2 %}
+                        {{ tracking_info.2.timestamp|date:"M j" }}
+                    {% endif %}
+                </div>
+                <div class="dot {% if order.status == 'transit' or order.status == 'delivered' %}active{% endif %}" style="position: absolute; bottom: -25px; width: 24px; height: 24px; background-color: {% if order.status == 'transit' or order.status == 'delivered' %}#3498db{% else %}#bdc3c7{% endif %}; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 3px {% if order.status == 'transit' or order.status == 'delivered' %}#3498db{% else %}#bdc3c7{% endif %};"></div>
+            </div>
+            
+            <!-- Delivered -->
+            <div class="milestone" style="position: relative; display: flex; flex-direction: column; align-items: center; z-index: 2;">
+                <div class="icon-container {% if order.status == 'delivered' %}active{% endif %}" style="width: 50px; height: 50px; background-color: {% if order.status == 'delivered' %}#2ecc71{% else %}#bdc3c7{% endif %}; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; box-shadow: 0 0 15px {% if order.status == 'delivered' %}rgba(46,204,113,0.5){% else %}rgba(189,195,199,0.3){% endif %};">
+                    <i class="fas fa-check-circle" style="color: white; font-size: 1.5rem;"></i>
+                </div>
+                <div class="label" style="font-weight: 600; text-align: center; font-size: 0.9rem;">
+                    Delivered
+                </div>
+                <div class="date" style="font-size: 0.8rem; color: #666;">
+                    {% if order.status == 'delivered' and tracking_info.last %}
+                        {{ tracking_info.last.timestamp|date:"M j" }}
+                    {% endif %}
+                </div>
+                <div class="dot {% if order.status == 'delivered' %}active{% endif %}" style="position: absolute; bottom: -25px; width: 24px; height: 24px; background-color: {% if order.status == 'delivered' %}#2ecc71{% else %}#bdc3c7{% endif %}; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 3px {% if order.status == 'delivered' %}#2ecc71{% else %}#bdc3c7{% endif %};"></div>
+            </div>
+        </div>
+        
+        <!-- Progress Line -->
+        <div class="progress-line" style="position: absolute; top: 50%; left: 10%; height: 10px; border-radius: 5px; transform: translateY(-50%); background-color: #ffbe00; z-index: 1; width: 
+            {% if order.status == 'pending' %}
+                0%
+            {% elif order.status == 'transit' %}
+                60%
+            {% elif order.status == 'delivered' %}
+                90%
+            {% else %}
+                30%
+            {% endif %};">
+        </div>
+        
+        <!-- Animated Delivery Truck -->
+        {% if order.status == 'transit' %}
+        <div class="delivery-truck" style="position: absolute; top: 50%; transform: translateY(-75%); left: 60%; z-index: 3; animation: truckBounce 2s infinite ease-in-out;">
+            <div style="background-color: #3498db; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 5px 15px rgba(52,152,219,0.5);">
+                <i class="fas fa-truck" style="color: white; font-size: 1.2rem; transform: scaleX(-1);"></i>
+            </div>
+        </div>
+        {% endif %}
+    </div>
     
     <div class="tracking-timeline" style="margin-bottom: 1.5rem;">
         <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Tracking Timeline</h3>
@@ -38,7 +129,7 @@
                 <div class="timeline-line" style="position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background-color: var(--gray);"></div>
                 {% for tracking in tracking_info %}
                     <div class="timeline-item" style="position: relative; margin-bottom: 1.5rem;">
-                        <div class="timeline-point" style="position: absolute; left: -30px; width: 20px; height: 20px; border-radius: 50%; background-color: var(--secondary); display: flex; justify-content: center; align-items: center;">
+                        <div class="timeline-point" style="position: absolute; left: -30px; width: 20px; height: 20px; border-radius: 50%; background-color: var(--secondary); display: flex; justify-content: center; align-items: center; box-shadow: 0 0 0 5px rgba(46,204,113,0.2);">
                             <i class="fas fa-check" style="color: white; font-size: 0.7rem;"></i>
                         </div>
                         <div class="timeline-content">
@@ -108,154 +199,74 @@
     {% endif %}
 </div>
 
-<script>
-  let map;
-  let directionsService;
-  let directionsRenderer;
-  let marker;
-  let deliveryCoords = {lat: {{ order.delivery_address_lat|default:'0' }}, lng: {{ order.delivery_address_lng|default:'0' }}};
-  let pickupCoords = {lat: {{ order.pickup_address_lat|default:'0' }}, lng: {{ order.pickup_address_lng|default:'0' }}};
-  
-  function initMap() {
-    // Initialize map
-    map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 12,
-      center: deliveryCoords
-    });
-    
-    // Initialize directions service
-    directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer({
-      suppressMarkers: true,
-      polylineOptions: {
-        strokeColor: '#ffbe00',
-        strokeWeight: 5
-      }
-    });
-    directionsRenderer.setMap(map);
-    
-    // Add markers for pickup and delivery
-    if (pickupCoords.lat !== 0 && pickupCoords.lng !== 0) {
-      new google.maps.Marker({
-        position: pickupCoords,
-        map: map,
-        icon: {
-          url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-          scaledSize: new google.maps.Size(40, 40)
-        },
-        title: 'Pickup Location'
-      });
+<style>
+    @keyframes truckBounce {
+        0%, 100% { transform: translateY(-75%); }
+        50% { transform: translateY(-80%); }
     }
     
-    if (deliveryCoords.lat !== 0 && deliveryCoords.lng !== 0) {
-      new google.maps.Marker({
-        position: deliveryCoords,
-        map: map,
-        icon: {
-          url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-          scaledSize: new google.maps.Size(40, 40)
-        },
-        title: 'Delivery Location'
-      });
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255, 190, 0, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(255, 190, 0, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 190, 0, 0); }
     }
     
-    // Show route if both coordinates are available
-    if (pickupCoords.lat !== 0 && pickupCoords.lng !== 0 && 
-        deliveryCoords.lat !== 0 && deliveryCoords.lng !== 0) {
-      calculateAndDisplayRoute();
+    .milestone .icon-container.active {
+        animation: pulse 2s infinite;
     }
     
-    // If order is in transit, simulate current location
-    {% if order.status == 'transit' %}
-    simulateCurrentLocation();
-    {% endif %}
-  }
-  
-  function calculateAndDisplayRoute() {
-    directionsService.route(
-      {
-        origin: pickupCoords,
-        destination: deliveryCoords,
-        travelMode: google.maps.TravelMode.DRIVING
-      },
-      (response, status) => {
-        if (status === "OK") {
-          directionsRenderer.setDirections(response);
-        } else {
-          console.error("Directions request failed due to " + status);
-        }
-      }
-    );
-  }
-  
-  function simulateCurrentLocation() {
-    // For demonstration - this simulates a vehicle in transit
-    // In a real app, you would fetch the actual GPS coordinates from your backend
-    const path = [
-      pickupCoords,
-      {
-        lat: (pickupCoords.lat + deliveryCoords.lat) * 0.25 + (Math.random() * 0.01),
-        lng: (pickupCoords.lng + deliveryCoords.lng) * 0.25 + (Math.random() * 0.01)
-      },
-      {
-        lat: (pickupCoords.lat + deliveryCoords.lat) * 0.5 + (Math.random() * 0.01),
-        lng: (pickupCoords.lng + deliveryCoords.lng) * 0.5 + (Math.random() * 0.01)
-      },
-      {
-        lat: (pickupCoords.lat + deliveryCoords.lat) * 0.75 + (Math.random() * 0.01),
-        lng: (pickupCoords.lng + deliveryCoords.lng) * 0.75 + (Math.random() * 0.01)
-      },
-      deliveryCoords
-    ];
-    
-    // The current position in the path (would be determined by real-time tracking)
-    const currentPosition = Math.floor(Math.random() * 4) + 1;
-    
-    // Add a vehicle marker
-    const vehicleMarker = new google.maps.Marker({
-      position: path[currentPosition],
-      map: map,
-      icon: {
-        url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-        scaledSize: new google.maps.Size(40, 40)
-      },
-      title: 'Delivery Vehicle'
-    });
-    
-    // Animation for demonstration purposes
-    let i = currentPosition;
-    function animateMarker() {
-      if (i < path.length - 1) {
-        i++;
-        setTimeout(() => {
-          vehicleMarker.setPosition(path[i]);
-          animateMarker();
-        }, 5000);
-      }
+    /* Enhanced timeline item hover effect */
+    .timeline-item:hover .timeline-point {
+        transform: scale(1.2);
+        transition: transform 0.3s ease;
     }
     
-    // Only animate if in development/demo
-    {% if debug %}
-    animateMarker();
-    {% endif %}
-  }
-  
-  // Poll for updates every 30 seconds (in a real app)
-  function pollForUpdates() {
-    // This would fetch the latest tracking info from your server
-    // and update the page without a full refresh
-    console.log("Polling for updates...");
-  }
-  
-  // Uncomment to enable polling in production
-  // setInterval(pollForUpdates, 30000);
-</script>
+    /* Badges with animation */
+    .badge {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .badge::after {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(30deg);
+        animation: shimmer 2.5s infinite linear;
+    }
+    
+    @keyframes shimmer {
+        from { transform: translateX(-150%) rotate(30deg); }
+        to { transform: translateX(150%) rotate(30deg); }
+    }
+</style>
 
-{% if order.delivery_address_lat and order.delivery_address_lng %}
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
-{% else %}
 <script>
-  document.getElementById('map').innerHTML = '<div style="height: 100%; display: flex; justify-content: center; align-items: center; background-color: #f5f5f5; border-radius: 8px;"><p>No location data available for mapping</p></div>';
+    // Add any JavaScript you need for the road map here
+    document.addEventListener('DOMContentLoaded', function() {
+        // You could add more animations or interactive features here
+        
+        // Example: Adding a pulse effect to the current status milestone
+        const currentStatus = '{{ order.status }}';
+        let activeIconContainer;
+        
+        if (currentStatus === 'pending') {
+            activeIconContainer = document.querySelector('.milestone:nth-child(1) .icon-container');
+        } else if (currentStatus === 'transit') {
+            activeIconContainer = document.querySelector('.milestone:nth-child(3) .icon-container');
+        } else if (currentStatus === 'delivered') {
+            activeIconContainer = document.querySelector('.milestone:nth-child(4) .icon-container');
+        } else {
+            activeIconContainer = document.querySelector('.milestone:nth-child(2) .icon-container');
+        }
+        
+        if (activeIconContainer) {
+            activeIconContainer.classList.add('active');
+        }
+    });
 </script>
-{% endif %}
 {% endblock %}
