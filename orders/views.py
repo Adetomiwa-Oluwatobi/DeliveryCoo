@@ -613,8 +613,6 @@ class VisitorRegistrationView(CreateView):
     success_url = reverse_lazy('login')
     
     
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
     
     def form_valid(self, form):
         response = super().form_valid(form)
