@@ -164,18 +164,16 @@ class CustomLoginForm(AuthenticationForm):
     
     
 class VisitorRegistrationForm(forms.ModelForm):
-    """Form for registering a new visitor"""
+    """Form for registering a new visitor with minimal fields"""
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
     
     class Meta:
         model = Visitor
-        fields = ('name', 'phone_number', 'email')
+        fields = []  # We're not using any model fields directly
     
     email = forms.EmailField(required=True)
     username = forms.CharField(max_length=30, required=True)
-    first_name = forms.CharField(max_length=30, required=True)
-    last_name = forms.CharField(max_length=30, required=True)
     
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
@@ -185,19 +183,10 @@ class VisitorRegistrationForm(forms.ModelForm):
         return password2
     
     def save(self, commit=True):
-        # Create user first
-        user_data = {
-            'email': self.cleaned_data['email'],
-            'username': self.cleaned_data['username'],
-            'first_name': self.cleaned_data['first_name'],
-            'last_name': self.cleaned_data['last_name'],
-            'role': VISITOR
-        }
+        # Create user with minimal info
         user = CustomUser.objects.create_user(
-            email=user_data['email'],
-            username=user_data['username'],
-            first_name=user_data['first_name'],
-            last_name=user_data['last_name'],
+            email=self.cleaned_data['email'],
+            username=self.cleaned_data['username'],
             password=self.cleaned_data['password1'],
             role=VISITOR
         )
