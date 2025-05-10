@@ -163,17 +163,12 @@ class CustomLoginForm(AuthenticationForm):
   
     
     
-class VisitorRegistrationForm(forms.ModelForm):
+class VisitorRegistrationForm(forms.Form):
     """Form for registering a new visitor with minimal fields"""
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
-    
-    class Meta:
-        model = Visitor
-        fields = []  # We're not using any model fields directly
-    
     email = forms.EmailField(required=True)
     username = forms.CharField(max_length=30, required=True)
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
     
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
@@ -182,7 +177,7 @@ class VisitorRegistrationForm(forms.ModelForm):
             raise forms.ValidationError("Passwords don't match")
         return password2
     
-    def save(self, commit=True):
+    def save(self):
         # Create user with minimal info
         user = CustomUser.objects.create_user(
             email=self.cleaned_data['email'],
@@ -191,11 +186,4 @@ class VisitorRegistrationForm(forms.ModelForm):
             role=VISITOR
         )
         
-        # Then create the visitor profile
-        visitor = super().save(commit=False)
-        visitor.user = user
-        
-        if commit:
-            visitor.save()
-        
-        return visitor
+        return user

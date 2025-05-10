@@ -607,17 +607,15 @@ class DeliveryPersonnelRegistrationView(CreateView):
         messages.success(self.request, "Delivery personnel account created successfully.")
         return response
 
-class VisitorRegistrationView(CreateView):
-    template_name = 'orders/visitor_register.html'
+class VisitorRegistrationView(FormView):
+    template_name = 'visitor_register.html'
     form_class = VisitorRegistrationForm
-    success_url = reverse_lazy('login')
-    
-    
+    success_url = reverse_lazy('login')  # Redirect to login page after registration
     
     def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, "User  account created successfully.")
-        return response
+        form.save()  # This now just creates the CustomUser without trying to create a Visitor
+        messages.success(self.request, "Registration successful. You can now log in.")
+        return super().form_valid(form)
 # Dashboard views based on roles
 @login_required
 def dashboard_redirect(request):
