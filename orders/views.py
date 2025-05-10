@@ -799,7 +799,7 @@ def delete_product(request, product_id):
 
 # Category management views
 @login_required
-@user_passes_test(is_admin,is_visitor)
+
 def category_list(request):
     """View to list all categories (admin only)"""
     categories = Category.objects.all().order_by('name')
