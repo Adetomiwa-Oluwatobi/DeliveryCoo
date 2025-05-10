@@ -1,5 +1,5 @@
 from django import forms
-from .models import Order, OrderTracking, DeliveryPersonnel, CustomUser,Product, Category, Company, COMPANY, DELIVERY_PERSONNEL
+from .models import VISITOR, Order, OrderTracking, DeliveryPersonnel, CustomUser,Product, Category, Company, COMPANY, DELIVERY_PERSONNEL, Visitor
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 
@@ -159,3 +159,54 @@ class ProductForm(forms.ModelForm):
 class CustomLoginForm(AuthenticationForm):
     """Custom login form"""
     username = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'autofocus': True}))
+  
+  
+    
+    
+class VisitorRegistrationForm(forms.ModelForm):
+    """Form for registering a new visitor"""
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
+    
+    class Meta:
+        model = Visitor
+        fields = ('name', 'phone_number', 'email')
+    
+    email = forms.EmailField(required=True)
+    username = forms.CharField(max_length=30, required=True)
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
+    
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords don't match")
+        return password2
+    
+    def save(self, commit=True):
+        # Create user first
+        user_data = {
+            'email': self.cleaned_data['email'],
+            'username': self.cleaned_data['username'],
+            'first_name': self.cleaned_data['first_name'],
+            'last_name': self.cleaned_data['last_name'],
+            'role': VISITOR
+        }
+        user = CustomUser.objects.create_user(
+            email=user_data['email'],
+            username=user_data['username'],
+            first_name=user_data['first_name'],
+            last_name=user_data['last_name'],
+            password=self.cleaned_data['password1'],
+            role=VISITOR
+        )
+        
+        # Then create the visitor profile
+        visitor = super().save(commit=False)
+        visitor.user = user
+        
+        if commit:
+            visitor.save()
+        
+        return visitor

@@ -3,7 +3,7 @@ from django import forms
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .models import *
-from .forms import CategoryForm, OrderForm, OrderTrackingForm, ProductForm
+from .forms import CategoryForm, OrderForm, OrderTrackingForm, ProductForm, VisitorRegistrationForm
 from django.core.mail import send_mail
 from django.conf import settings
 from twilio.rest import Client as TwilioClient
@@ -553,6 +553,8 @@ def is_company(user):
 def is_delivery(user):
     return user.is_authenticated and user.role == DELIVERY_PERSONNEL
 
+def is_visitor(user):
+    return user.is_authenticated and user.role == VISITOR
 # Custom login view
 class CustomLoginView(FormView):
     template_name = 'orders/login.html'
@@ -605,6 +607,19 @@ class DeliveryPersonnelRegistrationView(CreateView):
         messages.success(self.request, "Delivery personnel account created successfully.")
         return response
 
+class VisitorRegistrationView(CreateView):
+    template_name = 'orders/visitor_register.html'
+    form_class = VisitorRegistrationForm
+    success_url = reverse_lazy('login')
+    
+    
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, "User  account created successfully.")
+        return response
 # Dashboard views based on roles
 @login_required
 def dashboard_redirect(request):
@@ -616,6 +631,8 @@ def dashboard_redirect(request):
         return redirect('company_dashboard')
     elif user.role == DELIVERY_PERSONNEL:
         return redirect('delivery_dashboard')
+    elif user.role == VISITOR:
+        return redirect('search_products')
     
     else:
         # Fallback to a common dashboard or login page
@@ -686,7 +703,7 @@ def logout_view(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.role in [ADMIN, COMPANY])
+@user_passes_test(lambda u: u.role in [ADMIN, COMPANY,VISITOR])
 def product_list(request):
     """View to list products based on user role"""
     user = request.user
@@ -696,8 +713,10 @@ def product_list(request):
     elif user.role == COMPANY:
         company = user.company_profile
         products = Product.objects.filter(company=company).order_by('-created_at')
+    if user.role == VISITOR:
+        products = Product.objects.all().order_by('-created_at')
     else:
-        products = Product.objects.none()
+        products = Product.objects.all().order_by('-created_at')
     
     context = {
         'products': products,
@@ -784,7 +803,7 @@ def delete_product(request, product_id):
 
 # Category management views
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_admin,is_visitor)
 def category_list(request):
     """View to list all categories (admin only)"""
     categories = Category.objects.all().order_by('name')

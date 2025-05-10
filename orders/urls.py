@@ -9,6 +9,9 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('register/company/', views.CompanyRegistrationView.as_view(), name='register_company'),
     path('register/delivery/', views.DeliveryPersonnelRegistrationView.as_view(), name='register_delivery'),
+    path('register/client/', views.VisitorRegistrationView.as_view(), name='register_client'),
+    
+    
     
     
     # Dashboard URLs

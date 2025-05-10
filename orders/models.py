@@ -5,11 +5,14 @@ from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, Permis
 ADMIN = 'admin'
 COMPANY = 'company'
 DELIVERY_PERSONNEL = 'delivery'
+VISITOR='Visitor'
 
 USER_ROLE_CHOICES = [
     (ADMIN, 'Admin'),
     (COMPANY, 'Company'),
     (DELIVERY_PERSONNEL, 'Delivery Personnel'),
+    (VISITOR, 'Visitor'),
+    
 ]
 
 class CustomUserManager(BaseUserManager):
@@ -85,6 +88,13 @@ class Company(models.Model):
 class Client(models.Model):
     name = models.CharField(max_length=100)
     company = models.ForeignKey(Company, related_name='clients', on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=15)
+    email = models.EmailField(blank=True, null=True)
+     
+    def __str__(self):
+        return self.name
+class Visitor(models.Model):
+    name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15)
     email = models.EmailField(blank=True, null=True)
      
