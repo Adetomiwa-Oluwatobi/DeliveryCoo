@@ -1041,6 +1041,8 @@ def update_cart_item(request, item_id):
 
 # Replace the checkout view with this updated version
 
+# Add this to your existing views.py file
+
 def checkout(request):
     """Process checkout from cart to create an order"""
     cart = get_or_create_cart(request)
@@ -1116,13 +1118,11 @@ def checkout(request):
             return redirect('initiate_payment', order_id=orders[0].id)
         else:
             # For multiple orders, you might need a different approach
-            # For now, redirect to order list
-            messages.success(request, f"{len(orders)} orders placed successfully.")
-            if request.user.is_authenticated:
-                return redirect('order_list')
-            else:
-                # For non-authenticated users, show a confirmation page
-                return render(request, 'public/order_confirmation.html', {'orders': orders})
+            # For now, redirect to the first order's payment
+            messages.success(request, f"{len(orders)} orders placed successfully. Processing payment for the first order.")
+            # Store other order IDs in session to process after first payment
+            request.session['pending_orders'] = [order.id for order in orders[1:]]
+            return redirect('initiate_payment', order_id=orders[0].id)
     
     context = {
         'cart': cart,
@@ -1130,3 +1130,102 @@ def checkout(request):
         'items_by_company': items_by_company,
     }
     return render(request, 'orders/checkout.html', context)
+
+def public_initiate_payment(request):
+    """Handle payment initialization for public users (cart checkout)"""
+    # This is a wrapper for initiate_payment that handles public user scenarios
+    # Get the order ID from session or parameter
+    order_id = request.GET.get('order_id')
+    
+    if order_id:
+        return initiate_payment(request, order_id)
+    else:
+        messages.error(request, "No order found for payment.")
+        return redirect('cart_view')
+
+def payment_callback(request):
+    """Handle the callback from Paystack after payment"""
+    reference = request.GET.get('reference', None)
+    
+    if not reference:
+        messages.error(request, "Payment verification failed. No reference provided.")
+        return redirect('landing_page')
+    
+    try:
+        # Verify the transaction
+        from paystackapi.transaction import Transaction
+        from django.utils import timezone
+        
+        response = Transaction.verify(reference)
+        
+        # First try to find the order directly by payment reference
+        try:
+            order = Order.objects.get(payment_reference=reference)
+        except Order.DoesNotExist:
+            # If not found by reference, try to extract order ID from metadata
+            if 'data' in response and 'metadata' in response['data'] and 'order_id' in response['data']['metadata']:
+                order_id = response['data']['metadata']['order_id']
+                try:
+                    order = Order.objects.get(id=order_id)
+                except Order.DoesNotExist:
+                    messages.error(request, "Order not found with metadata ID.")
+                    return redirect('landing_page')
+            else:
+                # Try to extract from reference if it follows our format
+                import re
+                match = re.search(r'order-(\d+)-', reference)
+                if match:
+                    order_id = match.group(1)
+                    try:
+                        order = Order.objects.get(id=order_id)
+                    except Order.DoesNotExist:
+                        messages.error(request, "Order not found with reference pattern.")
+                        return redirect('landing_page')
+                else:
+                    messages.error(request, "Could not determine order from payment reference.")
+                    return redirect('landing_page')
+        
+        # Now check if payment was successful
+        if 'data' in response and response['data']['status'] == 'success':
+            # Update the order with payment information
+            order.payment_status = 'paid'
+            order.payment_date = timezone.now()
+            order.save()
+            
+            # Log the successful payment
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(f"Payment successful for order #{order.id}, reference: {reference}")
+            
+            messages.success(request, "Payment successful! Your order is now being processed.")
+            
+            # Check if there are more orders to process (for multi-company checkouts)
+            pending_orders = request.session.get('pending_orders', [])
+            if pending_orders:
+                # Remove the first order from pending and redirect to its payment
+                next_order_id = pending_orders.pop(0)
+                request.session['pending_orders'] = pending_orders
+                messages.info(request, "Processing payment for next order...")
+                return redirect('initiate_payment', order_id=next_order_id)
+            
+            # If user is authenticated, go to order detail, otherwise show confirmation
+            if request.user.is_authenticated:
+                return redirect('order_detail', order_id=order.id)
+            else:
+                return render(request, 'orders/public_order_confirmation.html', {'order': order})
+        else:
+            # Payment failed or is pending
+            payment_status = response.get('data', {}).get('status', 'unknown')
+            order.payment_status = 'failed' if payment_status == 'failed' else 'pending'
+            order.save()
+            
+            messages.warning(request, f"Payment status: {payment_status}. Please try again if needed.")
+            return redirect('cart_view')
+            
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Payment verification error: {str(e)}")
+        
+        messages.error(request, f"Payment verification error: {str(e)}")
+        return redirect('cart_view')
