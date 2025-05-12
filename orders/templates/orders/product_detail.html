@@ -65,28 +65,27 @@
             
             {% if product.available %}
                 <!-- Add to Cart Form -->
-                <div class="product-actions">
-                    <form method="post" action="{% url 'add_to_cart' product.id %}" class="cart-form">
+                <div class="product-actions" style="margin-top: 2rem;">
+                    <form method="post" action="{% url 'add_to_cart' product.id %}">
                         {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                        
-                        <div class="quantity-selector">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
                             <label for="quantity">Quantity:</label>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn minus" id="decrease-qty">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <input type="number" id="quantity" class="quantity-input" name="quantity" value="1" min="1" max="10">
-                                <button type="button" class="quantity-btn plus" id="increase-qty">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" step="1" style="width: 100px; padding: 0.5rem; border: 1px solid var(--gray); border-radius: 5px;">
                         </div>
-                        
-                        <button type="submit" class="btn-add-to-cart">
+                        <button type="submit" class="btn btn-large" style="font-size: 1.2rem; padding: 1rem 2rem;">
                             <i class="fas fa-shopping-cart"></i> Add to Cart
                         </button>
+                        <input type="hidden" name="next" value="{% url 'cart_view' %}">
                     </form>
+                    
+                    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                        <a href="{% url 'cart_view' %}" class="btn btn-secondary">
+                            <i class="fas fa-shopping-cart"></i> View Cart
+                        </a>
+                        <a href="{{ request.META.HTTP_REFERER|default:'/' }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Go Back
+                        </a>
+                    </div>
                 </div>
             {% else %}
                 <div class="product-unavailable">
@@ -610,6 +609,17 @@
 </style>
 
 <script>
+    // Auto-hide messages after 5 seconds
+    setTimeout(function() {
+        var messages = document.getElementById('messages');
+        if (messages) {
+            messages.style.transition = 'opacity 0.5s';
+            messages.style.opacity = '0';
+            setTimeout(function() {
+                messages.remove();
+            }, 500);
+        }
+    }, 5000);
     // Quantity selector functionality
     document.addEventListener('DOMContentLoaded', function() {
         const quantityInput = document.getElementById('quantity');
