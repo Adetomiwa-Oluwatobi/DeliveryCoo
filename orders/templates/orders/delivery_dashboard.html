@@ -61,19 +61,19 @@
                 <div class="order-details">
                     <div class="detail-group">
                         <span class="detail-label"><i class="fas fa-map-marker-alt"></i> Origin:</span>
-                        <span class="detail-value">{{ order.origin }}</span>
+                        <span class="detail-value">{{ order.company.address }}</span>
                     </div>
                     <div class="detail-group">
                         <span class="detail-label"><i class="fas fa-flag"></i> Destination:</span>
-                        <span class="detail-value">{{ order.destination }}</span>
+                        <span class="detail-value">{{ order.delivery_address }}</span>
                     </div>
                     <div class="detail-group">
                         <span class="detail-label"><i class="fas fa-user"></i> Client:</span>
-                        <span class="detail-value">{{ order.client.user.first_name }} {{ order.client.user.last_name }}</span>
+                        <span class="detail-value">{{ order.client_name}} </span>
                     </div>
                     <div class="detail-group">
                         <span class="detail-label"><i class="fas fa-phone"></i> Contact:</span>
-                        <span class="detail-value">{{ order.client.phone_number }}</span>
+                        <span class="detail-value">{{ order.client_phone }}</span>
                     </div>
                     <div class="detail-group">
                         <span class="detail-label"><i class="fas fa-box"></i> Items:</span>
