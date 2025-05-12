@@ -974,7 +974,7 @@ def get_or_create_cart(request):
     
     cart, created = Cart.objects.get_or_create(session_key=session_key)
     return cart
-
+@login_required
 def add_to_cart(request, product_id):
     """Add a product to the shopping cart"""
     product = get_object_or_404(Product, id=product_id, available=True)
