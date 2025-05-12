@@ -81,6 +81,9 @@ def order_list(request):
     elif user.role == COMPANY:
         company = user.company_profile
         orders = Order.objects.filter(company=company).order_by('-id')
+    elif user.role == VISITOR:
+        visitor = user.visitor_profile
+        orders = Order.objects.filter(visitor=visitor).order_by('-id')
     elif user.role == DELIVERY_PERSONNEL:
         delivery_personnel = user.delivery_profile
         orders = Order.objects.filter(ordertracking__assigned_to=delivery_personnel).order_by('-id')
