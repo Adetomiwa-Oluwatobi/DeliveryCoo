@@ -129,6 +129,36 @@ class DeliveryPersonnelRegistrationForm(forms.ModelForm):
         
         return delivery_personnel
 
+class VisitorRegistrationForm(forms.Form):
+    """Form for registering a new visitor with minimal fields"""
+    email = forms.EmailField(required=True)
+    username = forms.CharField(max_length=30, required=True)
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
+    
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords don't match")
+        return password2
+    
+    def save(self,commit=True):
+        # Create user with minimal info
+        user = CustomUser.objects.create_user(
+            email=self.cleaned_data['email'],
+            username=self.cleaned_data['username'],
+            password=self.cleaned_data['password1'],
+            role=VISITOR
+        )
+        visitor = super().save(commit=False)
+        visitor.user = user
+        
+        if commit:
+            visitor.save()
+        
+
+        return user
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -163,27 +193,3 @@ class CustomLoginForm(AuthenticationForm):
   
     
     
-class VisitorRegistrationForm(forms.Form):
-    """Form for registering a new visitor with minimal fields"""
-    email = forms.EmailField(required=True)
-    username = forms.CharField(max_length=30, required=True)
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
-    
-    def clean_password2(self):
-        password1 = self.cleaned_data.get('password1')
-        password2 = self.cleaned_data.get('password2')
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Passwords don't match")
-        return password2
-    
-    def save(self):
-        # Create user with minimal info
-        user = CustomUser.objects.create_user(
-            email=self.cleaned_data['email'],
-            username=self.cleaned_data['username'],
-            password=self.cleaned_data['password1'],
-            role=VISITOR
-        )
-        
-        return user
