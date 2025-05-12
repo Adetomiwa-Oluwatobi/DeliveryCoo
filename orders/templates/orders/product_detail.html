@@ -116,13 +116,14 @@
                             {% endif %}
                             
                             {% if related.available %}
-                                <form method="post" action="{% url 'add_to_cart' related.id %}" class="quick-add">
+                                <form method="post" action="{% url 'add_to_cart' product.id %}" class="quick-add">
                                     {% csrf_token %}
                                     <input type="hidden" name="quantity" value="1">
                                     <input type="hidden" name="next" value="{{ request.path }}">
                                     <button type="submit" class="btn-quick-add">
                                         <i class="fas fa-cart-plus"></i>
                                     </button>
+                                    <input type="hidden" name="next" value="{% url 'cart_view' %}">
                                 </form>
                             {% endif %}
                         </div>
