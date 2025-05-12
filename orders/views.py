@@ -11,6 +11,7 @@ from django.contrib import messages
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from django.db.models import Q
 from .models import (
     CustomUser, ADMIN, COMPANY, DELIVERY_PERSONNEL,
     Company, DeliveryPersonnel, Order, OrderTracking, DeliveryLog
@@ -1240,10 +1241,9 @@ def public_order_tracking(request):
         
         try:
             # Try to find the order by ID and matching email or phone
-            order = Order.objects.get(
-                id=order_id,
-                models.Q(client_email=email_or_phone) | models.Q(client_phone=email_or_phone)
-            )
+            order = Order.objects.filter(
+                Q(client_email=email_or_phone) | Q(client_phone=email_or_phone),
+                id=order_id).get()
             
             # Get tracking information
             tracking_info = OrderTracking.objects.filter(order=order).order_by('-timestamp')
