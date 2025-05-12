@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.id }} Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Order #{{ order.id }}</h5>
+                    <span class="badge bg-light text-dark">{{ order.get_status_display|default:order.status|title }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6>Customer Information</h6>
+                            <p class="mb-1"><strong>Name:</strong> {{ order.client_name }}</p>
+                            <p class="mb-1"><strong>Phone:</strong> {{ order.client_phone }}</p>
+                            <p class="mb-1"><strong>Email:</strong> {{ order.client_email|default:"Not provided" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Delivery Information</h6>
+                            <p class="mb-1"><strong>Address:</strong> {{ order.delivery_address }}</p>
+                            <p class="mb-1"><strong>Delivery Time:</strong> {{ order.delivery_time|date:"M d, Y H:i" }}</p>
+                            <p class="mb-1"><strong>Company:</strong> {{ order.company.name }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Order Details</h6>
+                            <p class="mb-1"><strong>Order Date:</strong> {{ order.ordered_at|date:"M d, Y H:i" }}</p>
+                            <p class="mb-1"><strong>Total Amount:</strong> ₦{{ order.delivery_cost }}</p>
+                            <p class="mb-1"><strong>Payment Status:</strong> 
+                                <span class="badge {% if order.payment_status == 'paid' %}bg-success{% elif order.payment_status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ order.get_payment_status_display|default:order.payment_status|title }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% if order.orderitem_set.all %}
+                    <div class="mt-4">
+                        <h6>Order Items</h6>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.orderitem_set.all %}
+                                <tr>
+                                    <td>{{ item.product_name }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>₦{{ item.price }}</td>
+                                    <td>₦{{ item.subtotal }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Tracking Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if tracking_info %}
+                        {% for tracking in tracking_info %}
+                        <div class="tracking-item mb-3">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ tracking.status|title }}</strong>
+                                <small class="text-muted">{{ tracking.timestamp|date:"M d, Y H:i" }}</small>
+                            </div>
+                            {% if tracking.notes %}
+                            <p class="text-muted mb-0">{{ tracking.notes }}</p>
+                            {% endif %}
+                            {% if tracking.assigned_to %}
+                            <p class="text-muted mb-0">
+                                <small>Assigned to: {{ tracking.assigned_to.get_full_name }}</small>
+                            </p>
+                            {% endif %}
+                        </div>
+                        {% if not forloop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No tracking information available yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-body text-center">
+                    <a href="{% url 'public_order_tracking' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-search"></i> Track Another Order
+                    </a>
+                    <br><br>
+                    <a href="{% url 'landing_page' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

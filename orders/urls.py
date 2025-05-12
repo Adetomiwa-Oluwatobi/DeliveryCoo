@@ -70,6 +70,12 @@ urlpatterns = [
     path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/update/<int:item_id>/', views.update_cart_item, name='update_cart_item'),
     path('checkout/', views.checkout, name='checkout'),
+    
+    # Public order tracking
+    path('track-order/', views.public_order_tracking, name='public_order_tracking'),
+    
+    # Payment handling for public users
+    path('payment/public/', views.public_initiate_payment, name='public_initiate_payment'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
    

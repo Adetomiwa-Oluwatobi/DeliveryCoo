@@ -1043,6 +1043,8 @@ def update_cart_item(request, item_id):
 
 # Add this to your existing views.py file
 
+# Add this to your existing views.py file
+
 def checkout(request):
     """Process checkout from cart to create an order"""
     cart = get_or_create_cart(request)
@@ -1229,3 +1231,32 @@ def payment_callback(request):
         
         messages.error(request, f"Payment verification error: {str(e)}")
         return redirect('cart_view')
+
+def public_order_tracking(request):
+    """Allow public users to track their orders"""
+    if request.method == 'POST':
+        order_id = request.POST.get('order_id')
+        email_or_phone = request.POST.get('email_or_phone')
+        
+        try:
+            # Try to find the order by ID and matching email or phone
+            order = Order.objects.get(
+                id=order_id,
+                models.Q(client_email=email_or_phone) | models.Q(client_phone=email_or_phone)
+            )
+            
+            # Get tracking information
+            tracking_info = OrderTracking.objects.filter(order=order).order_by('-timestamp')
+            
+            context = {
+                'order': order,
+                'tracking_info': tracking_info,
+                'found': True
+            }
+            return render(request, 'orders/public_order_detail.html', context)
+            
+        except Order.DoesNotExist:
+            messages.error(request, "Order not found. Please check your order number and contact details.")
+            return redirect('public_order_tracking')
+    
+    return render(request, 'orders/public_order_tracking.html')
