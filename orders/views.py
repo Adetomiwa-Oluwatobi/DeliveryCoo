@@ -1070,22 +1070,52 @@ def checkout(request):
         client_email = request.POST.get('client_email')
         delivery_address = request.POST.get('delivery_address')
         
+        # Get package weight and delivery date
+        try:
+            weight = float(request.POST.get('weight', 30.9))
+        except ValueError:
+            weight = 30.9  # Default value if conversion fails
+            
+        delivery_date_str = request.POST.get('delivery_date')
+        order_notes = request.POST.get('order_notes', '')
+        
         # Validate required fields
-        if not all([client_name, client_phone, delivery_address]):
+        if not all([client_name, client_phone, delivery_address, delivery_date_str]):
             messages.error(request, "Please fill in all required fields.")
             return redirect('checkout')
         
         # Create orders for each company
         orders = []
         for company, items in items_by_company.items():
-            # Create an order for this company
-            import datetime
-            from django.utils import timezone
-            
-            delivery_time = timezone.now() + datetime.timedelta(days=1)
+            # Convert delivery date to datetime
+            try:
+                from datetime import datetime, time
+                from django.utils import timezone
+                import pytz
+                
+                # Parse the date from the input
+                delivery_date = datetime.strptime(delivery_date_str, '%Y-%m-%d').date()
+                
+                # Add a default time (noon)
+                delivery_time = datetime.combine(delivery_date, time(12, 0))
+                
+                # Make timezone-aware
+                tz = pytz.timezone('Africa/Lagos')  # Assuming Nigerian timezone
+                delivery_time = tz.localize(delivery_time)
+            except ValueError:
+                # If date parsing fails, default to 24 hours from now
+                delivery_time = timezone.now() + timezone.timedelta(days=1)
             
             # Calculate total for this company's items
-            delivery_cost = sum(item.subtotal for item in items)
+            subtotal = sum(item.subtotal for item in items)
+            
+            # Calculate delivery cost based on weight and possibly distance (simplified here)
+            base_delivery_fee = 600  # Base delivery fee in Naira
+            weight_factor = weight / 10  # Adjust based on weight
+            delivery_cost = base_delivery_fee * (1 + weight_factor)
+            
+            # Total cost including items and delivery
+            total_cost = subtotal + delivery_cost
             
             # Create the order
             order = Order.objects.create(
@@ -1095,6 +1125,7 @@ def checkout(request):
                 client_email=client_email,
                 delivery_address=delivery_address,
                 delivery_time=delivery_time,
+                weight=weight,
                 delivery_cost=delivery_cost,
                 status='pending',
                 payment_status='pending'
@@ -1108,6 +1139,14 @@ def checkout(request):
                     product_name=item.product.name,
                     quantity=item.quantity,
                     price=item.product.price or 0
+                )
+            
+            # Add order notes if provided
+            if order_notes:
+                OrderNote.objects.create(
+                    order=order,
+                    content=order_notes,
+                    created_by="Customer" if not request.user.is_authenticated else request.user.get_full_name()
                 )
             
             orders.append(order)
