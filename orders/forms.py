@@ -129,12 +129,16 @@ class DeliveryPersonnelRegistrationForm(forms.ModelForm):
         
         return delivery_personnel
 
-class VisitorRegistrationForm(forms.Form):
+class VisitorRegistrationForm(forms.ModelForm):
     """Form for registering a new visitor with minimal fields"""
     email = forms.EmailField(required=True)
     username = forms.CharField(max_length=30, required=True)
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
+    
+    class Meta:
+        model = Visitor
+        fields = []  # No fields directly from the Visitor model
     
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
@@ -143,7 +147,7 @@ class VisitorRegistrationForm(forms.Form):
             raise forms.ValidationError("Passwords don't match")
         return password2
     
-    def save(self,commit=True):
+    def save(self, commit=True):
         # Create user with minimal info
         user = CustomUser.objects.create_user(
             email=self.cleaned_data['email'],
@@ -151,13 +155,13 @@ class VisitorRegistrationForm(forms.Form):
             password=self.cleaned_data['password1'],
             role=VISITOR
         )
-        visitor = super().save(commit=False)
-        visitor.user = user
+        
+        # Create visitor instance without calling super().save()
+        visitor = Visitor(user=user)
         
         if commit:
             visitor.save()
         
-
         return user
 
 class CategoryForm(forms.ModelForm):
