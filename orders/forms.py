@@ -157,7 +157,8 @@ class VisitorRegistrationForm(forms.ModelForm):
         )
         
         # Create visitor instance without calling super().save()
-        visitor = Visitor(user=user)
+        visitor = super().save(commit=False)
+        visitor.user = user
         
         if commit:
             visitor.save()
