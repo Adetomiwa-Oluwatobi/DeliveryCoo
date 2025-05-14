@@ -1123,6 +1123,9 @@ def checkout(request):
             weight_factor = weight / 10  # Adjust based on weight
             delivery_cost = base_delivery_fee * (1 + weight_factor)
             
+            from decimal import Decimal
+            delivery_cost = Decimal(str(delivery_cost))
+            
             # Total cost including items and delivery
             total_cost = subtotal + delivery_cost
             
