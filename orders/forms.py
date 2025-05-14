@@ -135,10 +135,11 @@ class VisitorRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=30, required=True)
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
+    phone_number = forms.CharField(max_length=15, required=False)
     
     class Meta:
         model = Visitor
-        fields = []  # No fields directly from the Visitor model
+        fields = ['phone_number']  
     
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
@@ -156,15 +157,14 @@ class VisitorRegistrationForm(forms.ModelForm):
             role=VISITOR
         )
         
-        # Create visitor instance without calling super().save()
-        visitor = super().save(commit=False)
-        visitor.user = user
-        
-        if commit:
-            visitor.save()
+        # Create visitor instance
+        visitor = Visitor.objects.create(
+            name=user.username,
+            email=user.email,
+            phone_number=self.cleaned_data.get('phone_number', '')
+        )
         
         return user
-
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
