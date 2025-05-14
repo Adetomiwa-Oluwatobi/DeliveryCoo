@@ -82,8 +82,9 @@ def order_list(request):
         company = user.company_profile
         orders = Order.objects.filter(company=company).order_by('-id')
     elif user.role == VISITOR:
-        visitor = user.visitor_profile
-        orders = Order.objects.filter(visitor=visitor).order_by('-id')
+        # For visitors, show orders where they are the client (by email)
+        # This assumes visitors are using their registered email when placing orders
+        orders = Order.objects.filter(client_email=user.email).order_by('-id')
     elif user.role == DELIVERY_PERSONNEL:
         delivery_personnel = user.delivery_profile
         orders = Order.objects.filter(ordertracking__assigned_to=delivery_personnel).order_by('-id')
@@ -1043,11 +1044,6 @@ def update_cart_item(request, item_id):
     
     return redirect('cart_view')
 
-# Replace the checkout view with this updated version
-
-# Add this to your existing views.py file
-
-# Add this to your existing views.py file
 
 def checkout(request):
     """Process checkout from cart to create an order"""
