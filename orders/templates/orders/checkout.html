@@ -15,31 +15,51 @@
                     <form method="post" action="{% url 'checkout' %}">
                         {% csrf_token %}
                         
+                        <div class="form-group mb-3">
+                            <label for="client_name">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="client_name" name="client_name" required
+                                   value="{{ initial_data.client_name|default:'' }}">
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="client_phone">Phone Number <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="client_phone" name="client_phone" required
+                                   value="{{ initial_data.client_phone|default:'' }}">
+                            <small class="form-text text-muted">Include country code for international numbers</small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="client_email">Email Address</label>
+                            <input type="email" class="form-control" id="client_email" name="client_email"
+                                   value="{{ initial_data.client_email|default:'' }}">
+                            <small class="form-text text-muted">We'll send order updates to this email</small>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="delivery_address">Delivery Address <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="delivery_address" name="delivery_address" rows="3" required>{{ initial_data.delivery_address|default:'' }}</textarea>
+                            <small class="form-text text-muted">Please provide complete address including landmarks</small>
+                        </div>
+                        
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="client_name" class="form-label">Full Name *</label>
-                                <input type="text" class="form-control" id="client_name" name="client_name" required>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="weight">Package Weight (kg)</label>
+                                    <input type="number" step="0.1" class="form-control" id="weight" name="weight" value="1.0">
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="client_phone" class="form-label">Phone Number *</label>
-                                <input type="tel" class="form-control" id="client_phone" name="client_phone" required>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="delivery_date">Delivery Date <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="delivery_date" name="delivery_date" required>
+                                </div>
                             </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="client_email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="client_email" name="client_email">
-                            <small class="text-muted">For order confirmations and updates</small>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="delivery_address" class="form-label">Delivery Address *</label>
-                            <textarea class="form-control" id="delivery_address" name="delivery_address" rows="3" required></textarea>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="order_notes" class="form-label">Order Notes</label>
-                            <textarea class="form-control" id="order_notes" name="order_notes" rows="2" placeholder="Special instructions for delivery"></textarea>
+                        <div class="form-group mb-3">
+                            <label for="order_notes">Order Notes</label>
+                            <textarea class="form-control" id="order_notes" name="order_notes" rows="3"></textarea>
+                            <small class="form-text text-muted">Special instructions or requirements</small>
                         </div>
                         
                         <button type="submit" class="btn btn-success btn-lg">Place Order</button>

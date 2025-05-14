@@ -82,9 +82,8 @@ def order_list(request):
         company = user.company_profile
         orders = Order.objects.filter(company=company).order_by('-id')
     elif user.role == VISITOR:
-        # For visitors, show orders where they are the client (by email)
-        # This assumes visitors are using their registered email when placing orders
-        orders = Order.objects.filter(client_email=user.email).order_by('-id')
+        # For visitors, show their orders by linking their user account directly
+        orders = Order.objects.filter(visitor_user=user).order_by('-id')
     elif user.role == DELIVERY_PERSONNEL:
         delivery_personnel = user.delivery_profile
         orders = Order.objects.filter(ordertracking__assigned_to=delivery_personnel).order_by('-id')
@@ -618,9 +617,10 @@ class VisitorRegistrationView(FormView):
     success_url = reverse_lazy('login')  # Redirect to login page after registration
     
     def form_valid(self, form):
-        response = super().form_valid(form)  # This now just creates the CustomUser without trying to create a Visitor
+        # Form handles user creation properly now
+        user = form.save(commit=True)
         messages.success(self.request, "Registration successful. You can now log in.")
-        return response
+        return super().form_valid(form)
 # Dashboard views based on roles
 @login_required
 def dashboard_redirect(request):
@@ -1045,6 +1045,7 @@ def update_cart_item(request, item_id):
     return redirect('cart_view')
 
 
+@login_required
 def checkout(request):
     """Process checkout from cart to create an order"""
     cart = get_or_create_cart(request)
@@ -1061,6 +1062,15 @@ def checkout(request):
         if company not in items_by_company:
             items_by_company[company] = []
         items_by_company[company].append(item)
+    
+    # Pre-populate form with logged-in user information
+    initial_data = {}
+    if request.user.is_authenticated:
+        initial_data = {
+            'client_name': request.user.get_full_name() or request.user.username,
+            'client_email': request.user.email,
+            # Phone would need to be stored in user profile
+        }
     
     if request.method == 'POST':
         # Get customer details from the form
@@ -1116,7 +1126,7 @@ def checkout(request):
             # Total cost including items and delivery
             total_cost = subtotal + delivery_cost
             
-            # Create the order
+            # Create the order and link to visitor user if logged in
             order = Order.objects.create(
                 company=company,
                 client_name=client_name,
@@ -1127,7 +1137,8 @@ def checkout(request):
                 weight=weight,
                 delivery_cost=delivery_cost,
                 status='pending',
-                payment_status='pending'
+                payment_status='pending',
+                visitor_user=request.user if request.user.role == VISITOR else None
             )
             
             # Store the ordered items in OrderItem model
@@ -1145,7 +1156,7 @@ def checkout(request):
                 OrderNote.objects.create(
                     order=order,
                     content=order_notes,
-                    created_by="Customer" if not request.user.is_authenticated else request.user.get_full_name()
+                    created_by=request.user.get_full_name() or request.user.username
                 )
             
             orders.append(order)
@@ -1169,8 +1180,10 @@ def checkout(request):
         'cart': cart,
         'cart_items': cart_items,
         'items_by_company': items_by_company,
+        'initial_data': initial_data,  # Pass the initial data to the template
     }
     return render(request, 'orders/checkout.html', context)
+
 
 def public_initiate_payment(request):
     """Handle payment initialization for public users (cart checkout)"""
@@ -1249,11 +1262,9 @@ def payment_callback(request):
                 messages.info(request, "Processing payment for next order...")
                 return redirect('initiate_payment', order_id=next_order_id)
             
-            # If user is authenticated, go to order detail, otherwise show confirmation
-            if request.user.is_authenticated:
-                return redirect('order_detail', order_id=order.id)
-            else:
-                return render(request, 'orders/public_order_confirmation.html', {'order': order})
+            # Use the standard order_tracking view for visitors too
+            return redirect('order_tracking', order_id=order.id)
+            
         else:
             # Payment failed or is pending
             payment_status = response.get('data', {}).get('status', 'unknown')

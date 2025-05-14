@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from cloudinary.models import CloudinaryField
-
+from django.contrib.auth import get_user_model
 
 # User roles constants
 ADMIN = 'admin'
@@ -47,7 +47,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=30, unique=True)
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
-    role = models.CharField(max_length=10, choices=USER_ROLE_CHOICES, default=COMPANY)
+    role = models.CharField(max_length=10, choices=USER_ROLE_CHOICES, default=VISITOR)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -133,6 +133,13 @@ class Order(models.Model):
     payment_reference = models.CharField(max_length=100,blank=True,null=True,verbose_name='Payment Reference')
     payment_date = models.DateTimeField(blank=True,null=True,verbose_name='Payment Date')
     status = models.CharField(max_length=10,choices=STATUS_CHOICES,default=PENDING,)
+    visitor_user = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='visitor_orders'
+    )
 
     def __str__(self):
         return f"Order #{self.id} - {self.client_name}"
