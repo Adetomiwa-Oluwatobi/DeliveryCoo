@@ -7,7 +7,7 @@ from cloudinary.models import CloudinaryField
 ADMIN = 'admin'
 COMPANY = 'company'
 DELIVERY_PERSONNEL = 'delivery'
-VISITOR='Visitor'
+VISITOR='visitor'
 
 USER_ROLE_CHOICES = [
     (ADMIN, 'Admin'),
@@ -136,6 +136,16 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order #{self.id} - {self.client_name}"
+    
+class OrderNote(models.Model):
+    """Notes attached to orders (from customers or staff)"""
+    order = models.ForeignKey(Order, related_name='notes', on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.CharField(max_length=100)  # Name of creator (user or customer)
+    
+    def __str__(self):
+        return f"Note on Order #{self.order.id}"
 
 class OrderTracking(models.Model):
     order = models.OneToOneField(Order, on_delete=models.CASCADE)
