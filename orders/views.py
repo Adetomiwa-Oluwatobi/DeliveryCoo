@@ -617,8 +617,8 @@ class VisitorRegistrationView(FormView):
     success_url = reverse_lazy('login')  # Redirect to login page after registration
     
     def form_valid(self, form):
-        # Form handles user creation properly now
-        user = form.save(commit=True)
+        # Form handles user creation
+        user = form.save()
         messages.success(self.request, "Registration successful. You can now log in.")
         return super().form_valid(form)
 # Dashboard views based on roles
