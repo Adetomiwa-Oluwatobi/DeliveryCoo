@@ -1145,13 +1145,8 @@ def checkout(request):
 
             # If the user is logged in and is a visitor, set visitor_user_id manually
             if request.user.is_authenticated and request.user.role == VISITOR:
-            # Use direct SQL update to set the visitor_user_id column
-             from django.db import connection
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    "UPDATE orders_order SET visitor_user_id = %s WHERE id = %s", 
-                    [request.user.id, order.id]
-                )
+                order.visitor_user = request.user
+                order.save()
             
             # Store the ordered items in OrderItem model
             for item in items:
