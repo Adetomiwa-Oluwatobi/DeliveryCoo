@@ -44,7 +44,11 @@ def landing_page(request):
 
 @login_required
 @user_passes_test(lambda u: u.role in [ADMIN, COMPANY])
+@login_required
 def create_order(request):
+    """
+    View for creating orders directly (for Admin and Company users).
+    """
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
@@ -53,9 +57,13 @@ def create_order(request):
             # If company user, set company automatically
             if request.user.role == COMPANY:
                 order.company = request.user.company_profile
-                
+            
             # Set initial payment status
             order.payment_status = 'pending'
+                
+            # If the user is logged in as a visitor, link the order to their account
+            if request.user.role == VISITOR:
+                order.visitor_user = request.user
                 
             order.save()
             messages.success(request, "Order created successfully! Proceeding to payment.")
@@ -1047,7 +1055,7 @@ def update_cart_item(request, item_id):
 
 @login_required
 def checkout(request):
-    """Process checkout from cart to create an order"""
+    """Process checkout from cart to create an order for Visitors"""
     cart = get_or_create_cart(request)
     cart_items = cart.items.select_related('product', 'product__company').all()
     
@@ -1143,8 +1151,8 @@ def checkout(request):
                     payment_status='pending'
                 )
 
-            # If the user is logged in and is a visitor, set visitor_user manually
-            if request.user.is_authenticated and request.user.role == VISITOR:
+            # If the user is logged in, set visitor_user manually
+            if request.user.is_authenticated:
                 order.visitor_user = request.user
                 order.save()
             
