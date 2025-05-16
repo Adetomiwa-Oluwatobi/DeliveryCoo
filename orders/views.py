@@ -1143,7 +1143,7 @@ def checkout(request):
                     payment_status='pending'
                 )
 
-            # If the user is logged in and is a visitor, set visitor_user_id manually
+            # If the user is logged in and is a visitor, set visitor_user manually
             if request.user.is_authenticated and request.user.role == VISITOR:
                 order.visitor_user = request.user
                 order.save()
