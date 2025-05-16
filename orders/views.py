@@ -1071,20 +1071,54 @@ def checkout(request):
             items_by_company[company] = []
         items_by_company[company].append(item)
     
-    # Pre-populate form with logged-in user information
+    # Get Visitor information if user is authenticated
     initial_data = {}
-    if request.user.is_authenticated:
-        initial_data = {
-            'client_name': request.user.get_full_name() or request.user.username,
-            'client_email': request.user.email,
-            # Phone would need to be stored in user profile
-        }
+    visitor_data = None
+    
+    if request.user.is_authenticated and request.user.role == VISITOR:
+        try:
+            # Try to get the visitor profile associated with this user
+            visitor = request.user.visitor_profile  # Adjust this to match your actual relationship
+            visitor_data = {
+                'client_name': visitor.name,
+                'client_phone': visitor.phone_number,
+                'client_email': visitor.email,
+            }
+            
+            # Prepare initial form data (for display only if not using visitor_data for auto-fill)
+            initial_data = {
+                'client_name': visitor.name,
+                'client_phone': visitor.phone_number,
+                'client_email': visitor.email,
+            }
+        except (AttributeError, ObjectDoesNotExist):
+            # If there's no visitor profile, fall back to basic user info
+            initial_data = {
+                'client_name': request.user.get_full_name() or request.user.username,
+                'client_email': request.user.email,
+            }
     
     if request.method == 'POST':
-        # Get customer details from the form
-        client_name = request.POST.get('client_name')
-        client_phone = request.POST.get('client_phone')
-        client_email = request.POST.get('client_email')
+        # Determine if we need to collect client info from form
+        collect_client_info = not bool(visitor_data)
+        
+        # If collecting from form, validate those fields
+        if collect_client_info:
+            client_name = request.POST.get('client_name')
+            client_phone = request.POST.get('client_phone')
+            client_email = request.POST.get('client_email')
+            
+            # Validate required client fields
+            if not all([client_name, client_phone]):
+                messages.error(request, "Please provide your name and phone number.")
+                return redirect('checkout')
+        else:
+            # Use data from visitor profile
+            client_name = visitor_data['client_name']
+            client_phone = visitor_data['client_phone']
+            client_email = visitor_data['client_email']
+        
+        # Always collect these fields from the form
         delivery_address = request.POST.get('delivery_address')
         
         # Get package weight and delivery date
@@ -1096,33 +1130,33 @@ def checkout(request):
         delivery_date_str = request.POST.get('delivery_date')
         order_notes = request.POST.get('order_notes', '')
         
-        # Validate required fields
-        if not all([client_name, client_phone, delivery_address, delivery_date_str]):
-            messages.error(request, "Please fill in all required fields.")
+        # Validate required form fields (that aren't auto-filled)
+        if not all([delivery_address, delivery_date_str]):
+            messages.error(request, "Please fill in delivery address and delivery date.")
             return redirect('checkout')
+        
+        # Convert delivery date to datetime
+        try:
+            from datetime import datetime, time
+            from django.utils import timezone
+            import pytz
+            
+            # Parse the date from the input
+            delivery_date = datetime.strptime(delivery_date_str, '%Y-%m-%d').date()
+            
+            # Add a default time (noon)
+            delivery_time = datetime.combine(delivery_date, time(12, 0))
+            
+            # Make timezone-aware
+            tz = pytz.timezone('Africa/Lagos')  # Assuming Nigerian timezone
+            delivery_time = tz.localize(delivery_time)
+        except ValueError:
+            # If date parsing fails, default to 24 hours from now
+            delivery_time = timezone.now() + timezone.timedelta(days=1)
         
         # Create orders for each company
         orders = []
         for company, items in items_by_company.items():
-            # Convert delivery date to datetime
-            try:
-                from datetime import datetime, time
-                from django.utils import timezone
-                import pytz
-                
-                # Parse the date from the input
-                delivery_date = datetime.strptime(delivery_date_str, '%Y-%m-%d').date()
-                
-                # Add a default time (noon)
-                delivery_time = datetime.combine(delivery_date, time(12, 0))
-                
-                # Make timezone-aware
-                tz = pytz.timezone('Africa/Lagos')  # Assuming Nigerian timezone
-                delivery_time = tz.localize(delivery_time)
-            except ValueError:
-                # If date parsing fails, default to 24 hours from now
-                delivery_time = timezone.now() + timezone.timedelta(days=1)
-            
             # Calculate total for this company's items
             subtotal = sum(item.subtotal for item in items)
             
@@ -1137,25 +1171,24 @@ def checkout(request):
             # Total cost including items and delivery
             total_cost = subtotal + delivery_cost
             
-            # Create the order and link to visitor user if logged in
+            # Create the order
             order = Order.objects.create(
-                    company=company,
-                    client_name=client_name,
-                    client_phone=client_phone,
-                    client_email=client_email,
-                    delivery_address=delivery_address,
-                    delivery_time=delivery_time,
-                    weight=weight,
-                    delivery_cost=delivery_cost,
-                    status='pending',
-                    payment_status='pending'
-                )
+                company=company,
+                client_name=client_name,
+                client_phone=client_phone,
+                client_email=client_email,
+                delivery_address=delivery_address,
+                delivery_time=delivery_time,
+                weight=weight,
+                delivery_cost=delivery_cost,
+                status='pending',
+                payment_status='pending'
+            )
 
-            # If the user is logged in, set visitor_user manually
-            if request.user.is_authenticated:
-                #order.visitor_user = request.user
-                #order.save()
-                pass
+            # If the user is authenticated, directly link order to visitor user
+            if request.user.is_authenticated and request.user.role == VISITOR:
+                order.visitor_user = request.user
+                order.save()
             
             # Store the ordered items in OrderItem model
             for item in items:
@@ -1196,7 +1229,9 @@ def checkout(request):
         'cart': cart,
         'cart_items': cart_items,
         'items_by_company': items_by_company,
-        'initial_data': initial_data,  # Pass the initial data to the template
+        'initial_data': initial_data,
+        'is_authenticated': request.user.is_authenticated and request.user.role == VISITOR,
+        'visitor_data': visitor_data,  # Pass visitor data to template
     }
     return render(request, 'orders/checkout.html', context)
 
