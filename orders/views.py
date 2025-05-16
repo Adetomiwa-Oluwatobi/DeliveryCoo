@@ -1153,8 +1153,9 @@ def checkout(request):
 
             # If the user is logged in, set visitor_user manually
             if request.user.is_authenticated:
-                order.visitor_user = request.user
-                order.save()
+                #order.visitor_user = request.user
+                #order.save()
+                pass
             
             # Store the ordered items in OrderItem model
             for item in items:
