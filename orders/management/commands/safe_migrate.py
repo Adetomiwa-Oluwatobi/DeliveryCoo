@@ -9,6 +9,10 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         try:
+            # Check for any unmigrated model changes
+            self.stdout.write('Checking for unmigrated model changes...')
+            call_command('makemigrations', '--check', interactive=False)
+            
             # First attempt normal migration
             self.stdout.write('Attempting normal migration...')
             call_command('migrate')
