@@ -125,6 +125,145 @@
                     <div class="fw-bold">{{ item.product.name }}</div>
                     <div class="small text-muted">₦{{ item.product.price|floatformat:2 }} × {{ item.quantity }}</div>
                 </div>
+            </div>{% load order_filters %}
+            <form method="post" action="{% url 'checkout' %}">
+                {% csrf_token %}
+                
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Shipping Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Conditional display of client information fields -->
+                        {% if visitor_data %}
+                            <div class="alert alert-info">
+                                <strong>Using your saved information:</strong>
+                                <ul class="mb-0">
+                                    <li>Name: {{ visitor_data.client_name }}</li>
+                                    <li>Phone: {{ visitor_data.client_phone }}</li>
+                                    {% if visitor_data.client_email %}
+                                        <li>Email: {{ visitor_data.client_email }}</li>
+                                    {% endif %}
+                                </ul>
+                                <small>To change this information, please update your profile.</small>
+                            </div>
+                            <!-- Hidden fields to maintain the form structure -->
+                            <input type="hidden" name="client_name" value="{{ visitor_data.client_name }}">
+                            <input type="hidden" name="client_phone" value="{{ visitor_data.client_phone }}">
+                            <input type="hidden" name="client_email" value="{{ visitor_data.client_email }}">
+                        {% else %}
+                            <!-- Manual entry fields when not using visitor profile -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="client_name" class="form-label">Full Name*</label>
+                                    <input type="text" class="form-control" id="client_name" name="client_name" value="{{ initial_data.client_name|default:'' }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="client_phone" class="form-label">Phone Number*</label>
+                                    <input type="text" class="form-control" id="client_phone" name="client_phone" value="{{ initial_data.client_phone|default:'' }}" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="client_email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="client_email" name="client_email" value="{{ initial_data.client_email|default:'' }}">
+                                <small class="form-text text-muted">We'll send order updates to this email.</small>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Always show these fields -->
+                        <div class="mb-3">
+                            <label for="delivery_address" class="form-label">Delivery Address*</label>
+                            <textarea class="form-control" id="delivery_address" name="delivery_address" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="delivery_date" class="form-label">Delivery Date*</label>
+                                <input type="date" class="form-control" id="delivery_date" name="delivery_date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="weight" class="form-label">Package Weight (kg)</label>
+                                <input type="number" class="form-control" id="weight" name="weight" value="30.9" step="0.1" min="0.1">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="order_notes" class="form-label">Order Notes</label>
+                            <textarea class="form-control" id="order_notes" name="order_notes" rows="2"></textarea>
+                            <small class="form-text text-muted">Special instructions for delivery.</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for company, items in items_by_company.items %}
+                            <h6 class="border-bottom pb-2 mb-3">{{ company.name }}</h6>
+                            {% for item in items %}
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div>
+                                        <span class="fw-bold">{{ item.product.name }}</span> × {{ item.quantity }}
+                                    </div>
+                                    <div>₦{{ item.subtotal|floatformat:2 }}</div>
+                                </div>
+                            {% endfor %}
+                            <div class="border-top pt-2 mt-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>Subtotal</div>
+                                    <div>₦{{ items|subtotal|floatformat:2 }}</div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <div>Delivery Fee</div>
+                                    <div>₦600.00</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="border-top border-2 pt-2 mt-3">
+                            <div class="d-flex justify-content-between fw-bold">
+                                <div>Total</div>
+                                <div>₦{{ cart.total_price|floatformat:2 }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">Proceed to Payment</button>
+                    <a href="{% url 'cart_view' %}" class="btn btn-outline-secondary">Return to Cart</a>
+                </div>
+            </form>
+            </div>
+            
+            <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Your Cart</h5>
+                </div>
+                <div class="card-body">
+                    {% for item in cart_items %}
+                        <div class="d-flex mb-2">
+                            <div class="me-2">
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                            </div>
+                            <div>
+                                <div class="fw-bold">{{ item.product.name }}</div>
+                                <div class="small text-muted">₦{{ item.product.price|floatformat:2 }} × {{ item.quantity }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between fw-bold">
+                        <div>{{ cart_items.count }} item(s)</div>
+                        <div>₦{{ cart.total_price|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+            </div>
             </div>
         {% endfor %}
     </div>
