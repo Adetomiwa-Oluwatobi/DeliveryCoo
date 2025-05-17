@@ -640,11 +640,14 @@ class VisitorRegistrationView(FormView):
     success_url = reverse_lazy('login')  # Redirect to login page after registration
     
     def form_valid(self, form):
-        # Form handles user creation
-        user = form.save()
+        # Form now handles both CustomUser and Visitor creation
+        visitor = form.save(commit=True)
+        
+        # Access the user through the visitor's related field
+        user = visitor.user
+        
         messages.success(self.request, "Registration successful. You can now log in.")
         return super().form_valid(form)
-# Dashboard views based on roles
 @login_required
 def dashboard_redirect(request):
     """Redirects to the appropriate dashboard based on user role"""
