@@ -13,15 +13,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='Cart',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('session_key', models.CharField(max_length=255, unique=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-            ],
-        ),
+        # 🚫 Removed migrations.CreateModel for 'Cart'
+        
         migrations.AlterField(
             model_name='category',
             name='image',
@@ -35,7 +28,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customuser',
             name='role',
-            field=models.CharField(choices=[('admin', 'Admin'), ('company', 'Company'), ('delivery', 'Delivery Personnel'), ('visitor', 'Visitor')], default='visitor', max_length=10),
+            field=models.CharField(
+                choices=[
+                    ('admin', 'Admin'),
+                    ('company', 'Company'),
+                    ('delivery', 'Delivery Personnel'),
+                    ('visitor', 'Visitor')
+                ],
+                default='visitor',
+                max_length=10
+            ),
         ),
         migrations.AlterField(
             model_name='product',
