@@ -97,7 +97,7 @@ def order_list(request):
             visitor = user.visitor_profile
             
             # Find orders by matching email
-            orders = Order.objects.filter(client_email=visitor.email).order_by('-id')
+            orders = Order.objects.filter(client_email=visitor.user.email).order_by('-id')
             
             # Optional: Add name matching for additional reliability
             # orders = Order.objects.filter(
