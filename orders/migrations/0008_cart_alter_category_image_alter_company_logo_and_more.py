@@ -13,8 +13,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # 🚫 Removed migrations.CreateModel for 'Cart'
-        
+        # Field modifications
         migrations.AlterField(
             model_name='category',
             name='image',
@@ -44,17 +43,18 @@ class Migration(migrations.Migration):
             name='image',
             field=cloudinary.models.CloudinaryField(blank=True, max_length=255, null=True, verbose_name='image'),
         ),
-        migrations.CreateModel(
-            name='OrderItem',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('product_name', models.CharField(max_length=200)),
-                ('quantity', models.PositiveIntegerField(default=1)),
-                ('price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='orders.order')),
-                ('product', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='orders.product')),
-            ],
-        ),
+        # Remove CreateModel for OrderItem as it already exists
+        # migrations.CreateModel(
+        #     name='OrderItem',
+        #     fields=[
+        #         ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+        #         ('product_name', models.CharField(max_length=200)),
+        #         ('quantity', models.PositiveIntegerField(default=1)),
+        #         ('price', models.DecimalField(decimal_places=2, max_digits=10)),
+        #         ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='orders.order')),
+        #         ('product', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='orders.product')),
+        #     ],
+        # ),
         migrations.CreateModel(
             name='OrderNote',
             fields=[
@@ -73,17 +73,18 @@ class Migration(migrations.Migration):
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='visitor_profile', to=settings.AUTH_USER_MODEL)),
             ],
         ),
-        migrations.CreateModel(
-            name='CartItem',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.PositiveIntegerField(default=1)),
-                ('added_at', models.DateTimeField(auto_now_add=True)),
-                ('cart', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='orders.cart')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='orders.product')),
-            ],
-            options={
-                'unique_together': {('cart', 'product')},
-            },
-        ),
+        # Remove CartItem model since it references Cart which has been removed
+        # migrations.CreateModel(
+        #     name='CartItem',
+        #     fields=[
+        #         ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+        #         ('quantity', models.PositiveIntegerField(default=1)),
+        #         ('added_at', models.DateTimeField(auto_now_add=True)),
+        #         ('cart', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='orders.cart')),
+        #         ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='orders.product')),
+        #     ],
+        #     options={
+        #         'unique_together': {('cart', 'product')},
+        #     },
+        # ),
     ]
