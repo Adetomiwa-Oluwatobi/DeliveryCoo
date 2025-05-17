@@ -130,7 +130,7 @@ class DeliveryPersonnelRegistrationForm(forms.ModelForm):
         return delivery_personnel
 
 """class VisitorRegistrationForm(forms.ModelForm):
-    """Form for registering a new visitor with minimal fields"""
+   
     email = forms.EmailField(required=True)
     username = forms.CharField(max_length=30, required=True)
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
