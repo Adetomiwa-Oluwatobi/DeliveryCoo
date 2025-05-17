@@ -1095,16 +1095,16 @@ def checkout(request):
             # Try to get the visitor profile associated with this user
             visitor = Visitor.objects.get(user=request.user)
             visitor_data = {
-                'client_name': visitor.name,
+                'client_name': visitor.user.username,
                 'client_phone': visitor.phone_number,
-                'client_email': visitor.email,
+                'client_email': visitor.user.email,
             }
             
             # Prepare initial form data
             initial_data = {
-                'client_name': visitor.name,
+                'client_name': visitor.user.username,
                 'client_phone': visitor.phone_number,
-                'client_email': visitor.email,
+                'client_email': visitor.user.email,
             }
         except (AttributeError, ObjectDoesNotExist):
             # If there's no visitor profile, fall back to basic user info
