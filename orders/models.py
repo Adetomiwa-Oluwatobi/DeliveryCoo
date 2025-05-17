@@ -134,13 +134,13 @@ class Order(models.Model):
     payment_reference = models.CharField(max_length=100,blank=True,null=True,verbose_name='Payment Reference')
     payment_date = models.DateTimeField(blank=True,null=True,verbose_name='Payment Date')
     status = models.CharField(max_length=10,choices=STATUS_CHOICES,default=PENDING,)
-    """visitor_user = models.ForeignKey(
+    visitor_user = models.ForeignKey(
         get_user_model(),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='visitor_orders'
-    )"""
+    )
 
     def __str__(self):
         return f"Order #{self.id} - {self.client_name}"
