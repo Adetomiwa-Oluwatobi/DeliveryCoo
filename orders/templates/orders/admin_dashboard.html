@@ -96,6 +96,7 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Company Name</th>
+                                    <th>Email</th>
                                     <th>Address</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -117,6 +118,7 @@
                                             <a href="{% url 'company_detail' company.id %}">{{ company.name }}</a>
                                         </div>
                                     </td>
+                                    <td>{{ company.email }}</td>
                                     <td>{{ company.address }}</td>
                                     <td><span class="badge badge-delivered">Active</span></td>
                                     <td>
