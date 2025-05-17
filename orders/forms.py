@@ -151,9 +151,13 @@ class VisitorRegistrationForm(forms.Form):
             password=self.cleaned_data['password1'],
             role=VISITOR
         )
+        visitor = super().save(commit=False)
+        visitor.user = user
         
+        if commit:
+            visitor.save()
         # Don't try to create a Visitor model - we'll just use CustomUser
-        return user
+        return visitor
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
