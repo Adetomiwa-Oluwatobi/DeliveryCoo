@@ -129,12 +129,16 @@ class DeliveryPersonnelRegistrationForm(forms.ModelForm):
         
         return delivery_personnel
 
-class VisitorRegistrationForm(forms.Form):
+class VisitorRegistrationForm(forms.ModelForm):
     """Form for registering a new visitor with minimal fields"""
     email = forms.EmailField(required=True)
     username = forms.CharField(max_length=30, required=True)
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
+    
+    class Meta:
+        model = Visitor
+        fields = ['phone_number']
     
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
