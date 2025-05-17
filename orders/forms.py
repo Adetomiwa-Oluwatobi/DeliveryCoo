@@ -129,7 +129,7 @@ class DeliveryPersonnelRegistrationForm(forms.ModelForm):
         
         return delivery_personnel
 
-class VisitorRegistrationForm(forms.ModelForm):
+"""class VisitorRegistrationForm(forms.ModelForm):
     """Form for registering a new visitor with minimal fields"""
     email = forms.EmailField(required=True)
     username = forms.CharField(max_length=30, required=True)
@@ -157,7 +157,48 @@ class VisitorRegistrationForm(forms.ModelForm):
         )
         
         # Don't try to create a Visitor model - we'll just use CustomUser
-        return user
+        return user"""
+class VisitorRegistrationForm(forms.ModelForm):
+    """Form for registering a new visitor with full profile information"""
+    email = forms.EmailField(required=True)
+    username = forms.CharField(max_length=30, required=True)
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
+    phone_number = forms.CharField(max_length=15, required=True)
+    
+    class Meta:
+        model = Visitor
+        fields = ['phone_number']
+    
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords don't match")
+        return password2
+    
+    def save(self, commit=True):
+        # Create user with complete information
+        user = CustomUser.objects.create_user(
+            email=self.cleaned_data['email'],
+            username=self.cleaned_data['username'],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            password=self.cleaned_data['password1'],
+            role=VISITOR
+        )
+        
+        # Create the Visitor profile
+        visitor = super().save(commit=False)
+        visitor.user = user
+        visitor.phone_number = self.cleaned_data['phone_number']
+        
+        if commit:
+            visitor.save()
+        
+        return visitor
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
