@@ -278,4 +278,10 @@ class Command(BaseCommand):
                 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Unexpected error: {e}'))
+            # Even with errors, try to apply any remaining migrations as a fallback
+            try:
+                self.stdout.write('Attempting to apply any remaining migrations...')
+                call_command('migrate', '--fake-initial')
+            except Exception as final_error:
+                self.stdout.write(self.style.ERROR(f'Final migration attempt failed: {final_error}'))
             sys.exit(1)
