@@ -92,8 +92,21 @@ def order_list(request):
         company = user.company_profile
         orders = Order.objects.filter(company=company).order_by('-id')
     elif user.role == VISITOR:
-        # For visitors, show their orders by linking their user account directly
-        orders = Order.objects.filter(visitor_user=user).order_by('-id')
+        try:
+            # Get the visitor profile
+            visitor = user.visitor_profile
+            
+            # Find orders by matching email
+            orders = Order.objects.filter(client_email=visitor.email).order_by('-id')
+            
+            # Optional: Add name matching for additional reliability
+            # orders = Order.objects.filter(
+            #     client_email=visitor.email,
+            #     client_name=visitor.name
+            # ).order_by('-id')
+            
+        except Visitor.DoesNotExist:
+            orders = Order.objects.none()
     elif user.role == DELIVERY_PERSONNEL:
         delivery_personnel = user.delivery_profile
         orders = Order.objects.filter(ordertracking__assigned_to=delivery_personnel).order_by('-id')
@@ -1080,7 +1093,7 @@ def checkout(request):
     if request.user.is_authenticated and request.user.role == VISITOR:
         try:
             # Try to get the visitor profile associated with this user
-            visitor = Visitor.objects.get(user=request.user)  # Changed this line to avoid the error
+            visitor = Visitor.objects.get(user=request.user)
             visitor_data = {
                 'client_name': visitor.name,
                 'client_phone': visitor.phone_number,
@@ -1186,11 +1199,6 @@ def checkout(request):
                 status='pending',
                 payment_status='pending'
             )
-
-            # If the user is authenticated and is a VISITOR, link order to visitor user
-            if request.user.is_authenticated and request.user.role == VISITOR:
-                order.visitor_user = request.user
-                order.save()
             
             # Store the ordered items in OrderItem model
             for item in items:

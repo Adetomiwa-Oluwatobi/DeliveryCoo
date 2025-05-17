@@ -121,28 +121,31 @@ PAYMENT_STATUS_CHOICES = (
 )
 class Order(models.Model):
     company = models.ForeignKey(Company, related_name='orders', on_delete=models.CASCADE)
-    # Now we'll include client information directly in the order
-    client_name = models.CharField(max_length=100,default="no recipient")
-    client_phone = models.CharField(max_length=15,default=000)
+    # Client information directly from visitor profile
+    client_name = models.CharField(max_length=100, default="no recipient")
+    client_phone = models.CharField(max_length=15, default=000)
     client_email = models.EmailField(blank=True, null=True)
     delivery_address = models.TextField()
     ordered_at = models.DateTimeField(auto_now_add=True)
     delivery_time = models.DateTimeField()
-    weight=models.FloatField(max_length=4,default=30.9)
-    delivery_cost=models.FloatField(max_length=10,default=600)
-    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES,default='pending',verbose_name='Payment Status')
-    payment_reference = models.CharField(max_length=100,blank=True,null=True,verbose_name='Payment Reference')
-    payment_date = models.DateTimeField(blank=True,null=True,verbose_name='Payment Date')
-    status = models.CharField(max_length=10,choices=STATUS_CHOICES,default=PENDING,)
-    visitor_user = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='visitor_orders',
-        help_text="Only used for visitors to link orders to their account. Null for company orders."
+    weight = models.FloatField(max_length=4, default=30.9)
+    delivery_cost = models.FloatField(max_length=10, default=600)
+    payment_status = models.CharField(
+        max_length=20, 
+        choices=PAYMENT_STATUS_CHOICES,
+        default='pending',
+        verbose_name='Payment Status'
     )
-
+    payment_reference = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name='Payment Reference'
+    )
+    payment_date = models.DateTimeField(blank=True, null=True, verbose_name='Payment Date')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=PENDING)
+    
+    # visitor_user field removed as requested
 
     def __str__(self):
         return f"Order #{self.id} - {self.client_name}"
