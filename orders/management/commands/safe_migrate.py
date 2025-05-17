@@ -223,6 +223,51 @@ class Command(BaseCommand):
                 except Exception as retry_error:
                     self.stdout.write(self.style.WARNING(f'Error in retry migrations: {retry_error}'))
                     
+            # Add handling for the missing orders_visitor table error
+            elif 'relation "orders_visitor" does not exist' in error_msg:
+                self.stdout.write(self.style.WARNING('Table orders_visitor does not exist. Creating migration for Visitor model...'))
+                
+                try:
+                    # Create a migration for the Visitor model
+                    self.stdout.write('Creating migration for Visitor model...')
+                    call_command('makemigrations', 'orders')
+                    
+                    # Apply the migrations
+                    self.stdout.write('Applying migrations...')
+                    call_command('migrate', 'orders')
+                    
+                    self.stdout.write(self.style.SUCCESS('Successfully created and applied migration for Visitor model'))
+                    
+                    # Try running all migrations again
+                    try:
+                        self.stdout.write('Running remaining migrations...')
+                        call_command('migrate')
+                    except Exception as remaining_error:
+                        self.stdout.write(self.style.WARNING(f'Error in remaining migrations: {remaining_error}'))
+                
+                except Exception as migration_error:
+                    self.stdout.write(self.style.ERROR(f'Failed to create/apply migration: {migration_error}'))
+                    
+                    # Try a manual approach to create the table
+                    try:
+                        from django.db import connection
+                        self.stdout.write('Attempting to create orders_visitor table directly...')
+                        with connection.cursor() as cursor:
+                            # Create the table based on the Visitor model definition
+                            cursor.execute("""
+                                CREATE TABLE IF NOT EXISTS orders_visitor (
+                                    id SERIAL PRIMARY KEY,
+                                    name VARCHAR(100) NOT NULL,
+                                    phone_number VARCHAR(15) NOT NULL,
+                                    email VARCHAR(254) NULL,
+                                    user_id INTEGER NOT NULL UNIQUE REFERENCES orders_customuser(id) ON DELETE CASCADE
+                                );
+                            """)
+                            self.stdout.write(self.style.SUCCESS('Created orders_visitor table directly'))
+                    except Exception as direct_sql_error:
+                        self.stdout.write(self.style.ERROR(f'Could not create table directly: {direct_sql_error}'))
+                        sys.exit(1)
+                        
             else:
                 # Re-raise if it's not a handled error
                 raise
