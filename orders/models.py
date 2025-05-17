@@ -139,8 +139,10 @@ class Order(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='visitor_orders'
+        related_name='visitor_orders',
+        help_text="Only used for visitors to link orders to their account. Null for company orders."
     )
+
 
     def __str__(self):
         return f"Order #{self.id} - {self.client_name}"

@@ -1080,14 +1080,14 @@ def checkout(request):
     if request.user.is_authenticated and request.user.role == VISITOR:
         try:
             # Try to get the visitor profile associated with this user
-            visitor = request.user.visitor_profile  # Adjust this to match your actual relationship
+            visitor = Visitor.objects.get(user=request.user)  # Changed this line to avoid the error
             visitor_data = {
                 'client_name': visitor.name,
                 'client_phone': visitor.phone_number,
                 'client_email': visitor.email,
             }
             
-            # Prepare initial form data (for display only if not using visitor_data for auto-fill)
+            # Prepare initial form data
             initial_data = {
                 'client_name': visitor.name,
                 'client_phone': visitor.phone_number,
@@ -1187,7 +1187,7 @@ def checkout(request):
                 payment_status='pending'
             )
 
-            # If the user is authenticated, directly link order to visitor user
+            # If the user is authenticated and is a VISITOR, link order to visitor user
             if request.user.is_authenticated and request.user.role == VISITOR:
                 order.visitor_user = request.user
                 order.save()
@@ -1236,7 +1236,6 @@ def checkout(request):
         'visitor_data': visitor_data,  # Pass visitor data to template
     }
     return render(request, 'orders/checkout.html', context)
-
 
 def public_initiate_payment(request):
     """Handle payment initialization for public users (cart checkout)"""
