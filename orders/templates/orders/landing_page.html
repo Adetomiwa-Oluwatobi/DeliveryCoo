@@ -10,8 +10,8 @@
             <a href="{% url 'order_list' %}" class="btn btn-secondary">
                 <i class="fas fa-box"></i> View Orders
             </a>
-            <a href="#track-shipment" class="btn">
-                <i class="fas fa-search"></i> Track Shipment
+            <a href="{% url 'search_products' %}" class="btn">
+                <i class="fas fa-store"></i> Explore Marketplace
             </a>
         </div>
         <div class="auth-links">
@@ -50,6 +50,33 @@
         <div class="image-container">
             
             <img src="https://img.freepik.com/free-photo/delivery-african-american-man-yellow-polo-shirt-cap-holding-stretching-out-paper-package-smiling-friendly-isolated-blue_141793-18667.jpg?uid=R97218461&ga=GA1.1.1110737123.1725361408&semt=ais_hybrid&w=740" alt="truck" class="truckimage">
+        </div>
+    </div>
+</section>
+
+<!-- Marketplace Highlight Section -->
+<section class="marketplace-highlight">
+    <div class="card marketplace-card">
+        <div class="marketplace-content">
+            <div class="marketplace-info">
+                <div class="card-header">
+                    <h2 class="card-title">Discover Our Marketplace</h2>
+                    <span class="badge badge-transit">New Feature</span>
+                </div>
+                <p>Shop from a wide range of products from verified vendors in your area. Find what you need, add to cart, and get it delivered fast!</p>
+                <ul class="marketplace-features">
+                    <li><i class="fas fa-map-marker-alt"></i> Location-based product browsing</li>
+                    <li><i class="fas fa-tags"></i> Browse by categories and companies</li>
+                    <li><i class="fas fa-shopping-cart"></i> Seamless checkout experience</li>
+                    <li><i class="fas fa-truck"></i> Real-time delivery tracking</li>
+                </ul>
+                <a href="{% url 'search_products' %}" class="btn btn-secondary marketplace-btn">
+                    <i class="fas fa-store"></i> Explore Marketplace Now
+                </a>
+            </div>
+            <div class="marketplace-image">
+                <img src="https://img.freepik.com/free-photo/group-african-womans-with-shopping-carts-near-refrigerator-shelf-selling-dairy-products-made-from-milk-supermarket_627829-625.jpg?uid=R97218461&ga=GA1.1.1110737123.1725361408&semt=ais_hybrid&w=740" alt="Marketplace" class="marketplace-img">
+            </div>
         </div>
     </div>
 </section>
@@ -107,10 +134,10 @@
         </div>
         <div class="service-card">
             <div class="service-icon">
-                <i class="fas fa-chart-line"></i>
+                <i class="fas fa-store"></i>
             </div>
-            <h3>Analytics</h3>
-            <p>Get insights into your logistics operations with our advanced analytics tools.</p>
+            <h3>Marketplace</h3>
+            <p>Shop and order products from our curated vendors with fast, reliable delivery.</p>
         </div>
     </div>
 </section>
@@ -150,6 +177,33 @@
     </div>
 </section>
 
+<!-- Partner With Us Section -->
+<section class="partner-section">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Partner With Us</h2>
+        </div>
+        <div class="partner-content">
+            <div class="partner-image">
+                <img src="https://img.freepik.com/free-photo/portrait-young-african-guy-accepts-order-by-phone-motorbike-holding-boxes-with-pizza-sit-his-bike-urban-place_496169-2169.jpg?uid=R97218461&ga=GA1.1.1110737123.1725361408&semt=ais_hybrid&w=740" alt="Delivery Partners" class="partner-img">
+            </div>
+            <div class="partner-info">
+                <h3>Are You a Rider Company?</h3>
+                <p>Join our growing network of delivery partners and expand your business. We connect you with customers and streamline your operations.</p>
+                <ul class="partner-benefits">
+                    <li><i class="fas fa-check-circle"></i> Access to a wider customer base</li>
+                    <li><i class="fas fa-check-circle"></i> Simple integration with our platform</li>
+                    <li><i class="fas fa-check-circle"></i> Real-time order management</li>
+                    <li><i class="fas fa-check-circle"></i> Optimized delivery routes</li>
+                </ul>
+                <a href="#" class="btn btn-secondary">
+                    <i class="fas fa-handshake"></i> Contact Us to Partner
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Testimonials Section -->
 <section class="testimonials-section">
     <h2 class="section-title">What Our Customers Say</h2>
@@ -158,7 +212,7 @@
             <div class="quote">
                 <i class="fas fa-quote-left"></i>
             </div>
-            <p>"LogisticsCo has revolutionized how we handle our deliveries. Their tracking system is intuitive and their delivery times are exceptional."</p>
+            <p>"LogiQo has revolutionized how we handle our deliveries. Their tracking system is intuitive and their delivery times are exceptional."</p>
             <div class="testimonial-author">
                 <div class="author-name">Sarah Johnson</div>
                 <div class="author-title">E-commerce Manager</div>
@@ -168,10 +222,20 @@
             <div class="quote">
                 <i class="fas fa-quote-left"></i>
             </div>
-            <p>"We've reduced our logistics costs by 25% since switching to LogisticsCo. Their analytics tools have helped us optimize our shipping routes."</p>
+            <p>"We've reduced our logistics costs by 25% since switching to LogiQo. Their analytics tools have helped us optimize our shipping routes."</p>
             <div class="testimonial-author">
                 <div class="author-name">Michael Chen</div>
                 <div class="author-title">Operations Director</div>
+            </div>
+        </div>
+        <div class="testimonial-card">
+            <div class="quote">
+                <i class="fas fa-quote-left"></i>
+            </div>
+            <p>"The new marketplace feature is a game-changer! I can order supplies and track everything from one platform. So convenient!"</p>
+            <div class="testimonial-author">
+                <div class="author-name">David Rodriguez</div>
+                <div class="author-title">Small Business Owner</div>
             </div>
         </div>
     </div>
@@ -182,12 +246,14 @@
     <div class="card">
         <div class="cta-content">
             <h2>Ready to Streamline Your Logistics?</h2>
-            <p>Join thousands of businesses that trust LogisticsCo for their shipping needs.</p>
+            <p>Join thousands of businesses that trust LogiQo for their shipping needs.</p>
             <div class="cta-buttons">
-                <a href="{% url 'new_order' %}" class="btn btn-secondary">
+                <a href="{% url 'new_order' %}" class="btn">
                     <i class="fas fa-plus-circle"></i> Create New Order
                 </a>
-                
+                <a href="{% url 'search_products' %}" class="btn btn-secondary">
+                    <i class="fas fa-store"></i> Shop Marketplace
+                </a>
             </div>
         </div>
     </div>
@@ -266,6 +332,114 @@
     .hero-image i {
         font-size: 6rem;
         color: var(--primary);
+    }
+    
+    /* Marketplace Highlight Section */
+    .marketplace-highlight {
+        margin-bottom: 2rem;
+    }
+    
+    .marketplace-card {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .marketplace-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .marketplace-content {
+        display: flex;
+        align-items: center;
+    }
+    
+    .marketplace-info {
+        flex: 3;
+        padding-right: 2rem;
+    }
+    
+    .marketplace-image {
+        flex: 2;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .marketplace-img {
+        max-width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .marketplace-features {
+        list-style: none;
+        margin: 1.5rem 0;
+    }
+    
+    .marketplace-features li {
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .marketplace-features li i {
+        color: var(--primary);
+        margin-right: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .marketplace-btn {
+        display: inline-block;
+        padding: 0.8rem 1.5rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Partner Section */
+    .partner-section {
+        margin-bottom: 2rem;
+    }
+    
+    .partner-content {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+    
+    .partner-image {
+        flex: 1;
+    }
+    
+    .partner-img {
+        max-width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .partner-info {
+        flex: 2;
+    }
+    
+    .partner-info h3 {
+        margin-bottom: 1rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    
+    .partner-benefits {
+        list-style: none;
+        margin: 1.5rem 0;
+    }
+    
+    .partner-benefits li {
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .partner-benefits li i {
+        color: var(--secondary);
+        margin-right: 0.5rem;
     }
     
     /* Track Section */
@@ -567,6 +741,19 @@
             background-repeat: no-repeat;
             width: 100%;
             padding: 2rem 0;
+        }
+        
+        .marketplace-content {
+            flex-direction: column;
+        }
+        
+        .marketplace-info {
+            padding-right: 0;
+            padding-bottom: 2rem;
+        }
+        
+        .partner-content {
+            flex-direction: column-reverse;
         }
         
         .track-input {
