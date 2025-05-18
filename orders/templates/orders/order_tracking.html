@@ -31,122 +31,114 @@
         </div>
     </div>
     
-    <!-- Animated Road Map -->
-    <div id="road-map-container" style="height: 250px; width: 100%; margin-bottom: 2rem; position: relative; overflow: hidden; border-radius: 8px; background-color: #f8f9fa; box-shadow: inset 0 0 10px rgba(0,0,0,0.1);">
-        <!-- The Road -->
-        <div class="road" style="position: absolute; top: 50%; left: 0; right: 0; height: 20px; background-color: #e6e6e6; transform: translateY(-50%); border-radius: 10px;"></div>
-        
-        <!-- Milestones -->
-        <div class="milestones" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: center; padding: 0 10%;">
-            <!-- Order Placed -->
-            <div class="milestone" style="position: relative; display: flex; flex-direction: column; align-items: center; z-index: 2;">
-                <div class="icon-container" style="width: 50px; height: 50px; background-color: #ffbe00; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; box-shadow: 0 0 15px rgba(255,190,0,0.5);">
-                    <i class="fas fa-clipboard-list" style="color: white; font-size: 1.5rem;"></i>
-                </div>
-                <div class="label" style="font-weight: 600; text-align: center; font-size: 0.9rem;">
-                    Order Placed
-                </div>
-                <div class="date" style="font-size: 0.8rem; color: #666;">
-                    {{ order.ordered_at|date:"M j" }}
-                </div>
-                <div class="dot active" style="position: absolute; bottom: -25px; width: 24px; height: 24px; background-color: #ffbe00; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 3px #ffbe00;"></div>
+    <!-- Replace the existing road-map-container with this enhanced animation section -->
+<div id="animation-container" style="height: 300px; width: 100%; margin-bottom: 2rem; position: relative; overflow: hidden; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.15);">
+    <!-- Background Video -->
+    <video autoplay loop muted playsinline style="position: absolute; width: 100%; height: 100%; object-fit: cover;">
+        <source src="https://videos.pond5.com/flat-cartoon-city-day-looped-footage-087718008_main_xxl.mp4" type="video/mp4">
+        <!-- Fallback background color if video fails to load -->
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f0f8ff;"></div>
+    </video>
+    
+    <!-- Milestone markers that will float above the video -->
+    <div class="milestones" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: flex-end; padding: 20px 10%; z-index: 10;">
+        <!-- Order Placed -->
+        <div class="milestone" style="position: relative; display: flex; flex-direction: column; align-items: center;">
+            <div class="icon-container" style="width: 50px; height: 50px; background-color: #ffbe00; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; box-shadow: 0 0 15px rgba(255,190,0,0.5);">
+                <i class="fas fa-clipboard-list" style="color: white; font-size: 1.5rem;"></i>
             </div>
-            
-            <!-- Processing -->
-            <div class="milestone" style="position: relative; display: flex; flex-direction: column; align-items: center; z-index: 2;">
-                <div class="icon-container {% if order.status != 'pending' %}active{% endif %}" style="width: 50px; height: 50px; background-color: {% if order.status != 'pending' %}#2ecc71{% else %}#bdc3c7{% endif %}; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; box-shadow: 0 0 15px {% if order.status != 'pending' %}rgba(46,204,113,0.5){% else %}rgba(189,195,199,0.3){% endif %};">
-                    <i class="fas fa-box-open" style="color: white; font-size: 1.5rem;"></i>
-                </div>
-                <div class="label" style="font-weight: 600; text-align: center; font-size: 0.9rem;">
-                    Processing
-                </div>
-                <div class="date" style="font-size: 0.8rem; color: #666;">
-                    {% if tracking_info.1 %}
-                        {{ tracking_info.1.timestamp|date:"M j" }}
-                    {% endif %}
-                </div>
-                <div class="dot {% if order.status != 'pending' %}active{% endif %}" style="position: absolute; bottom: -25px; width: 24px; height: 24px; background-color: {% if order.status != 'pending' %}#2ecc71{% else %}#bdc3c7{% endif %}; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 3px {% if order.status != 'pending' %}#2ecc71{% else %}#bdc3c7{% endif %};"></div>
+            <div class="label" style="font-weight: 600; text-align: center; font-size: 0.9rem; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">
+                Order Placed
             </div>
-            
-            <!-- In Transit -->
-            <div class="milestone" style="position: relative; display: flex; flex-direction: column; align-items: center; z-index: 2;">
-                <div class="icon-container {% if order.status == 'transit' or order.status == 'delivered' %}active{% endif %}" style="width: 50px; height: 50px; background-color: {% if order.status == 'transit' or order.status == 'delivered' %}#3498db{% else %}#bdc3c7{% endif %}; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; box-shadow: 0 0 15px {% if order.status == 'transit' or order.status == 'delivered' %}rgba(52,152,219,0.5){% else %}rgba(189,195,199,0.3){% endif %};">
-                    <i class="fas fa-truck" style="color: white; font-size: 1.5rem;"></i>
-                </div>
-                <div class="label" style="font-weight: 600; text-align: center; font-size: 0.9rem;">
-                    In Transit
-                </div>
-                <div class="date" style="font-size: 0.8rem; color: #666;">
-                    {% if tracking_info.2 %}
-                        {{ tracking_info.2.timestamp|date:"M j" }}
-                    {% endif %}
-                </div>
-                <div class="dot {% if order.status == 'transit' or order.status == 'delivered' %}active{% endif %}" style="position: absolute; bottom: -25px; width: 24px; height: 24px; background-color: {% if order.status == 'transit' or order.status == 'delivered' %}#3498db{% else %}#bdc3c7{% endif %}; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 3px {% if order.status == 'transit' or order.status == 'delivered' %}#3498db{% else %}#bdc3c7{% endif %};"></div>
-            </div>
-            
-            <!-- Delivered -->
-            <div class="milestone" style="position: relative; display: flex; flex-direction: column; align-items: center; z-index: 2;">
-                <div class="icon-container {% if order.status == 'delivered' %}active{% endif %}" style="width: 50px; height: 50px; background-color: {% if order.status == 'delivered' %}#2ecc71{% else %}#bdc3c7{% endif %}; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; box-shadow: 0 0 15px {% if order.status == 'delivered' %}rgba(46,204,113,0.5){% else %}rgba(189,195,199,0.3){% endif %};">
-                    <i class="fas fa-check-circle" style="color: white; font-size: 1.5rem;"></i>
-                </div>
-                <div class="label" style="font-weight: 600; text-align: center; font-size: 0.9rem;">
-                    Delivered
-                </div>
-                <div class="date" style="font-size: 0.8rem; color: #666;">
-                    {% if order.status == 'delivered' and tracking_info.last %}
-                        {{ tracking_info.last.timestamp|date:"M j" }}
-                    {% endif %}
-                </div>
-                <div class="dot {% if order.status == 'delivered' %}active{% endif %}" style="position: absolute; bottom: -25px; width: 24px; height: 24px; background-color: {% if order.status == 'delivered' %}#2ecc71{% else %}#bdc3c7{% endif %}; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 3px {% if order.status == 'delivered' %}#2ecc71{% else %}#bdc3c7{% endif %};"></div>
+            <div class="date" style="font-size: 0.8rem; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">
+                {{ order.ordered_at|date:"M j" }}
             </div>
         </div>
         
-        <!-- Progress Line -->
-        <div class="progress-line" style="position: absolute; top: 50%; left: 10%; height: 10px; border-radius: 5px; transform: translateY(-50%); background-color: #ffbe00; z-index: 1; width: 
+        <!-- Processing -->
+        <div class="milestone" style="position: relative; display: flex; flex-direction: column; align-items: center;">
+            <div class="icon-container {% if order.status != 'pending' %}active{% endif %}" style="width: 50px; height: 50px; background-color: {% if order.status != 'pending' %}#2ecc71{% else %}#bdc3c7{% endif %}; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; box-shadow: 0 0 15px {% if order.status != 'pending' %}rgba(46,204,113,0.5){% else %}rgba(189,195,199,0.3){% endif %};">
+                <i class="fas fa-box-open" style="color: white; font-size: 1.5rem;"></i>
+            </div>
+            <div class="label" style="font-weight: 600; text-align: center; font-size: 0.9rem; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">
+                Processing
+            </div>
+            <div class="date" style="font-size: 0.8rem; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">
+                {% if tracking_info.1 %}
+                    {{ tracking_info.1.timestamp|date:"M j" }}
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- In Transit -->
+        <div class="milestone" style="position: relative; display: flex; flex-direction: column; align-items: center;">
+            <div class="icon-container {% if order.status == 'transit' or order.status == 'delivered' %}active{% endif %}" style="width: 50px; height: 50px; background-color: {% if order.status == 'transit' or order.status == 'delivered' %}#3498db{% else %}#bdc3c7{% endif %}; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; box-shadow: 0 0 15px {% if order.status == 'transit' or order.status == 'delivered' %}rgba(52,152,219,0.5){% else %}rgba(189,195,199,0.3){% endif %};">
+                <i class="fas fa-truck" style="color: white; font-size: 1.5rem;"></i>
+            </div>
+            <div class="label" style="font-weight: 600; text-align: center; font-size: 0.9rem; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">
+                In Transit
+            </div>
+            <div class="date" style="font-size: 0.8rem; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">
+                {% if tracking_info.2 %}
+                    {{ tracking_info.2.timestamp|date:"M j" }}
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Delivered -->
+        <div class="milestone" style="position: relative; display: flex; flex-direction: column; align-items: center;">
+            <div class="icon-container {% if order.status == 'delivered' %}active{% endif %}" style="width: 50px; height: 50px; background-color: {% if order.status == 'delivered' %}#2ecc71{% else %}#bdc3c7{% endif %}; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; box-shadow: 0 0 15px {% if order.status == 'delivered' %}rgba(46,204,113,0.5){% else %}rgba(189,195,199,0.3){% endif %};">
+                <i class="fas fa-check-circle" style="color: white; font-size: 1.5rem;"></i>
+            </div>
+            <div class="label" style="font-weight: 600; text-align: center; font-size: 0.9rem; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">
+                Delivered
+            </div>
+            <div class="date" style="font-size: 0.8rem; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">
+                {% if order.status == 'delivered' and tracking_info.last %}
+                    {{ tracking_info.last.timestamp|date:"M j" }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Progress Line -->
+    <div class="progress-road" style="position: absolute; bottom: 80px; left: 5%; right: 5%; height: 12px; background-color: rgba(255,255,255,0.7); border-radius: 6px; z-index: 5;">
+        <div class="progress-fill" style="position: absolute; height: 100%; border-radius: 6px; background-color: #ffbe00; width: 
             {% if order.status == 'pending' %}
-                0%
+                10%
+            {% elif order.status == 'processing' %}
+                35%
             {% elif order.status == 'transit' %}
-                60%
+                65%
             {% elif order.status == 'delivered' %}
-                90%
+                100%
             {% else %}
-                30%
+                25%
             {% endif %};">
         </div>
-        
-        <!-- Animated Delivery Truck -->
-        {% if order.status == 'transit' %}
-        <div class="delivery-truck" style="position: absolute; top: 50%; transform: translateY(-75%); left: 60%; z-index: 3; animation: truckBounce 2s infinite ease-in-out;">
-            <div style="background-color: #3498db; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 5px 15px rgba(52,152,219,0.5);">
-                <i class="fas fa-truck" style="color: white; font-size: 1.2rem; transform: scaleX(-1);"></i>
-            </div>
+    </div>
+    
+    <!-- Status-dependent Delivery Vehicle -->
+    {% if order.status == 'delivered' %}
+        <div class="delivery-vehicle delivered" style="position: absolute; bottom: 90px; right: 10%; z-index: 6; height: 120px; animation: bounce 2s infinite ease-in-out;">
+            <img src="https://static.vecteezy.com/system/resources/previews/049/677/117/original/a-cartoon-man-with-a-motorcycle-and-helmet-free-png.png" alt="Delivery Completed" style="height: 100%; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.3));">
         </div>
-        {% endif %}
-    </div>
-    
-    <div class="tracking-timeline" style="margin-bottom: 1.5rem;">
-        <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Tracking Timeline</h3>
-        {% if tracking_info %}
-            <div class="timeline" style="position: relative; padding-left: 30px;">
-                <div class="timeline-line" style="position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background-color: var(--gray);"></div>
-                {% for tracking in tracking_info %}
-                    <div class="timeline-item" style="position: relative; margin-bottom: 1.5rem;">
-                        <div class="timeline-point" style="position: absolute; left: -30px; width: 20px; height: 20px; border-radius: 50%; background-color: var(--secondary); display: flex; justify-content: center; align-items: center; box-shadow: 0 0 0 5px rgba(46,204,113,0.2);">
-                            <i class="fas fa-check" style="color: white; font-size: 0.7rem;"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <p style="margin-bottom: 0.2rem; font-weight: 600;">{{ tracking.status_update }}</p>
-                            <p style="font-size: 0.9rem; color: #777;">{{ tracking.timestamp|date:"F j, Y, g:i a" }}</p>
-                            <p>{{ tracking.notes }}</p>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p>No tracking updates available yet.</p>
-        {% endif %}
-    </div>
-    
+    {% else %}
+        <div class="delivery-vehicle in-progress" style="position: absolute; bottom: 90px; 
+            {% if order.status == 'pending' %}
+                left: 10%
+            {% elif order.status == 'processing' %}
+                left: 30%
+            {% elif order.status == 'transit' %}
+                left: 60%
+            {% else %}
+                left: 20%
+            {% endif %};
+            height: 100px; z-index: 6; animation: delivery-move 3s infinite ease-in-out;">
+            <img src="https://i.pinimg.com/474x/c0/66/e2/c066e24117930ab126705704ca134b39.jpg" alt="Delivery In Progress" style="height: 100%; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.3));">
+        </div>
+    {% endif %}
+</div>
     {% if user.is_authenticated and user.role == 'DELIVERY_PERSONNEL' and order.ordertracking.assigned_to.user == user %}
     <div class="update-section card" style="margin-top: 1.5rem; padding: 1rem;">
         <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Update Order Status</h3>
@@ -200,6 +192,85 @@
     </div>
     {% endif %}
 </div>
+<style>
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes delivery-move {
+        0%, 100% { transform: translateX(0) translateY(0); }
+        25% { transform: translateX(5px) translateY(-5px); }
+        50% { transform: translateX(10px) translateY(0); }
+        75% { transform: translateX(5px) translateY(-5px); }
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255, 190, 0, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(255, 190, 0, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 190, 0, 0); }
+    }
+    
+    .milestone .icon-container.active {
+        animation: pulse 2s infinite;
+    }
+    
+    /* Ensure video responsiveness */
+    @media (max-width: 768px) {
+        #animation-container {
+            height: 250px;
+        }
+        
+        .delivery-vehicle.delivered {
+            height: 90px;
+        }
+        
+        .delivery-vehicle.in-progress {
+            height: 80px;
+        }
+        
+        .progress-road {
+            bottom: 60px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure video loads and plays properly
+        const video = document.querySelector('#animation-container video');
+        video.play().catch(error => {
+            console.log("Video autoplay was prevented:", error);
+            // Create a play button as fallback
+            const playButton = document.createElement('button');
+            playButton.innerHTML = '<i class="fas fa-play"></i>';
+            playButton.style.position = 'absolute';
+            playButton.style.top = '50%';
+            playButton.style.left = '50%';
+            playButton.style.transform = 'translate(-50%, -50%)';
+            playButton.style.zIndex = '20';
+            playButton.style.background = 'rgba(0,0,0,0.5)';
+            playButton.style.color = 'white';
+            playButton.style.border = 'none';
+            playButton.style.borderRadius = '50%';
+            playButton.style.width = '60px';
+            playButton.style.height = '60px';
+            playButton.style.fontSize = '24px';
+            playButton.style.cursor = 'pointer';
+            
+            playButton.addEventListener('click', () => {
+                video.play();
+                playButton.remove();
+            });
+            
+            document.getElementById('animation-container').appendChild(playButton);
+        });
+        
+        // Add any additional animation logic here
+        const currentStatus = '{{ order.status }}';
+        console.log("Current order status:", currentStatus);
+    });
+</script>
 
 <style>
     @keyframes truckBounce {
