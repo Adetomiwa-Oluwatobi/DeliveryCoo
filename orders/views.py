@@ -1093,6 +1093,9 @@ def checkout(request):
             items_by_company[company] = []
         items_by_company[company].append(item)
     
+    # Get available delivery addresses
+    delivery_addresses = DeliveryAddress.objects.filter(is_active=True)
+    
     # Get Visitor information if user is authenticated
     initial_data = {}
     visitor_data = None
@@ -1141,7 +1144,15 @@ def checkout(request):
             client_email = visitor_data['client_email']
         
         # Always collect these fields from the form
-        delivery_address = request.POST.get('delivery_address')
+        delivery_address_id = request.POST.get('delivery_address')
+        
+        # Get the DeliveryAddress object
+        try:
+            delivery_address_obj = DeliveryAddress.objects.get(id=delivery_address_id, is_active=True)
+            delivery_address_name = delivery_address_obj.name
+        except (DeliveryAddress.DoesNotExist, ValueError, TypeError):
+            messages.error(request, "Please select a valid delivery address.")
+            return redirect('checkout')
         
         # Get package weight and delivery date
         try:
@@ -1153,7 +1164,7 @@ def checkout(request):
         order_notes = request.POST.get('order_notes', '')
         
         # Validate required form fields (that aren't auto-filled)
-        if not all([delivery_address, delivery_date_str]):
+        if not all([delivery_address_id, delivery_date_str]):
             messages.error(request, "Please fill in delivery address and delivery date.")
             return redirect('checkout')
         
@@ -1193,13 +1204,13 @@ def checkout(request):
             # Total cost including items and delivery
             total_cost = subtotal + delivery_cost
             
-            # Create the order
+            # Create the order - store the delivery address object reference
             order = Order.objects.create(
                 company=company,
                 client_name=client_name,
                 client_phone=client_phone,
                 client_email=client_email,
-                delivery_address=delivery_address,
+                delivery_address=delivery_address_obj,  # Store the DeliveryAddress object
                 delivery_time=delivery_time,
                 weight=weight,
                 delivery_cost=delivery_cost,
@@ -1249,6 +1260,7 @@ def checkout(request):
         'initial_data': initial_data,
         'is_authenticated': request.user.is_authenticated and request.user.role == VISITOR,
         'visitor_data': visitor_data,  # Pass visitor data to template
+        'delivery_addresses': delivery_addresses,  # Add delivery addresses to context
     }
     return render(request, 'orders/checkout.html', context)
 
