@@ -1096,6 +1096,12 @@ def checkout(request):
     # Get available delivery addresses
     delivery_addresses = DeliveryAddress.objects.filter(is_active=True)
     
+    # Transportation choices for template
+    transportation_choices = [
+        ('bicycle', 'Bicycle (₦100 base delivery)'),
+        ('keke_napep', 'Keke Napep/Tricycle (₦300 base delivery)'),
+    ]
+    
     # Get Visitor information if user is authenticated
     initial_data = {}
     visitor_data = None
@@ -1145,6 +1151,7 @@ def checkout(request):
         
         # Always collect these fields from the form
         delivery_address_id = request.POST.get('delivery_address')
+        transportation_mode = request.POST.get('transportation_mode', 'bicycle')
         
         # Get the DeliveryAddress object
         try:
@@ -1190,30 +1197,41 @@ def checkout(request):
         # Create orders for each company
         orders = []
         for company, items in items_by_company.items():
-            # Calculate total for this company's items
+            # Calculate subtotal for this company's items
             subtotal = sum(item.subtotal for item in items)
             
-            # Calculate delivery cost based on weight and possibly distance (simplified here)
-            base_delivery_fee = 100  # Base delivery fee in Naira
+            # Calculate delivery cost based on transportation mode and weight
+            if transportation_mode == 'bicycle':
+                base_delivery_fee = 100
+            elif transportation_mode == 'keke_napep':
+                base_delivery_fee = 300
+            else:
+                base_delivery_fee = 100  # Default to bicycle
+            
+            # Add weight factor to delivery cost
             weight_factor = weight / 10  # Adjust based on weight
             delivery_cost = base_delivery_fee * (1 + weight_factor)
             
             from decimal import Decimal
             delivery_cost = Decimal(str(delivery_cost))
+            subtotal = Decimal(str(subtotal))
             
             # Total cost including items and delivery
             total_cost = subtotal + delivery_cost
             
-            # Create the order - store the delivery address object reference
+            # Create the order with all the new fields
             order = Order.objects.create(
                 company=company,
                 client_name=client_name,
                 client_phone=client_phone,
                 client_email=client_email,
-                delivery_address=delivery_address_obj,  # Store the DeliveryAddress object
+                delivery_address=delivery_address_obj,
                 delivery_time=delivery_time,
                 weight=weight,
+                transportation_mode=transportation_mode,
+                subtotal=subtotal,
                 delivery_cost=delivery_cost,
+                total_cost=total_cost,
                 status='pending',
                 payment_status='pending'
             )
@@ -1253,16 +1271,23 @@ def checkout(request):
             request.session['pending_orders'] = [order.id for order in orders[1:]]
             return redirect('initiate_payment', order_id=orders[0].id)
     
+    # Calculate totals for the GET request (for display purposes)
+    cart_subtotal = sum(item.subtotal for item in cart_items)
+    default_delivery_cost = 100  # Default bicycle delivery
+    cart_total = cart_subtotal + default_delivery_cost
+    
     context = {
         'cart': cart,
         'cart_items': cart_items,
         'items_by_company': items_by_company,
         'initial_data': initial_data,
         'is_authenticated': request.user.is_authenticated and request.user.role == VISITOR,
-        'visitor_data': visitor_data,  # Pass visitor data to template
-        'delivery_addresses': delivery_addresses,  # Add delivery addresses to context
-        'total_cost':total_cost,
-        'subtotal':subtotal,
+        'visitor_data': visitor_data,
+        'delivery_addresses': delivery_addresses,
+        'transportation_choices': transportation_choices,
+        'cart_subtotal': cart_subtotal,
+        'default_delivery_cost': default_delivery_cost,
+        'cart_total': cart_total,
     }
     return render(request, 'orders/checkout.html', context)
 

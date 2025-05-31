@@ -133,6 +133,12 @@ class DeliveryAddress(models.Model):
     def __str__(self):
         return self.name
 
+# Add these transportation choices at the top of your models.py file
+TRANSPORTATION_CHOICES = [
+    ('bicycle', 'Bicycle'),
+    ('keke_napep', 'Keke Napep (Tricycle)'),
+]
+
 class Order(models.Model):
     company = models.ForeignKey(Company, related_name='orders', on_delete=models.CASCADE)
     # Client information directly from visitor profile
@@ -149,7 +155,37 @@ class Order(models.Model):
     ordered_at = models.DateTimeField(auto_now_add=True)
     delivery_time = models.DateTimeField()
     weight = models.FloatField(max_length=4, default=30.9)
-    delivery_cost = models.FloatField(max_length=10, default=600)
+    
+    # Add transportation mode field
+    transportation_mode = models.CharField(
+        max_length=20, 
+        choices=TRANSPORTATION_CHOICES, 
+        default='bicycle',
+        verbose_name='Transportation Mode'
+    )
+    
+    # Add subtotal and total cost fields
+    subtotal = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00,
+        verbose_name='Subtotal'
+    )
+    
+    delivery_cost = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=100.00,
+        verbose_name='Delivery Cost'
+    )
+    
+    total_cost = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00,
+        verbose_name='Total Cost'
+    )
+    
     payment_status = models.CharField(
         max_length=20, 
         choices=PAYMENT_STATUS_CHOICES,
@@ -164,11 +200,14 @@ class Order(models.Model):
     )
     payment_date = models.DateTimeField(blank=True, null=True, verbose_name='Payment Date')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=PENDING)
-    
-    # visitor_user field removed as requested
 
     def __str__(self):
         return f"Order #{self.id} - {self.client_name}"
+    
+    def save(self, *args, **kwargs):
+        # Calculate total_cost before saving
+        self.total_cost = self.subtotal + self.delivery_cost
+        super().save(*args, **kwargs)
     
 class OrderNote(models.Model):
     """Notes attached to orders (from customers or staff)"""

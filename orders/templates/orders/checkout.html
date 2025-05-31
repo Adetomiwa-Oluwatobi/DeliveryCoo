@@ -71,6 +71,20 @@
                             </div>
                             <small class="form-helper">Choose from available delivery locations.</small>
                         </div>
+
+                        <!-- Transportation Mode Selection -->
+                        <div class="form-group">
+                            <label for="transportation_mode" class="form-label">Transportation Mode*</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-motorcycle"></i>
+                                <select class="form-input" id="transportation_mode" name="transportation_mode" required>
+                                    {% for value, label in transportation_choices %}
+                                        <option value="{{ value }}" {% if forloop.first %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <small class="form-helper">Choose your preferred delivery method.</small>
+                        </div>
                         
                         <div class="form-grid">
                             <div class="form-group">
@@ -114,20 +128,33 @@
                                 <div class="company-subtotal">
                                     <div class="subtotal-row">
                                         <div>Subtotal</div>
-                                        <div>₦{{ items|subtotal|floatformat:2 }}</div>
+                                        <div class="company-subtotal-amount">₦{{ items|subtotal|floatformat:2 }}</div>
                                     </div>
                                     <div class="subtotal-row">
                                         <div>Delivery Fee</div>
-                                        <div>₦600.00</div>
+                                        <div class="company-delivery-fee">₦{{ default_delivery_cost|floatformat:2 }}</div>
                                     </div>
                                 </div>
                             </div>
                         {% endfor %}
                         
-                        <div class="total-section">
-                            <div class="total-row">
-                                <div>Total</div>
-                                <div class="total-price">₦{{ cart.total_price|floatformat:2 }}</div>
+                        <!-- Updated Cost Summary Section -->
+                        <div class="cost-summary">
+                            <div class="cost-breakdown">
+                                <div class="cost-item">
+                                    <span>Items Subtotal:</span>
+                                    <span id="subtotal-amount">₦{{ cart_subtotal|floatformat:2 }}</span>
+                                </div>
+                                <div class="cost-item">
+                                    <span>Delivery Cost:</span>
+                                    <span id="delivery-cost-amount">₦{{ default_delivery_cost|floatformat:2 }}</span>
+                                </div>
+                                <div class="cost-item total-cost">
+                                    <strong>
+                                        <span>Total Cost:</span>
+                                        <span id="total-amount">₦{{ cart_total|floatformat:2 }}</span>
+                                    </strong>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -167,7 +194,7 @@
                 <div class="card-footer">
                     <div class="cart-summary">
                         <div>{{ cart_items.count }} item(s)</div>
-                        <div class="cart-total">₦{{ cart.total_price|floatformat:2 }}</div>
+                        <div class="cart-total">₦{{ cart_subtotal|floatformat:2 }}</div>
                     </div>
                 </div>
             </div>
@@ -396,10 +423,34 @@
         margin-bottom: 0.25rem;
     }
 
-    .total-section {
+    /* Cost Summary Styling */
+    .cost-summary {
         margin-top: 1.5rem;
-        padding-top: 1rem;
+        padding-top: 1.5rem;
         border-top: 2px solid #eee;
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+
+    .cost-breakdown {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .cost-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1rem;
+    }
+
+    .cost-item.total-cost {
+        padding-top: 0.75rem;
+        border-top: 1px solid #ddd;
+        font-size: 1.2rem;
+        color: var(--primary);
     }
 
     .total-row {
@@ -541,6 +592,71 @@
         width: 24px;
         text-align: center;
     }
+
+    /* Transportation Mode specific styling */
+    .transportation-info {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 4px;
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+    }
 </style>
+
+<script>
+// JavaScript for dynamic cost calculation
+document.addEventListener('DOMContentLoaded', function() {
+    const transportModeSelect = document.getElementById('transportation_mode');
+    const weightInput = document.getElementById('weight');
+    const subtotalAmount = document.getElementById('subtotal-amount');
+    const deliveryCostAmount = document.getElementById('delivery-cost-amount');
+    const totalAmount = document.getElementById('total-amount');
+    
+    // Get initial values
+    const baseSubtotal = parseFloat('{{ cart_subtotal }}');
+    
+    function updateCosts() {
+        const transportMode = transportModeSelect.value;
+        const weight = parseFloat(weightInput.value) || 30.9;
+        
+        let baseDeliveryFee;
+        if (transportMode === 'bicycle') {
+            baseDeliveryFee = 100;
+        } else if (transportMode === 'keke_napep') {
+            baseDeliveryFee = 300;
+        } else {
+            baseDeliveryFee = 100;
+        }
+        
+        // Calculate delivery cost with weight factor
+        const weightFactor = weight / 10;
+        const deliveryCost = baseDeliveryFee * (1 + weightFactor);
+        const totalCost = baseSubtotal + deliveryCost;
+        
+        // Update the display
+        deliveryCostAmount.textContent = '₦' + deliveryCost.toFixed(2);
+        totalAmount.textContent = '₦' + totalCost.toFixed(2);
+        
+        // Update company delivery fees if they exist
+        const companyDeliveryFees = document.querySelectorAll('.company-delivery-fee');
+        companyDeliveryFees.forEach(fee => {
+            fee.textContent = '₦' + deliveryCost.toFixed(2);
+        });
+    }
+    
+    // Add event listeners
+    transportModeSelect.addEventListener('change', updateCosts);
+    weightInput.addEventListener('input', updateCosts);
+    
+    // Set minimum date to today
+    const deliveryDateInput = document.getElementById('delivery_date');
+    const today = new Date().toISOString().split('T')[0];
+    deliveryDateInput.setAttribute('min', today);
+    
+    // Initial calculation
+    updateCosts();
+});
+</script>
 
 {% endblock %}
