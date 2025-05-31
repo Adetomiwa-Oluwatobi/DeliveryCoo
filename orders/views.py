@@ -245,8 +245,14 @@ def initiate_payment(request, order_id):
     """View for initiating Paystack payment for an order"""
     order = get_object_or_404(Order, id=order_id)
     
+    # Determine amount to charge: total_cost if it exists and > 0, otherwise delivery_cost
+    if hasattr(order, 'total_cost') and order.total_cost and order.total_cost > 0:
+        payment_amount = order.total_cost
+    else:
+        payment_amount = order.delivery_cost
+    
     # Convert to kobo (Paystack accepts amount in smallest currency unit)
-    amount = int(order.delivery_cost * 100)
+    amount = int(payment_amount * 100)
     
     # If client email is not provided, use company email or a default
     email_to_use = order.client_email
@@ -266,6 +272,7 @@ def initiate_payment(request, order_id):
         'order_id': order.id,
         'client_name': order.client_name,
         'company_id': order.company.id if order.company else None,
+        'payment_amount': str(payment_amount),  # Include amount in metadata for tracking
     }
     
     # Get the callback URL for Paystack to return to
