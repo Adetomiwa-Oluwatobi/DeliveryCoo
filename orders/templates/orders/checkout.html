@@ -54,10 +54,22 @@
                             </div>
                         {% endif %}
                         
-                        <!-- Always show these fields -->
+                        <!-- Delivery Address Dropdown -->
                         <div class="form-group">
                             <label for="delivery_address" class="form-label">Delivery Address*</label>
-                            <textarea class="form-input" id="delivery_address" name="delivery_address" rows="3" required></textarea>
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <select class="form-input" id="delivery_address" name="delivery_address" required>
+                                    <option value="">Select a delivery location</option>
+                                    {% for address in delivery_addresses %}
+                                        <option value="{{ address.id }}" 
+                                                {% if initial_data.delivery_address == address.id %}selected{% endif %}>
+                                            {{ address.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <small class="form-helper">Choose from available delivery locations.</small>
                         </div>
                         
                         <div class="form-grid">
@@ -243,12 +255,23 @@
         border: 1px solid #ddd;
         border-radius: 4px;
         transition: border-color 0.3s ease;
+        background-color: white;
     }
 
     .form-input:focus {
         border-color: var(--primary);
         outline: none;
         box-shadow: 0 0 0 2px rgba(255, 190, 0, 0.2);
+    }
+
+    /* Select dropdown styling */
+    select.form-input {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1rem;
+        padding-right: 2.5rem;
     }
 
     .form-helper {
@@ -268,10 +291,16 @@
         left: 0.75rem;
         transform: translateY(-50%);
         color: #6c757d;
+        z-index: 1;
     }
 
     .input-icon-wrapper .form-input {
         padding-left: 2.5rem;
+    }
+
+    .input-icon-wrapper select.form-input {
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
     }
 
     /* Alert Styling */
@@ -368,7 +397,7 @@
     }
 
     .total-section {
-        margin-top: a.5rem;
+        margin-top: 1.5rem;
         padding-top: 1rem;
         border-top: 2px solid #eee;
     }
