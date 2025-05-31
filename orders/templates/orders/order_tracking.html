@@ -15,8 +15,8 @@
                 <p><strong>Email:</strong> {{ order.client_email }}</p>
                 <p><strong>Phone:</strong> {{ order.client_phone }}</p>
                 <p><strong>Ordered:</strong> {{ order.ordered_at|date:"F j, Y, g:i a" }}</p>
-                <p><strong>Order Value:</strong> ${{ order.order_value }}</p>
-                <p><strong>Delivery Cost:</strong> ${{ order.delivery_cost }}</p>
+                <p><strong>Order Value:</strong> ₦{{ order.order_value }}</p>
+                <p><strong>Delivery Cost:</strong> ₦{{ order.delivery_cost }}</p>
             </div>
             <div>
                 <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Delivery Information</h3>

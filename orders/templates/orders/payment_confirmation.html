@@ -26,7 +26,11 @@
                     <div class="detail-label">Delivery Cost:</div>
                     <div class="detail-value">₦{{ order.delivery_cost }}</div>
                 </div>
-                
+                <div class="detail-row">
+                    <div class="detail-label">Total Price:</div>
+                    <div class="detail-value">₦{{ order.items|subtotal|floatformat:2}}</div>
+                </div>
+               
                 {% if order.client_email %}
                 <div class="detail-row">
                     <div class="detail-label">Client Email:</div>
