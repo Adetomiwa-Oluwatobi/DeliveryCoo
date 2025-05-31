@@ -62,6 +62,12 @@
             <div class="info-item">
                 <span class="info-label">Delivery Cost:</span>
                 <span class="info-value">₦{{ order.delivery_cost|default:"0.00" }}</span>
+                <span class="info-label">product Cost:</span>
+                <span class="info-value">₦{{ order.subtotal|default:"0.00" }}</span>
+                <span class="info-label">Total Cost:</span>
+                <span class="info-value">₦{{ order.total_cost|default:"0.00" }}</span>
+                
+        
             </div>
         </div>
         <div class="card mt-4">

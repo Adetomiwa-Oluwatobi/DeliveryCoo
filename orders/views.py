@@ -1194,7 +1194,7 @@ def checkout(request):
             subtotal = sum(item.subtotal for item in items)
             
             # Calculate delivery cost based on weight and possibly distance (simplified here)
-            base_delivery_fee = 600  # Base delivery fee in Naira
+            base_delivery_fee = 100  # Base delivery fee in Naira
             weight_factor = weight / 10  # Adjust based on weight
             delivery_cost = base_delivery_fee * (1 + weight_factor)
             
@@ -1261,6 +1261,8 @@ def checkout(request):
         'is_authenticated': request.user.is_authenticated and request.user.role == VISITOR,
         'visitor_data': visitor_data,  # Pass visitor data to template
         'delivery_addresses': delivery_addresses,  # Add delivery addresses to context
+        'total_cost':total_cost,
+        'subtotal':subtotal,
     }
     return render(request, 'orders/checkout.html', context)
 
