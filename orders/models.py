@@ -118,13 +118,34 @@ PAYMENT_STATUS_CHOICES = (
 ('failed', 'Failed'),
 ('refunded', 'Refunded'),
 )
+class DeliveryAddress(models.Model):
+    """Predefined delivery addresses/landmarks"""
+    name = models.CharField(max_length=255, unique=True, verbose_name="Delivery Location")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True, verbose_name="Active")
+    
+    class Meta:
+        verbose_name = "Delivery Address"
+        verbose_name_plural = "Delivery Addresses"
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
+
 class Order(models.Model):
     company = models.ForeignKey(Company, related_name='orders', on_delete=models.CASCADE)
     # Client information directly from visitor profile
     client_name = models.CharField(max_length=100, default="no recipient")
     client_phone = models.CharField(max_length=15, default=000)
     client_email = models.EmailField(blank=True, null=True)
-    delivery_address = models.TextField()
+    delivery_address = models.ForeignKey(
+        DeliveryAddress, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="Delivery Location"
+    )
     ordered_at = models.DateTimeField(auto_now_add=True)
     delivery_time = models.DateTimeField()
     weight = models.FloatField(max_length=4, default=30.9)
@@ -262,3 +283,6 @@ class OrderItem(models.Model):
     @property
     def subtotal(self):
         return self.price * self.quantity
+    
+    from .models import DeliveryAddress, Order
+

@@ -1,8 +1,35 @@
 from django import forms
-from .models import VISITOR, Order, OrderTracking, DeliveryPersonnel, CustomUser,Product, Category, Company, COMPANY, DELIVERY_PERSONNEL, Visitor
+from .models import VISITOR, Order, OrderTracking, DeliveryPersonnel,DeliveryAddress, CustomUser,Product, Category, Company, COMPANY, DELIVERY_PERSONNEL, Visitor
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
-
+class DeliveryAddressForm(forms.ModelForm):
+    """Form for creating and editing delivery addresses - Admin only"""
+    
+    class Meta:
+        model = DeliveryAddress
+        fields = ['name', 'is_active']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter landmark or location name'
+            }),
+        }
+    
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if name:
+            name = name.strip().title()  # Clean and format the name
+            
+            # Check for duplicates (excluding current instance if editing)
+            existing = DeliveryAddress.objects.filter(name__iexact=name)
+            if self.instance.pk:
+                existing = existing.exclude(pk=self.instance.pk)
+            
+            if existing.exists():
+                raise forms.ValidationError("A delivery address with this name already exists.")
+        
+        return name
+    
 class OrderForm(forms.ModelForm):
     """Form for creating a new order with client information included"""
     client_name = forms.CharField(max_length=100, required=True, label="Client Name")
@@ -13,8 +40,41 @@ class OrderForm(forms.ModelForm):
         model = Order
         fields = [
             'company', 'client_name', 'client_phone', 'client_email',
-            'delivery_address', 'delivery_time','weight','delivery_cost',
+            'delivery_address', 'delivery_time', 'weight', 'delivery_cost',
         ]
+        widgets = {
+            'delivery_address': forms.Select(attrs={
+                'class': 'form-control',
+                'required': True
+            }),
+            'delivery_time': forms.DateTimeInput(attrs={
+                'type': 'datetime-local',
+                'class': 'form-control'
+            }),
+            'weight': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.1'
+            }),
+            'delivery_cost': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01'
+            }),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Only show active delivery addresses
+        self.fields['delivery_address'].queryset = DeliveryAddress.objects.filter(is_active=True)
+        
+        # Make delivery address required
+        self.fields['delivery_address'].required = True
+        self.fields['delivery_address'].empty_label = "Select a delivery location"
+        
+        # Add CSS classes and attributes
+        for field_name, field in self.fields.items():
+            if field_name not in ['delivery_address']:
+                field.widget.attrs['class'] = 'form-control'
         
 class OrderTrackingForm(forms.ModelForm):
     class Meta:

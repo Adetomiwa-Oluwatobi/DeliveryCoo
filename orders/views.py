@@ -11,6 +11,10 @@ from django.contrib import messages
 import io
 from reportlab.pdfgen import canvas
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator
+from django.db.models import Q
+from .models import DeliveryAddress
+from .forms import DeliveryAddressForm
 
 from reportlab.lib.pagesizes import letter
 from django.db.models import Q
@@ -1372,3 +1376,128 @@ def public_order_tracking(request):
             return redirect('public_order_tracking')
     
     return render(request, 'orders/public_order_tracking.html')
+
+
+
+
+
+@login_required
+@user_passes_test(is_admin, login_url='login')
+def delivery_address_list(request):
+    """List all delivery addresses - Admin only"""
+    search_query = request.GET.get('search', '')
+    show_inactive = request.GET.get('show_inactive', False)
+    
+    # Filter addresses
+    addresses = DeliveryAddress.objects.all()
+    
+    if search_query:
+        addresses = addresses.filter(name__icontains=search_query)
+    
+    if not show_inactive:
+        addresses = addresses.filter(is_active=True)
+    
+    # Pagination
+    paginator = Paginator(addresses, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'show_inactive': show_inactive,
+        'total_count': addresses.count(),
+    }
+    
+    return render(request, 'orders/delivery_addresses_list.html', context)
+
+@user_passes_test(is_admin, login_url='login')
+def delivery_address_create(request):
+    """Create new delivery address - Admin only"""
+    if request.method == 'POST':
+        form = DeliveryAddressForm(request.POST)
+        if form.is_valid():
+            address = form.save()
+            messages.success(request, f'Delivery address "{address.name}" created successfully.')
+            return redirect('delivery_address_list')
+    else:
+        form = DeliveryAddressForm()
+    
+    context = {
+        'form': form,
+        'title': 'Add New Delivery Address',
+        'submit_text': 'Create Address'
+    }
+    
+    return render(request, 'orders/delivery_addresses_form.html', context)
+
+@login_required
+@user_passes_test(is_admin, login_url='login')
+def delivery_address_edit(request, pk):
+    """Edit delivery address - Admin only"""
+    address = get_object_or_404(DeliveryAddress, pk=pk)
+    
+    if request.method == 'POST':
+        form = DeliveryAddressForm(request.POST, instance=address)
+        if form.is_valid():
+            address = form.save()
+            messages.success(request, f'Delivery address "{address.name}" updated successfully.')
+            return redirect('delivery_address_list')
+    else:
+        form = DeliveryAddressForm(instance=address)
+    
+    context = {
+        'form': form,
+        'address': address,
+        'title': f'Edit: {address.name}',
+        'submit_text': 'Update Address'
+    }
+    
+    return render(request, 'orders/delivery_addresses_form.html', context)
+
+@login_required
+@user_passes_test(is_admin, login_url='login')
+def delivery_address_delete(request, pk):
+    """Delete delivery address - Admin only"""
+    address = get_object_or_404(DeliveryAddress, pk=pk)
+    
+    # Check if address is being used in any orders
+    orders_count = address.order_set.count()
+    
+    if request.method == 'POST':
+        if orders_count > 0:
+            # Soft delete - just deactivate instead of deleting
+            address.is_active = False
+            address.save()
+            messages.warning(
+                request, 
+                f'Delivery address "{address.name}" has been deactivated because it\'s used in {orders_count} orders.'
+            )
+        else:
+            # Hard delete if no orders are using it
+            address_name = address.name
+            address.delete()
+            messages.success(request, f'Delivery address "{address_name}" deleted successfully.')
+        
+        return redirect('delivery_address_list')
+    
+    context = {
+        'address': address,
+        'orders_count': orders_count,
+    }
+    
+    return render(request, 'orders/delivery_addresses_delete.html', context)
+
+@login_required
+@user_passes_test(is_admin, login_url='login')
+def delivery_address_toggle_status(request, pk):
+    """Toggle active status of delivery address - Admin only"""
+    address = get_object_or_404(DeliveryAddress, pk=pk)
+    
+    address.is_active = not address.is_active
+    address.save()
+    
+    status = "activated" if address.is_active else "deactivated"
+    messages.success(request, f'Delivery address "{address.name}" {status} successfully.')
+    
+    return redirect('delivery_address_list')

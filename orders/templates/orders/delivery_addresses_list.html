@@ -1,0 +1,181 @@
+<!-- delivery_addresses/list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Addresses Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                Delivery Addresses Management
+                            </h4>
+                            <a href="{% url 'delivery_address_create' %}" class="btn btn-light btn-sm">
+                                <i class="fas fa-plus me-1"></i>Add New Address
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Search and Filter Form -->
+                        <form method="GET" class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" class="form-control" name="search" 
+                                           placeholder="Search addresses..." value="{{ search_query }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="show_inactive" 
+                                           id="show_inactive" {% if show_inactive %}checked{% endif %}>
+                                    <label class="form-check-label" for="show_inactive">
+                                        Show inactive addresses
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-filter me-1"></i>Filter
+                                </button>
+                                <a href="{% url 'delivery_address_list' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i>Clear
+                                </a>
+                            </div>
+                        </form>
+
+                        <!-- Results Summary -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <small class="text-muted">
+                                    Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ total_count }} addresses
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Addresses Table -->
+                        {% if page_obj %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Location Name</th>
+                                        <th>Status</th>
+                                        <th>Orders Using This Address</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for address in page_obj %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ address.name }}</strong>
+                                        </td>
+                                        <td>
+                                            {% if address.is_active %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ address.order_set.count }}</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ address.created_at|date:"M d, Y" }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{% url 'delivery_address_edit' address.pk %}" 
+                                                   class="btn btn-outline-primary" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'delivery_address_toggle' address.pk %}" 
+                                                   class="btn btn-outline-warning" title="Toggle Status">
+                                                    {% if address.is_active %}
+                                                        <i class="fas fa-eye-slash"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-eye"></i>
+                                                    {% endif %}
+                                                </a>
+                                                <a href="{% url 'delivery_address_delete' address.pk %}" 
+                                                   class="btn btn-outline-danger" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if page_obj.has_other_pages %}
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if show_inactive %}&show_inactive=on{% endif %}">
+                                            Previous
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if show_inactive %}&show_inactive=on{% endif %}">
+                                                {{ num }}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if show_inactive %}&show_inactive=on{% endif %}">
+                                            Next
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No delivery addresses found</h5>
+                            <p class="text-muted">Get started by adding your first delivery address.</p>
+                            <a href="{% url 'delivery_address_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Add New Address
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
