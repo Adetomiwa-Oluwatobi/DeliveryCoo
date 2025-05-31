@@ -474,6 +474,35 @@
                     </a>
                 </div>
             </div>
+            <!-- Product Management Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-location-dot"></i> Addresses Management</h2>
+                </div>
+                <div class="quick-actions">
+                    <a href="{% url 'delivery_address_list' %}" class="quick-action-btn">
+                        <div class="quick-action-icon bg-primary-light">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="quick-action-text">
+                            <h4>View Addresses</h4>
+                            <p>view all address and landmark</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'delivery_address_create' %}" class="quick-action-btn">
+                        <div class="quick-action-icon bg-success-light">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="quick-action-text">
+                            <h4>Add Delivery Address</h4>
+                            <p>Create a delivery address</p>
+                        </div>
+                    </a>
+                    
+                    
+                </div>
+            </div>
         </div>
     </div>
 </div>
