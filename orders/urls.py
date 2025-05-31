@@ -79,11 +79,11 @@ urlpatterns = [
     
     
     #delivery adresss
-    path('admin/delivery-addresses/', views.delivery_address_list, name='delivery_address_list'),
-    path('admin/delivery-addresses/create/', views.delivery_address_create, name='delivery_address_create'),
-    path('admin/delivery-addresses/<int:pk>/edit/', views.delivery_address_edit, name='delivery_address_edit'),
-    path('admin/delivery-addresses/<int:pk>/delete/', views.delivery_address_delete, name='delivery_address_delete'),
-    path('admin/delivery-addresses/<int:pk>/toggle/', views.delivery_address_toggle_status, name='delivery_address_toggle'),
+    path('delivery-addresses/', views.delivery_address_list, name='delivery_address_list'),
+    path('delivery-addresses/create/', views.delivery_address_create, name='delivery_address_create'),
+    path('delivery-addresses/<int:pk>/edit/', views.delivery_address_edit, name='delivery_address_edit'),
+    path('delivery-addresses/<int:pk>/delete/', views.delivery_address_delete, name='delivery_address_delete'),
+    path('delivery-addresses/<int:pk>/toggle/', views.delivery_address_toggle_status, name='delivery_address_toggle'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
    
