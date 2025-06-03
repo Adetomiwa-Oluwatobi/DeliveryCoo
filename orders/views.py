@@ -255,13 +255,13 @@ def initiate_payment(request, order_id):
     amount = int(payment_amount * 100)
     
     # If client email is not provided, use company email or a default
-    email_to_use = order.client_email
+    # Replace the problematic section with:
+    email_to_use = order.client_email or request.user.email
+
     if not email_to_use:
-        if request.user.role == COMPANY:
-            email_to_use = request.user.email
-        else:
-            messages.error(request, "Client email is required for payment processing.")
-            return redirect('order_detail', order_id=order.id)
+        messages.error(request, "Email address is required for payment processing.")
+        return redirect('order_detail', order_id=order.id)
+    
     
     # Generate a unique reference by combining order ID with timestamp
     from datetime import datetime
