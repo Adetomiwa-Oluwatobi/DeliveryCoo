@@ -92,6 +92,23 @@
             background-color: var(--secondary);
             color: var(--white);
         }
+        #loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.95);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #loader {
+            width: 120px;
+            height: 120px;
+        }
         
         /* Mobile navigation toggle */
         .menu-toggle {
@@ -304,6 +321,15 @@
     <main>
         {% block content %}
         <!-- Example content for preview purposes -->
+        <!-- Loader -->
+        <div id="loader-wrapper">
+            <img
+            id="loader"
+            src="https://i.ibb.co/XZkm8xBF/original-076ffd5f4f747227a03af48fc90b4cc5.gif"
+            alt="Loading..."
+            />
+        </div>
+
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">Track Your Deliveries</h2>
@@ -369,6 +395,13 @@
         document.getElementById('mobile-menu').addEventListener('click', function() {
             document.getElementById('nav-menu').classList.toggle('active');
         });
+        
+        window.addEventListener("load", function () {
+            const loaderWrapper = document.getElementById("loader-wrapper");
+            loaderWrapper.style.display = "none";
+        });
+        
+        
     </script>
 </body>
 </html>
