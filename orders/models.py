@@ -98,24 +98,24 @@ class Client(models.Model):
 class Visitor(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='visitor_profile')
     phone_number = models.CharField(max_length=15)
-    profile_image = CloudinaryField(
+    """profile_image = CloudinaryField(
         'image', 
         folder='visitor_profiles/', 
         null=True, 
         blank=True,
         help_text='Optional profile picture'
-    )
+    )"""
     
     
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username}"
     
-    def get_profile_image_url(self):
-        """Get profile image URL or return default"""
+    """def get_profile_image_url(self):
+        #Get profile image URL or return default
         if self.profile_image:
             return self.profile_image.url
         return None
-
+"""
 # Update the DeliveryPersonnel model
 class DeliveryPersonnel(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='delivery_profile')
