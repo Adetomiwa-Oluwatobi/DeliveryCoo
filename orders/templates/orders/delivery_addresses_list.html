@@ -1,181 +1,263 @@
 <!-- delivery_addresses/list.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delivery Addresses Management</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container-fluid py-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h4 class="mb-0">
-                                <i class="fas fa-map-marker-alt me-2"></i>
-                                Delivery Addresses Management
-                            </h4>
-                            <a href="{% url 'delivery_address_create' %}" class="btn btn-light btn-sm">
-                                <i class="fas fa-plus me-1"></i>Add New Address
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div class="card-body">
-                        <!-- Search and Filter Form -->
-                        <form method="GET" class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                    <input type="text" class="form-control" name="search" 
-                                           placeholder="Search addresses..." value="{{ search_query }}">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" name="show_inactive" 
-                                           id="show_inactive" {% if show_inactive %}checked{% endif %}>
-                                    <label class="form-check-label" for="show_inactive">
-                                        Show inactive addresses
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <button type="submit" class="btn btn-outline-primary">
-                                    <i class="fas fa-filter me-1"></i>Filter
-                                </button>
-                                <a href="{% url 'delivery_address_list' %}" class="btn btn-outline-secondary">
-                                    <i class="fas fa-times me-1"></i>Clear
-                                </a>
-                            </div>
-                        </form>
+{% extends "base.html" %}
 
-                        <!-- Results Summary -->
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <small class="text-muted">
-                                    Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ total_count }} addresses
-                                </small>
-                            </div>
-                        </div>
-
-                        <!-- Addresses Table -->
-                        {% if page_obj %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Location Name</th>
-                                        <th>Status</th>
-                                        <th>Orders Using This Address</th>
-                                        <th>Created</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for address in page_obj %}
-                                    <tr>
-                                        <td>
-                                            <strong>{{ address.name }}</strong>
-                                        </td>
-                                        <td>
-                                            {% if address.is_active %}
-                                                <span class="badge bg-success">Active</span>
-                                            {% else %}
-                                                <span class="badge bg-secondary">Inactive</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-info">{{ address.order_set.count }}</span>
-                                        </td>
-                                        <td>
-                                            <small class="text-muted">
-                                                {{ address.created_at|date:"M d, Y" }}
-                                            </small>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group btn-group-sm" role="group">
-                                                <a href="{% url 'delivery_address_edit' address.pk %}" 
-                                                   class="btn btn-outline-primary" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="{% url 'delivery_address_toggle' address.pk %}" 
-                                                   class="btn btn-outline-warning" title="Toggle Status">
-                                                    {% if address.is_active %}
-                                                        <i class="fas fa-eye-slash"></i>
-                                                    {% else %}
-                                                        <i class="fas fa-eye"></i>
-                                                    {% endif %}
-                                                </a>
-                                                <a href="{% url 'delivery_address_delete' address.pk %}" 
-                                                   class="btn btn-outline-danger" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Pagination -->
-                        {% if page_obj.has_other_pages %}
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination justify-content-center">
-                                {% if page_obj.has_previous %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if show_inactive %}&show_inactive=on{% endif %}">
-                                            Previous
-                                        </a>
-                                    </li>
-                                {% endif %}
-
-                                {% for num in page_obj.paginator.page_range %}
-                                    {% if page_obj.number == num %}
-                                        <li class="page-item active">
-                                            <span class="page-link">{{ num }}</span>
-                                        </li>
-                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if show_inactive %}&show_inactive=on{% endif %}">
-                                                {{ num }}
-                                            </a>
-                                        </li>
-                                    {% endif %}
-                                {% endfor %}
-
-                                {% if page_obj.has_next %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if show_inactive %}&show_inactive=on{% endif %}">
-                                            Next
-                                        </a>
-                                    </li>
-                                {% endif %}
-                            </ul>
-                        </nav>
-                        {% endif %}
-
-                        {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">No delivery addresses found</h5>
-                            <p class="text-muted">Get started by adding your first delivery address.</p>
-                            <a href="{% url 'delivery_address_create' %}" class="btn btn-primary">
-                                <i class="fas fa-plus me-1"></i>Add New Address
-                            </a>
-                        </div>
-                        {% endif %}
-                    </div>
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 8px;"></i>
+            Delivery Addresses Management
+        </h2>
+        <a href="{% url 'delivery_address_create' %}" class="btn">
+            <i class="fas fa-plus" style="margin-right: 4px;"></i>Add New Address
+        </a>
+    </div>
+    
+    <!-- Search and Filter Form -->
+    <form method="GET" style="margin-bottom: 1.5rem;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 1rem; align-items: end;">
+            <div>
+                <div style="position: relative;">
+                    <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--dark); opacity: 0.6;"></i>
+                    <input type="text" name="search" placeholder="Search addresses..." value="{{ search_query }}"
+                           style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 2.5rem; border: 1px solid var(--gray); border-radius: 4px; font-size: 0.9rem;">
                 </div>
             </div>
+            <div>
+                <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem;">
+                    <input type="checkbox" name="show_inactive" id="show_inactive" 
+                           {% if show_inactive %}checked{% endif %}
+                           style="margin-right: 0.5rem;">
+                    Show inactive addresses
+                </label>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn" style="padding: 0.6rem 1rem; font-size: 0.9rem;">
+                    <i class="fas fa-filter" style="margin-right: 4px;"></i>Filter
+                </button>
+                <a href="{% url 'delivery_address_list' %}" class="btn btn-secondary" 
+                   style="padding: 0.6rem 1rem; font-size: 0.9rem;">
+                    <i class="fas fa-times" style="margin-right: 4px;"></i>Clear
+                </a>
+            </div>
         </div>
+    </form>
+
+    <!-- Results Summary -->
+    <div style="margin-bottom: 1rem;">
+        <small style="color: #666; font-size: 0.85rem;">
+            Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ total_count }} addresses
+        </small>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <!-- Addresses Content -->
+    {% if page_obj %}
+        <!-- Desktop Table View -->
+        <div class="desktop-view" style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <thead>
+                    <tr style="background-color: var(--light); border-bottom: 2px solid var(--gray);">
+                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--dark);">Location Name</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--dark);">Status</th>
+                        <th style="padding: 1rem; text-align: center; font-weight: 600; color: var(--dark);">Orders</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--dark);">Created</th>
+                        <th style="padding: 1rem; text-align: center; font-weight: 600; color: var(--dark);">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for address in page_obj %}
+                    <tr style="border-bottom: 1px solid var(--gray); transition: background-color 0.3s ease;" 
+                        onmouseover="this.style.backgroundColor='#f8f9fa'" 
+                        onmouseout="this.style.backgroundColor='white'">
+                        <td style="padding: 1rem;">
+                            <strong style="color: var(--dark); font-size: 1rem;">{{ address.name }}</strong>
+                        </td>
+                        <td style="padding: 1rem;">
+                            {% if address.is_active %}
+                                <span class="badge" style="background-color: #d4edda; color: #155724; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                                    <i class="fas fa-check-circle" style="margin-right: 4px;"></i>Active
+                                </span>
+                            {% else %}
+                                <span class="badge" style="background-color: #e2e3e5; color: #6c757d; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                                    <i class="fas fa-pause-circle" style="margin-right: 4px;"></i>Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem; text-align: center;">
+                            <span class="badge" style="background-color: #cce5ff; color: #004085; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                                {{ address.order_set.count }}
+                            </span>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <small style="color: #666; font-size: 0.85rem;">
+                                <i class="fas fa-calendar-alt" style="margin-right: 4px; opacity: 0.7;"></i>
+                                {{ address.created_at|date:"M d, Y" }}
+                            </small>
+                        </td>
+                        <td style="padding: 1rem; text-align: center;">
+                            <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                                <a href="{% url 'delivery_address_edit' address.pk %}" 
+                                   style="padding: 0.4rem 0.8rem; background-color: var(--primary); color: white; text-decoration: none; border-radius: 4px; font-size: 0.8rem; transition: all 0.3s ease;"
+                                   title="Edit Address"
+                                   onmouseover="this.style.backgroundColor='#e6ac00'"
+                                   onmouseout="this.style.backgroundColor='var(--primary)'">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'delivery_address_toggle' address.pk %}" 
+                                   style="padding: 0.4rem 0.8rem; background-color: #ffc107; color: white; text-decoration: none; border-radius: 4px; font-size: 0.8rem; transition: all 0.3s ease;"
+                                   title="Toggle Status"
+                                   onmouseover="this.style.backgroundColor='#e0a800'"
+                                   onmouseout="this.style.backgroundColor='#ffc107'">
+                                    {% if address.is_active %}
+                                        <i class="fas fa-eye-slash"></i>
+                                    {% else %}
+                                        <i class="fas fa-eye"></i>
+                                    {% endif %}
+                                </a>
+                                <a href="{% url 'delivery_address_delete' address.pk %}" 
+                                   style="padding: 0.4rem 0.8rem; background-color: #dc3545; color: white; text-decoration: none; border-radius: 4px; font-size: 0.8rem; transition: all 0.3s ease;"
+                                   title="Delete Address"
+                                   onmouseover="this.style.backgroundColor='#c82333'"
+                                   onmouseout="this.style.backgroundColor='#dc3545'">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="mobile-view" style="display: none;">
+            {% for address in page_obj %}
+            <div class="card" style="margin-bottom: 1rem; padding: 1rem; border-left: 4px solid {% if address.is_active %}#28a745{% else %}#6c757d{% endif %};">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                    <h4 style="margin: 0; color: var(--dark); font-size: 1.1rem;">{{ address.name }}</h4>
+                    {% if address.is_active %}
+                        <span class="badge" style="background-color: #d4edda; color: #155724; padding: 0.3rem 0.6rem; border-radius: 15px; font-size: 0.75rem;">Active</span>
+                    {% else %}
+                        <span class="badge" style="background-color: #e2e3e5; color: #6c757d; padding: 0.3rem 0.6rem; border-radius: 15px; font-size: 0.75rem;">Inactive</span>
+                    {% endif %}
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="font-size: 0.85rem; color: #666;">
+                        <span style="margin-right: 1rem;">
+                            <i class="fas fa-box" style="margin-right: 4px;"></i>
+                            {{ address.order_set.count }} orders
+                        </span>
+                        <span>
+                            <i class="fas fa-calendar-alt" style="margin-right: 4px;"></i>
+                            {{ address.created_at|date:"M d, Y" }}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{% url 'delivery_address_edit' address.pk %}" class="btn" style="flex: 1; text-align: center; font-size: 0.85rem; padding: 0.5rem;">
+                        <i class="fas fa-edit" style="margin-right: 4px;"></i>Edit
+                    </a>
+                    <a href="{% url 'delivery_address_toggle' address.pk %}" class="btn btn-secondary" style="flex: 1; text-align: center; font-size: 0.85rem; padding: 0.5rem;">
+                        {% if address.is_active %}
+                            <i class="fas fa-eye-slash" style="margin-right: 4px;"></i>Deactivate
+                        {% else %}
+                            <i class="fas fa-eye" style="margin-right: 4px;"></i>Activate
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div style="margin-top: 2rem;">
+            <nav style="display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if show_inactive %}&show_inactive=on{% endif %}" 
+                       class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        <i class="fas fa-chevron-left" style="margin-right: 4px;"></i>Previous
+                    </a>
+                {% endif %}
+
+                <div style="display: flex; gap: 0.25rem; align-items: center;">
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span style="padding: 0.5rem 0.75rem; background-color: var(--primary); color: white; border-radius: 4px; font-size: 0.9rem; font-weight: 500;">
+                                {{ num }}
+                            </span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if show_inactive %}&show_inactive=on{% endif %}" 
+                               style="padding: 0.5rem 0.75rem; background-color: var(--gray); color: var(--dark); text-decoration: none; border-radius: 4px; font-size: 0.9rem; transition: all 0.3s ease;"
+                               onmouseover="this.style.backgroundColor='var(--primary)'; this.style.color='white'"
+                               onmouseout="this.style.backgroundColor='var(--gray)'; this.style.color='var(--dark)'">
+                                {{ num }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if show_inactive %}&show_inactive=on{% endif %}" 
+                       class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        Next<i class="fas fa-chevron-right" style="margin-left: 4px;"></i>
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <!-- Empty State -->
+        <div style="text-align: center; padding: 3rem 1rem; color: #666;">
+            <div style="font-size: 4rem; color: var(--primary); margin-bottom: 1rem; opacity: 0.3;">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem; color: var(--dark);">No delivery addresses found</h3>
+            <p style="margin-bottom: 1.5rem; font-size: 1rem;">Get started by adding your first delivery address to manage your deliveries efficiently.</p>
+            <a href="{% url 'delivery_address_create' %}" class="btn" style="font-size: 1rem; padding: 0.75rem 1.5rem;">
+                <i class="fas fa-plus" style="margin-right: 8px;"></i>Add New Address
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Responsive Styles -->
+<style>
+    @media (max-width: 768px) {
+        .desktop-view {
+            display: none !important;
+        }
+        .mobile-view {
+            display: block !important;
+        }
+        
+        /* Mobile search form adjustments */
+        div[style*="grid-template-columns: 2fr 1fr auto"] {
+            display: block !important;
+        }
+        
+        div[style*="grid-template-columns: 2fr 1fr auto"] > div {
+            margin-bottom: 1rem;
+        }
+        
+        div[style*="display: flex; gap: 0.5rem;"] {
+            width: 100%;
+        }
+        
+        div[style*="display: flex; gap: 0.5rem;"] .btn {
+            flex: 1;
+            text-align: center;
+        }
+    }
+    
+    @media (min-width: 769px) {
+        .mobile-view {
+            display: none !important;
+        }
+        .desktop-view {
+            display: block !important;
+        }
+    }
+</style>
+{% endblock %}
