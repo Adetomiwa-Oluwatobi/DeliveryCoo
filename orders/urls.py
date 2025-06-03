@@ -40,7 +40,7 @@ urlpatterns = [
     path('orders/<int:order_id>/label/', views.print_label, name='print_label'),
     
     # Payment processing
-    path('payment/', views.initiate_payment, name='initiate_payment'),
+    path('orders/<int:order_id>/payment/', views.initiate_payment, name='initiate_payment'),
     path('order/<int:order_id>/payment/', views.payment_confirmation, name='initiates_payment'),
     path('payment/callback/', views.payment_callback, name='payment_callback'),
     path('order/<int:order_id>/verify-payment/', views.verify_payment, name='verify_payment'),
