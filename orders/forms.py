@@ -303,16 +303,16 @@ class VisitorProfileUpdateForm(forms.ModelForm):
     
     class Meta:
         model = Visitor
-        fields = ['phone_number', ]#'profile_image'
+        fields = ['phone_number', 'profile_image']
         widgets = {
             'phone_number': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Enter your phone number'
             }),
-            #'profile_image': forms.FileInput(attrs={
-           #     'class': 'form-control',
-           #     'accept': 'image/*'
-           # }),
+            'profile_image': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
         }
     
     def __init__(self, *args, **kwargs):
