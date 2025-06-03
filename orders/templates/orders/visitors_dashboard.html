@@ -54,7 +54,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'visitor_profile' %}"><i class="fas fa-user me-2"></i>Profile</a></li>
-                        <li><a class="dropdown-item" href="{% url 'visitor_orders' %}"><i class="fas fa-shopping-bag me-2"></i>My Orders</a></li>
+                        <li><a class="dropdown-item" href="{% url 'order_list' %}"><i class="fas fa-shopping-bag me-2"></i>My Orders</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                     </ul>
@@ -206,7 +206,7 @@
                             <a href="{% url 'visitor_profile' %}" class="btn btn-outline-success">
                                 <i class="fas fa-user-edit me-2"></i>Edit Profile
                             </a>
-                            <a href="{% url 'visitor_orders' %}" class="btn btn-outline-info">
+                            <a href="{% url 'order_list' %}" class="btn btn-outline-info">
                                 <i class="fas fa-list me-2"></i>View All Orders
                             </a>
                             {% if cart_items %}
