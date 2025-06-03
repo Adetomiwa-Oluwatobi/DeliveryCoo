@@ -1,0 +1,252 @@
+<!-- templates/visitors/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .dashboard-card {
+            transition: transform 0.2s;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .profile-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .welcome-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'visitor_dashboard' %}">
+                <i class="fas fa-user-circle me-2"></i>Visitor Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        {% if visitor.profile_image %}
+                            <img src="{{ visitor.profile_image.url }}" alt="Profile" class="rounded-circle me-1" style="width: 30px; height: 30px; object-fit: cover;">
+                        {% else %}
+                            <i class="fas fa-user-circle me-1"></i>
+                        {% endif %}
+                        {{ user.get_full_name|default:user.username }}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'visitor_profile' %}"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'visitor_orders' %}"><i class="fas fa-shopping-bag me-2"></i>My Orders</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center">
+                    {% if visitor.profile_image %}
+                        <img src="{{ visitor.profile_image.url }}" alt="Profile" class="rounded-circle profile-img">
+                    {% else %}
+                        <div class="rounded-circle profile-img bg-white d-flex align-items-center justify-content-center">
+                            <i class="fas fa-user fa-2x text-primary"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-10">
+                    <h2 class="mb-1">Welcome back, {{ user.get_full_name|default:user.username }}!</h2>
+                    <p class="mb-0 opacity-75">Manage your orders, browse products, and update your profile.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card dashboard-card stat-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-shopping-bag fa-2x mb-2"></i>
+                        <h3 class="mb-1">{{ total_orders }}</h3>
+                        <p class="mb-0">Total Orders</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card dashboard-card stat-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                        <h3 class="mb-1">{{ cart.item_count|default:0 }}</h3>
+                        <p class="mb-0">Cart Items</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card dashboard-card stat-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock fa-2x mb-2"></i>
+                        <h3 class="mb-1">{{ recent_orders.count }}</h3>
+                        <p class="mb-0">Recent Orders</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card dashboard-card stat-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-user-check fa-2x mb-2"></i>
+                        <h3 class="mb-1">Active</h3>
+                        <p class="mb-0">Account Status</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Recent Orders -->
+            <div class="col-lg-8 mb-4">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-shopping-bag me-2 text-primary"></i>Recent Orders</h5>
+                            <a href="{% url 'order_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_orders %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Order #</th>
+                                            <th>Company</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in recent_orders %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'visitor_order_detail' order.id %}" class="text-decoration-none">
+                                                    #{{ order.id }}
+                                                </a>
+                                            </td>
+                                            <td>{{ order.company.name }}</td>
+                                            <td>
+                                                {% if order.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif order.status == 'delivered' %}
+                                                    <span class="badge bg-success">Delivered</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Cancelled</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ order.ordered_at|date:"M d, Y" }}</td>
+                                            <td>₦{{ order.total_cost }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No orders yet</h5>
+                                <p class="text-muted">Start shopping to see your orders here.</p>
+                                <a href="{% url 'product_list' %}" class="btn btn-primary">Browse Products</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="col-lg-4 mb-4">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-bolt me-2 text-primary"></i>Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'product_list' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-shopping-cart me-2"></i>Browse Products
+                            </a>
+                            <a href="{% url 'visitor_profile' %}" class="btn btn-outline-success">
+                                <i class="fas fa-user-edit me-2"></i>Edit Profile
+                            </a>
+                            <a href="{% url 'visitor_orders' %}" class="btn btn-outline-info">
+                                <i class="fas fa-list me-2"></i>View All Orders
+                            </a>
+                            {% if cart_items %}
+                            <a href="{% url 'cart_detail' %}" class="btn btn-warning">
+                                <i class="fas fa-shopping-cart me-2"></i>View Cart ({{ cart.item_count }})
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Info -->
+                <div class="card dashboard-card mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2 text-primary"></i>Account Info</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <small class="text-muted">Email:</small><br>
+                            <strong>{{ user.email }}</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Phone:</small><br>
+                            <strong>{{ visitor.phone_number|default:"Not provided" }}</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Member Since:</small><br>
+                            <strong>{{ user.date_joined|date:"M Y" }}</strong>
+                        </div>
+                        <div class="mt-3">
+                            <a href="{% url 'visitor_change_password' %}" class="btn btn-sm btn-outline-secondary w-100">
+                                <i class="fas fa-lock me-1"></i>Change Password
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -292,3 +292,94 @@ class CustomLoginForm(AuthenticationForm):
   
     
     
+
+# Add these forms to your forms.py
+
+class VisitorProfileUpdateForm(forms.ModelForm):
+    """Form for visitors to update their profile information"""
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
+    email = forms.EmailField(required=True)
+    
+    class Meta:
+        model = Visitor
+        fields = ['phone_number', 'profile_image']
+        widgets = {
+            'phone_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your phone number'
+            }),
+            'profile_image': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        if self.user:
+            self.fields['first_name'].initial = self.user.first_name
+            self.fields['last_name'].initial = self.user.last_name
+            self.fields['email'].initial = self.user.email
+            
+        # Add CSS classes
+        for field_name in ['first_name', 'last_name', 'email']:
+            self.fields[field_name].widget.attrs['class'] = 'form-control'
+    
+    def save(self, commit=True):
+        visitor = super().save(commit=False)
+        
+        if self.user:
+            # Update user information
+            self.user.first_name = self.cleaned_data['first_name']
+            self.user.last_name = self.cleaned_data['last_name']
+            self.user.email = self.cleaned_data['email']
+            
+            if commit:
+                self.user.save()
+                visitor.save()
+        
+        return visitor
+
+class VisitorPasswordChangeForm(forms.Form):
+    """Form for visitors to change their password"""
+    current_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label='Current Password'
+    )
+    new_password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label='New Password'
+    )
+    new_password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label='Confirm New Password'
+    )
+    
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+    
+    def clean_current_password(self):
+        current_password = self.cleaned_data.get('current_password')
+        if not self.user.check_password(current_password):
+            raise forms.ValidationError('Current password is incorrect.')
+        return current_password
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password1 = cleaned_data.get('new_password1')
+        new_password2 = cleaned_data.get('new_password2')
+        
+        if new_password1 and new_password2:
+            if new_password1 != new_password2:
+                raise forms.ValidationError('New passwords do not match.')
+        
+        return cleaned_data
+    
+    def save(self):
+        self.user.set_password(self.cleaned_data['new_password1'])
+        self.user.save()
+        return self.user

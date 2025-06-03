@@ -3,7 +3,7 @@ from django import forms
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .models import *
-from .forms import CategoryForm, OrderForm, OrderTrackingForm, ProductForm, VisitorRegistrationForm
+from .forms import CategoryForm, OrderForm, OrderTrackingForm, ProductForm, VisitorPasswordChangeForm, VisitorProfileUpdateForm, VisitorRegistrationForm
 from django.core.mail import send_mail
 from django.conf import settings
 from twilio.rest import Client as TwilioClient
@@ -15,7 +15,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import DeliveryAddress
 from .forms import DeliveryAddressForm
-
+from django.contrib.auth import update_session_auth_hash
 from reportlab.lib.pagesizes import letter
 from django.db.models import Q
 from .models import (
@@ -669,7 +669,7 @@ def dashboard_redirect(request):
     elif user.role == DELIVERY_PERSONNEL:
         return redirect('delivery_dashboard')
     elif user.role == VISITOR:
-        return redirect('search_products')
+        return redirect('visitor_dashboard')
     
     else:
         # Fallback to a common dashboard or login page
@@ -1546,3 +1546,103 @@ def delivery_address_toggle_status(request, pk):
     messages.success(request, f'Delivery address "{address.name}" {status} successfully.')
     
     return redirect('delivery_address_list')
+
+
+
+@login_required
+def visitor_dashboard(request):
+    """Main dashboard for visitors"""
+    if request.user.role != VISITOR:
+        messages.error(request, 'Access denied. This page is for visitors only.')
+        return redirect('landing_page')
+    
+    # Get visitor profile or create if doesn't exist
+    visitor, created = Visitor.objects.get_or_create(
+        user=request.user,
+        defaults={'phone_number': ''}
+    )
+    
+    # Get recent orders (if any - visitors might not have direct orders)
+    recent_orders = Order.objects.filter(
+        client_email=request.user.email
+    ).order_by('-ordered_at')[:5]
+    
+    # Get cart items
+    cart = None
+    cart_items = []
+    if not request.user.is_anonymous:
+        try:
+            cart = Cart.objects.get(session_key=request.session.session_key)
+            cart_items = cart.items.all()
+        except Cart.DoesNotExist:
+            pass
+    
+    # Get some featured products
+    featured_products = Product.objects.filter(available=True)[:6]
+    
+    context = {
+        'visitor': visitor,
+        'recent_orders': recent_orders,
+        'cart_items': cart_items,
+        'cart': cart,
+        'featured_products': featured_products,
+        'total_orders': recent_orders.count(),
+    }
+    
+    return render(request, 'orders/visitors_dashboard.html', context)
+
+@login_required
+def visitor_profile(request):
+    """Visitor profile page with edit functionality"""
+    if request.user.role != VISITOR:
+        messages.error(request, 'Access denied.')
+        return redirect('home')
+    
+    visitor, created = Visitor.objects.get_or_create(
+        user=request.user,
+        defaults={'phone_number': ''}
+    )
+    
+    if request.method == 'POST':
+        form = VisitorProfileUpdateForm(
+            request.POST, 
+            request.FILES, 
+            instance=visitor, 
+            user=request.user
+        )
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('visitor_profile')
+    else:
+        form = VisitorProfileUpdateForm(instance=visitor, user=request.user)
+    
+    context = {
+        'form': form,
+        'visitor': visitor,
+    }
+    
+    return render(request, 'orders/visitors_profile.html', context)
+
+@login_required
+def visitor_change_password(request):
+    """Change password for visitors"""
+    if request.user.role != VISITOR:
+        messages.error(request, 'Access denied.')
+        return redirect('home')
+    
+    if request.method == 'POST':
+        form = VisitorPasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, request.user)  # Keep user logged in
+            messages.success(request, 'Password changed successfully!')
+            return redirect('visitor_profile')
+    else:
+        form = VisitorPasswordChangeForm(request.user)
+    
+    context = {
+        'form': form,
+    }
+    
+    return render(request, 'orders/visitors_change_password.html', context)

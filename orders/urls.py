@@ -19,7 +19,9 @@ urlpatterns = [
     path('dashboard/admin/', views.admin_dashboard, name='admin_dashboard'),
     path('dashboard/company/', views.company_dashboard, name='company_dashboard'),
     path('dashboard/delivery/', views.delivery_dashboard, name='delivery_dashboard'),
-    
+    path('visitor/dashboard/', views.visitor_dashboard, name='visitor_dashboard'),
+    path('visitor/profile/', views.visitor_profile, name='visitor_profile'),
+    path('visitor/change-password/', views.visitor_change_password, name='visitor_change_password'),
     
     path('create/', views.create_order, name='create_order'),
     path('list/', views.order_list, name='order_list'),
