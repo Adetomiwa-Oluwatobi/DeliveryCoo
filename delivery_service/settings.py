@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'cloudinary',
     'orders',
+    'chatbot',
 ]
 
 MIDDLEWARE = [
@@ -201,3 +202,25 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Local directory to store media f
 LOGIN_URL = '/login/'  # Adjust this to match your actual login URL
 LOGIN_REDIRECT_URL = '/dashboard/'  # Where to redirect after login
 LOGOUT_REDIRECT_URL = '/'  # Where to redirect after logout
+
+OPENROUTER_API_KEY = config("OPENROUTER_API_KEY")
+SITE_URL = config("SITE_URL")
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': 'chatbot_errors.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}

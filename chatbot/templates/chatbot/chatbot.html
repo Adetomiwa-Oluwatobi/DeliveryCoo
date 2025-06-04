@@ -1,0 +1,430 @@
+<!-- templates/chatbot/chatbot.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ocampu Assistant - Your Business Helper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .chatbot-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #2E8B57, #228B22);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .chatbot-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .chatbot-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            border: 1px solid #e0e0e0;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #2E8B57, #228B22);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 139, 87, 0.3);
+        }
+
+        .send-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 10px 16px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 15px;
+            border: 2px dashed #e0e0e0;
+        }
+
+        .welcome-message h3 {
+            color: #2E8B57;
+            margin-bottom: 10px;
+        }
+
+        .quick-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .suggestion-btn {
+            background: #f0f8ff;
+            border: 1px solid #667eea;
+            color: #667eea;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .error-message {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c66;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .chatbot-container {
+                height: 90vh;
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <h1>🌟 Ocampu Assistant</h1>
+            <p>Your friendly helper for growing your business in Africa</p>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+            <div class="welcome-message">
+                <h3>Welcome to Ocampu! 👋</h3>
+                <p>I'm here to help you navigate the platform and grow your business. Ask me about:</p>
+                <div class="quick-suggestions">
+                    <button class="suggestion-btn" onclick="sendSuggestion('How do I add products to my inventory?')">📦 Adding Products</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('Show me how to read my sales analytics')">📊 Sales Analytics</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('Tips for pricing products in Nigerian market')">💰 Pricing Strategy</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('How to grow my customer base in Lagos?')">👥 Growing Customers</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="typing-indicator" id="typing-indicator">
+            Ocampu Assistant is typing...
+        </div>
+        
+        <div class="chat-input-container">
+            <input 
+                type="text" 
+                class="chat-input" 
+                id="chat-input" 
+                placeholder="Ask me anything about Ocampu or growing your business..."
+                maxlength="500"
+            >
+            <button class="send-button" id="send-button" onclick="sendMessage()">
+                Send 📤
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class OcampuChatbot {
+            constructor() {
+                this.chatMessages = document.getElementById('chat-messages');
+                this.chatInput = document.getElementById('chat-input');
+                this.sendButton = document.getElementById('send-button');
+                this.typingIndicator = document.getElementById('typing-indicator');
+                this.conversationHistory = [];
+                
+                this.initializeEventListeners();
+            }
+            
+            initializeEventListeners() {
+                // Send message on Enter key
+                this.chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+                
+                // Auto-resize input and focus
+                this.chatInput.addEventListener('input', () => {
+                    this.chatInput.style.height = 'auto';
+                    this.chatInput.style.height = this.chatInput.scrollHeight + 'px';
+                });
+                
+                this.chatInput.focus();
+            }
+            
+            async sendMessage() {
+                const message = this.chatInput.value.trim();
+                if (!message) return;
+                
+                // Disable input during processing
+                this.setInputState(false);
+                
+                // Add user message to chat
+                this.addMessage(message, 'user');
+                this.chatInput.value = '';
+                
+                // Show typing indicator
+                this.showTypingIndicator();
+                
+                try {
+                    const response = await this.getChatbotResponse(message);
+                    this.hideTypingIndicator();
+                    
+                    if (response.success) {
+                        this.addMessage(response.response, 'bot');
+                        // Add to conversation history
+                        this.conversationHistory.push(
+                            {role: 'user', content: message},
+                            {role: 'assistant', content: response.response}
+                        );
+                        // Keep only last 10 exchanges (20 messages)
+                        if (this.conversationHistory.length > 20) {
+                            this.conversationHistory = this.conversationHistory.slice(-20);
+                        }
+                    } else {
+                        this.addErrorMessage(response.error || 'Sorry, I encountered an error. Please try again.');
+                    }
+                } catch (error) {
+                    this.hideTypingIndicator();
+                    this.addErrorMessage('Network error. Please check your connection and try again.');
+                    console.error('Chatbot error:', error);
+                }
+                
+                // Re-enable input
+                this.setInputState(true);
+                this.chatInput.focus();
+            }
+            
+            async getChatbotResponse(message) {
+                const response = await fetch('/chatbot/api/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCSRFToken()
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: this.conversationHistory
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            }
+            
+            addMessage(content, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                contentDiv.textContent = content;
+                
+                messageDiv.appendChild(contentDiv);
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+            
+            addErrorMessage(errorText) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = '⚠️ ' + errorText;
+                this.chatMessages.appendChild(errorDiv);
+                this.scrollToBottom();
+            }
+            
+            showTypingIndicator() {
+                this.typingIndicator.classList.add('active');
+                this.scrollToBottom();
+            }
+            
+            hideTypingIndicator() {
+                this.typingIndicator.classList.remove('active');
+            }
+            
+            setInputState(enabled) {
+                this.chatInput.disabled = !enabled;
+                this.sendButton.disabled = !enabled;
+            }
+            
+            scrollToBottom() {
+                setTimeout(() => {
+                    this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+                }, 100);
+            }
+            
+            getCSRFToken() {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name === 'csrftoken') {
+                        return value;
+                    }
+                }
+                return '';
+            }
+        }
+        
+        // Initialize chatbot when page loads
+        let chatbot;
+        document.addEventListener('DOMContentLoaded', () => {
+            chatbot = new OcampuChatbot();
+        });
+        
+        // Global functions for suggestions
+        function sendMessage() {
+            if (chatbot) {
+                chatbot.sendMessage();
+            }
+        }
+        
+        function sendSuggestion(suggestion) {
+            if (chatbot) {
+                chatbot.chatInput.value = suggestion;
+                chatbot.sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
