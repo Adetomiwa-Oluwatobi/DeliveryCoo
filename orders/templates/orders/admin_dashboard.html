@@ -110,7 +110,7 @@
                                         <div class="company-info">
                                             <div class="company-avatar">
                                                 {% if company.logo %}
-                                                    <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" class="company-logo">
+                                                    <img src="{{ company.logo.url|replace:'http://', 'https://' }}" alt="{{ company.name }} logo" class="company-logo">
                                                 {% else %}
                                                     {{ company.name|slice:":1" }}
                                                 {% endif %}
