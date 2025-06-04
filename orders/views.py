@@ -680,7 +680,7 @@ def dashboard_redirect(request):
 def admin_dashboard(request):
     companies = Company.objects.all()
     total_orders = Order.objects.count()
-    
+    orders = Order.objects.all()
     # Get all delivery personnel
     delivery_personnel = DeliveryPersonnel.objects.all()
     total_delivery_personnel = delivery_personnel.count()
@@ -689,6 +689,7 @@ def admin_dashboard(request):
     context = {
         'companies': companies,
         'total_orders': total_orders,
+        'orders':orders,
         'delivery_personnel': delivery_personnel,
         'total_delivery_personnel': total_delivery_personnel,
         'available_delivery_personnel': available_delivery_personnel,
