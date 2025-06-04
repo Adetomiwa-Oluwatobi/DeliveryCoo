@@ -10,10 +10,13 @@ def subtotal(items):
     """
     return sum(item.subtotal for item in items)
 
-register = template.Library()
+
 
 @register.filter(name='replace')
 def replace(value, arg):
-    """Replaces old with new: 'old,new'"""
-    old, new = arg.split(',')
-    return value.replace(old, new)
+    """Replaces old with new: usage 'old,new'"""
+    try:
+        old, new = arg.split(',')
+        return value.replace(old, new)
+    except ValueError:
+        return value  # fallback if format is incorrect
