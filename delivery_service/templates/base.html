@@ -595,16 +595,42 @@
     <!-- Global Chatbot Button - This will appear on ALL pages -->
     <button onclick="openChatbot()" id="chatbot-toggle">💬 Get Help</button>
 
-    <!-- Global Chatbot Modal - This will be available on ALL pages -->
     <div id="chatbot-modal">
         <div class="modal-overlay" onclick="closeChatbot()"></div>
         <div class="modal-content">
             <span class="close" onclick="closeChatbot()">&times;</span>
-            <iframe src="{% url 'chatbot:chatbot_page' %}" 
-                    width="100%" 
-                    height="500px"
-                    style="border: none; border-radius: 8px;">
-            </iframe>
+            
+            <!-- Try iframe first, with fallback -->
+            <div id="iframe-container">
+                <iframe id="chatbot-iframe" 
+                        src="{% url 'chatbot:chatbot_page' %}" 
+                        width="100%" 
+                        height="500px"
+                        style="border: none; border-radius: 8px;"
+                        onload="handleIframeLoad()"
+                        onerror="handleIframeError()">
+                </iframe>
+            </div>
+            
+            <!-- Fallback content if iframe fails -->
+            <div id="fallback-content" style="display: none; padding: 20px; text-align: center;">
+                <h3>🤖 Ocampu Assistant</h3>
+                <p>Having trouble loading the chat interface?</p>
+                <div style="margin: 20px 0;">
+                    <a href="{% url 'chatbot:chatbot_page' %}" 
+                       target="_blank" 
+                       class="btn" 
+                       style="margin: 5px;">
+                        Open Chat in New Window
+                    </a>
+                    <button onclick="retryIframe()" class="btn btn-secondary" style="margin: 5px;">
+                        Try Again
+                    </button>
+                </div>
+                <p style="font-size: 0.9em; color: #666;">
+                    Or contact us directly for support.
+                </p>
+            </div>
         </div>
     </div>
     
@@ -732,7 +758,107 @@
                     }, 500);
                 });
         };
-
+        
+            // Enhanced chatbot functions with error handling
+            let iframeLoaded = false;
+            let retryAttempts = 0;
+            const maxRetries = 2;
+    
+            function openChatbot() {
+                document.getElementById('chatbot-modal').style.display = 'flex';
+                
+                // If iframe hasn't loaded after 3 seconds, show fallback
+                if (!iframeLoaded) {
+                    setTimeout(() => {
+                        if (!iframeLoaded) {
+                            showFallback();
+                        }
+                    }, 3000);
+                }
+            }
+            
+            function closeChatbot() {
+                document.getElementById('chatbot-modal').style.display = 'none';
+            }
+            
+            function handleIframeLoad() {
+                iframeLoaded = true;
+                console.log('Chatbot iframe loaded successfully');
+            }
+            
+            function handleIframeError() {
+                console.log('Chatbot iframe failed to load');
+                showFallback();
+            }
+            
+            function showFallback() {
+                document.getElementById('iframe-container').style.display = 'none';
+                document.getElementById('fallback-content').style.display = 'block';
+            }
+            
+            function hideFallback() {
+                document.getElementById('iframe-container').style.display = 'block';
+                document.getElementById('fallback-content').style.display = 'none';
+            }
+            
+            function retryIframe() {
+                if (retryAttempts < maxRetries) {
+                    retryAttempts++;
+                    iframeLoaded = false;
+                    hideFallback();
+                    
+                    // Reload the iframe
+                    const iframe = document.getElementById('chatbot-iframe');
+                    iframe.src = iframe.src;
+                    
+                    // Show fallback again if it doesn't load
+                    setTimeout(() => {
+                        if (!iframeLoaded) {
+                            showFallback();
+                        }
+                    }, 3000);
+                } else {
+                    alert('Unable to load chat interface. Please try opening in a new window.');
+                }
+            }
+            
+            // Check if iframe is blocked by checking its content
+            window.addEventListener('load', function() {
+                setTimeout(() => {
+                    const iframe = document.getElementById('chatbot-iframe');
+                    try {
+                        // Try to access iframe content - will throw error if blocked
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        if (!iframeDoc || iframeDoc.title === '') {
+                            throw new Error('Iframe blocked or empty');
+                        }
+                    } catch (e) {
+                        console.log('Iframe access blocked:', e.message);
+                        // Don't automatically show fallback on page load, only when user tries to open
+                    }
+                }, 1000);
+            });
+            
+            // Rest of your existing JavaScript...
+            
+            // Close modal when clicking outside of it
+            document.addEventListener('click', function(event) {
+                const modal = document.getElementById('chatbot-modal');
+                const modalContent = document.querySelector('.modal-content');
+                const toggleButton = document.getElementById('chatbot-toggle');
+                
+                if (event.target === modal) {
+                    closeChatbot();
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeChatbot();
+                }
+            });
+        
         // Global Chatbot Functions - Available on ALL pages
         function openChatbot() {
             document.getElementById('chatbot-modal').style.display = 'flex';
