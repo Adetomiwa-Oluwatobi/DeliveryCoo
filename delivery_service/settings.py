@@ -206,6 +206,8 @@ LOGOUT_REDIRECT_URL = '/'  # Where to redirect after logout
 OPENROUTER_API_KEY = config("OPENROUTER_API_KEY")
 SITE_URL = config("SITE_URL")
 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

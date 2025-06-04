@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
 import logging
-
+from django.views.decorators.clickjacking import xframe_options_exempt
 logger = logging.getLogger(__name__)
 
 # System prompt for the Ocampu chatbot
@@ -107,7 +107,7 @@ class OcampuChatbot:
 
 # Initialize chatbot instance
 chatbot = OcampuChatbot()
-
+@xframe_options_exempt
 def chatbot_page(request):
     """
     Render the chatbot interface page
