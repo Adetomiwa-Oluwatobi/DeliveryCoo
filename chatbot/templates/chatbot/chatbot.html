@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ocampu Assistant</title>
+    <title>Ochappi Assistant</title>
     <style>
         * {
             margin: 0;
@@ -39,16 +39,27 @@
             padding: 20px 24px;
             border-bottom: 1px solid #e5e5e5;
             background: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .chat-header h1 {
+        .header-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #006A4E;
+        }
+
+        .header-info h1 {
             font-size: 18px;
             font-weight: 600;
             color: #006A4E;
             margin-bottom: 4px;
         }
 
-        .chat-header p {
+        .header-info p {
             font-size: 14px;
             color: #666;
             font-weight: 400;
@@ -112,6 +123,17 @@
         .message.bot {
             display: flex;
             justify-content: flex-start;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .message.bot .bot-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #f3f4f6;
+            flex-shrink: 0;
         }
 
         .message.bot .message-bubble {
@@ -127,6 +149,16 @@
             padding: 20px;
             margin-bottom: 20px;
             text-align: center;
+        }
+
+        .welcome-card .welcome-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #006A4E;
+            margin: 0 auto 12px;
+            display: block;
         }
 
         .welcome-card h3 {
@@ -176,10 +208,20 @@
             color: #9ca3af;
             font-size: 13px;
             font-style: italic;
+            align-items: center;
+            gap: 8px;
         }
 
         .typing-indicator.active {
-            display: block;
+            display: flex;
+        }
+
+        .typing-indicator .typing-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #e5e5e5;
         }
 
         .chat-input-area {
@@ -272,20 +314,28 @@
             .message-bubble {
                 max-width: 90%;
             }
+
+            .message.bot .message-bubble {
+                max-width: calc(90% - 40px);
+            }
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <h1>Ocampu Assistant</h1>
-            <p>How can I help you today?</p>
+            <img src="https://i.ibb.co/n8k2PCYH/Cartoon-Style-Robot.jpg" alt="Ochappi Avatar" class="header-avatar">
+            <div class="header-info">
+                <h1>Ochappi Assistant</h1>
+                <p>How can I help you today?</p>
+            </div>
         </div>
         
         <div class="chat-messages" id="chatMessages">
             <div class="welcome-card">
+                <img src="https://i.ibb.co/n8k2PCYH/Cartoon-Style-Robot.jpg" alt="Ochappi Avatar" class="welcome-avatar">
                 <h3>👋 Welcome!</h3>
-                <p>I'm here to help you with your Ocampu business needs.</p>
+                <p>I'm Ochappi, here to help you with your Ocampu business needs.</p>
                 <div class="quick-actions">
                     <button class="quick-btn" onclick="sendQuickMessage('How do I add products?')">Add Products</button>
                     <button class="quick-btn" onclick="sendQuickMessage('Show sales analytics')">Sales Analytics</button>
@@ -296,7 +346,8 @@
         </div>
         
         <div class="typing-indicator" id="typingIndicator">
-            Assistant is typing...
+            <img src="https://i.ibb.co/n8k2PCYH/Cartoon-Style-Robot.jpg" alt="Ochappi Avatar" class="typing-avatar">
+            Ochappi is typing...
         </div>
         
         <div class="chat-input-area">
@@ -325,6 +376,7 @@
                 this.sendButton = document.getElementById('sendBtn');
                 this.typingIndicator = document.getElementById('typingIndicator');
                 this.conversationHistory = [];
+                this.avatarUrl = 'https://i.ibb.co/n8k2PCYH/Cartoon-Style-Robot.jpg';
                 
                 this.initializeEventListeners();
                 this.autoResizeTextarea();
@@ -406,6 +458,15 @@
             addMessage(content, sender) {
                 const messageEl = document.createElement('div');
                 messageEl.className = `message ${sender}`;
+                
+                if (sender === 'bot') {
+                    // Add avatar for bot messages
+                    const avatarEl = document.createElement('img');
+                    avatarEl.src = this.avatarUrl;
+                    avatarEl.alt = 'Ochappi Avatar';
+                    avatarEl.className = 'bot-avatar';
+                    messageEl.appendChild(avatarEl);
+                }
                 
                 const bubbleEl = document.createElement('div');
                 bubbleEl.className = 'message-bubble';
