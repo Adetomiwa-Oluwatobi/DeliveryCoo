@@ -28,6 +28,108 @@
             line-height: 1.6;
         }
         
+        /* Enhanced Loading System */
+        #full-page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        #full-page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        #full-page-loader img {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 20px;
+        }
+        
+        #full-page-loader .loading-text {
+            color: var(--white);
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        /* Small Loader for Navigation/Processes */
+        .small-loader {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .small-loader img {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .small-loader.show {
+            display: flex;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Loading overlay for specific sections */
+        .section-loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            border-radius: 8px;
+        }
+        
+        .section-loader img {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .section-loader.show {
+            display: flex;
+        }
+        
         /* Header & Navigation */
         header {
             background-color: var(--white);
@@ -92,23 +194,6 @@
             background-color: var(--secondary);
             color: var(--white);
         }
-        #loader-wrapper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(255, 255, 255, 0.95);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        #loader {
-            width: 120px;
-            height: 120px;
-        }
         
         /* Mobile navigation toggle */
         .menu-toggle {
@@ -133,6 +218,7 @@
             padding: 1.5rem;
             margin-bottom: 1.5rem;
             transition: transform 0.3s ease;
+            position: relative;
         }
         
         .card:hover {
@@ -167,6 +253,7 @@
             cursor: pointer;
             text-decoration: none;
             transition: all 0.3s ease;
+            position: relative;
         }
         
         .btn:hover {
@@ -285,10 +372,38 @@
             .footer-links li {
                 margin: 0 0.75rem;
             }
+            
+            .small-loader {
+                top: 10px;
+                right: 10px;
+                width: 50px;
+                height: 50px;
+            }
+            
+            .small-loader img {
+                width: 30px;
+                height: 30px;
+            }
+            
+            #full-page-loader img {
+                width: 120px;
+                height: 120px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Full Page Loader -->
+    <div id="full-page-loader">
+        <img src="https://i.ibb.co/XZkm8xBF/original-076ffd5f4f747227a03af48fc90b4cc5.gif" alt="Loading...">
+        <div class="loading-text">Loading Ocampu...</div>
+    </div>
+    
+    <!-- Small Loader for Navigation/Processes -->
+    <div class="small-loader" id="small-loader">
+        <img src="https://i.ibb.co/XZkm8xBF/original-076ffd5f4f747227a03af48fc90b4cc5.gif" alt="Loading...">
+    </div>
+
     <header>
         <div class="navbar">
             <a href="{% url 'order_list' %}" class="logo">
@@ -299,20 +414,16 @@
             </div>
             <nav>
                 <ul id="nav-menu">
-                    <li><a href="{% url 'landing_page' %}" class="active">Home</a></li>
-                    <li><a href="{% url 'order_list' %}">Orders</a></li>
-                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-                    <li><a href="{% url 'search_products' %}">Search product <i class="fas fa-search"></i></a></li>
-
-                    
+                    <li><a href="{% url 'landing_page' %}" class="nav-link active">Home</a></li>
+                    <li><a href="{% url 'order_list' %}" class="nav-link">Orders</a></li>
+                    <li><a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a></li>
+                    <li><a href="{% url 'search_products' %}" class="nav-link">Search product <i class="fas fa-search"></i></a></li>
                     <li>{% if order_id %}
-                        <li><a href="{% url 'order_tracking' order_id %}">Track Shipment</a></li>
+                        <li><a href="{% url 'order_tracking' order_id %}" class="nav-link">Track Shipment</a></li>
                     {% else %}
-                        <li><a href="#">Track Shipment</a></li>
+                        <li><a href="#" class="nav-link">Track Shipment</a></li>
                     {% endif %}
-
-                    
-                    <li><a href="#">Support</a></li>
+                    <li><a href="#" class="nav-link">Support</a></li>
                 </ul>
             </nav>
         </div>
@@ -321,28 +432,25 @@
     <main>
         {% block content %}
         <!-- Example content for preview purposes -->
-        <!-- Loader -->
-        <div id="loader-wrapper">
-            <img
-            id="loader"
-            src="https://i.ibb.co/XZkm8xBF/original-076ffd5f4f747227a03af48fc90b4cc5.gif"
-            alt="Loading..."
-            />
-        </div>
-
         <div class="card">
+            <div class="section-loader" id="track-loader">
+                <img src="https://i.ibb.co/XZkm8xBF/original-076ffd5f4f747227a03af48fc90b4cc5.gif" alt="Loading...">
+            </div>
             <div class="card-header">
                 <h2 class="card-title">Track Your Deliveries</h2>
                 <span class="badge badge-transit">New Feature</span>
             </div>
             <p>Welcome to our logistics tracking system. Enter your tracking number below to get real-time updates on your packages.</p>
             <div style="margin-top: 1rem;">
-                <a href="#" class="btn">Track Now</a>
-                <a href="#" class="btn btn-secondary">View History</a>
+                <a href="#" class="btn" onclick="showSectionLoader('track-loader')">Track Now</a>
+                <a href="#" class="btn btn-secondary" onclick="showSmallLoader()">View History</a>
             </div>
         </div>
         
         <div class="card">
+            <div class="section-loader" id="orders-loader">
+                <img src="https://i.ibb.co/XZkm8xBF/original-076ffd5f4f747227a03af48fc90b4cc5.gif" alt="Loading...">
+            </div>
             <div class="card-header">
                 <h2 class="card-title">Recent Orders</h2>
             </div>
@@ -391,17 +499,118 @@
     </footer>
 
     <script>
+        // Loading System Functions
+        class LoadingManager {
+            constructor() {
+                this.fullPageLoader = document.getElementById('full-page-loader');
+                this.smallLoader = document.getElementById('small-loader');
+                this.init();
+            }
+            
+            init() {
+                // Hide full page loader after initial load
+                window.addEventListener('load', () => {
+                    setTimeout(() => {
+                        this.hideFullPageLoader();
+                    }, 1500); // Show for 1.5 seconds minimum
+                });
+                
+                // Add loading to all navigation links
+                this.addNavigationLoading();
+            }
+            
+            hideFullPageLoader() {
+                this.fullPageLoader.classList.add('hidden');
+                setTimeout(() => {
+                    this.fullPageLoader.style.display = 'none';
+                }, 500);
+            }
+            
+            showFullPageLoader() {
+                this.fullPageLoader.style.display = 'flex';
+                this.fullPageLoader.classList.remove('hidden');
+            }
+            
+            showSmallLoader() {
+                this.smallLoader.classList.add('show');
+            }
+            
+            hideSmallLoader() {
+                this.smallLoader.classList.remove('show');
+            }
+            
+            showSectionLoader(loaderId) {
+                const loader = document.getElementById(loaderId);
+                if (loader) {
+                    loader.classList.add('show');
+                    // Auto hide after 2 seconds (simulate process completion)
+                    setTimeout(() => {
+                        loader.classList.remove('show');
+                    }, 2000);
+                }
+            }
+            
+            addNavigationLoading() {
+                const navLinks = document.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        // Only show loader for actual page navigation
+                        if (link.href && !link.href.includes('#')) {
+                            this.showSmallLoader();
+                            
+                            // Hide small loader after 3 seconds if page doesn't load
+                            setTimeout(() => {
+                                this.hideSmallLoader();
+                            }, 3000);
+                        }
+                    });
+                });
+            }
+        }
+        
+        // Initialize loading manager
+        const loadingManager = new LoadingManager();
+        
+        // Global functions for use in templates
+        function showSmallLoader() {
+            loadingManager.showSmallLoader();
+            // Simulate process completion
+            setTimeout(() => {
+                loadingManager.hideSmallLoader();
+            }, 2500);
+        }
+        
+        function showSectionLoader(loaderId) {
+            loadingManager.showSectionLoader(loaderId);
+        }
+        
+        function showFullPageLoader() {
+            loadingManager.showFullPageLoader();
+        }
+        
         // Mobile menu toggle
         document.getElementById('mobile-menu').addEventListener('click', function() {
             document.getElementById('nav-menu').classList.toggle('active');
         });
         
-        window.addEventListener("load", function () {
-            const loaderWrapper = document.getElementById("loader-wrapper");
-            loaderWrapper.style.display = "none";
+        // Form submission loading (if you have forms)
+        document.addEventListener('submit', function(e) {
+            if (e.target.tagName === 'FORM') {
+                showSmallLoader();
+            }
         });
         
-        
+        // AJAX request loading (if you use fetch or XMLHttpRequest)
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            showSmallLoader();
+            return originalFetch.apply(this, args)
+                .finally(() => {
+                    setTimeout(() => {
+                        loadingManager.hideSmallLoader();
+                    }, 500);
+                });
+        };
     </script>
 </body>
 </html>
