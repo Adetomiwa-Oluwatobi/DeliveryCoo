@@ -1,772 +1,773 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<style>
-    /* Modern Dashboard Styles */
-    :root {
-        --glass-bg: rgba(255, 255, 255, 0.25);
-        --glass-border: rgba(255, 255, 255, 0.18);
-        --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.08);
-        --shadow-medium: 0 12px 40px rgba(0, 0, 0, 0.12);
-        --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.15);
-        --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --gradient-secondary: linear-gradient(135deg, var(--primary) 0%, #2c5aa0 100%);
-        --gradient-accent: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-        --border-radius: 16px;
-        --animation-speed: 0.4s;
-    }
+    <style>
+        /* Modern Dashboard Styles */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 12px 40px rgba(0, 0, 0, 0.12);
+            --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--primary) 0%, #2c5aa0 100%);
+            --gradient-accent: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            --border-radius: 16px;
+            --animation-speed: 0.4s;
+        }
 
-    /* Reset and base improvements */
-    * {
-        scrollbar-width: thin;
-        scrollbar-color: var(--primary) transparent;
-    }
-    
-    *::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-    }
-    
-    *::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    
-    *::-webkit-scrollbar-thumb {
-        background: var(--primary);
-        border-radius: 3px;
-    }
+        /* Reset and base improvements */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
+        }
+        
+        *::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        *::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        *::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
 
-    /* Modern welcome hero section */
-    .hero-section {
-        background: white;
-        border-radius: var(--border-radius);
-        padding: 3rem 2.5rem;
-        margin-bottom: 3rem;
-        position: relative;
-        overflow: hidden;
-        box-shadow: var(--shadow-medium);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-    
-    .hero-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(0,106,78,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-        opacity: 0.3;
-    }
-    
-    .hero-content {
-        position: relative;
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-    }
-    
-    .profile-section {
-        position: relative;
-    }
-    
-    .profile-avatar {
-        width: 90px;
-        height: 90px;
-        border-radius: 50%;
-        border: 4px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        object-fit: cover;
-        transition: all var(--animation-speed) cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    
-    .profile-avatar:hover {
-        transform: scale(1.05);
-        border-color: var(--primary);
-    }
-    
-    .profile-placeholder {
-        width: 90px;
-        height: 90px;
-        background: var(--primary);
-        backdrop-filter: blur(10px);
-        border: 4px solid color: var(--primary);;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all var(--animation-speed) ease;
-    }
-    
-    .profile-placeholder:hover {
-        transform: scale(1.05);
-        background: rgba(255, 255, 255, 0.3);
-    }
-    
-    .hero-text h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: color: var(--dark);;
-        margin: 0 0 0.5rem 0;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    .hero-text p {
-        font-size: 1.1rem;
-        color: black;
-        margin: 0;
-        font-weight: 400;
-    }
+        /* Modern welcome hero section */
+        .hero-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 3rem 2.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(0,106,78,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .profile-section {
+            position: relative;
+        }
+        
+        .profile-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            object-fit: cover;
+            transition: all var(--animation-speed) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+        
+        .profile-placeholder {
+            width: 90px;
+            height: 90px;
+            background: var(--primary);
+            backdrop-filter: blur(10px);
+            border: 4px solid color: var(--primary);;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--animation-speed) ease;
+        }
+        
+        .profile-placeholder:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .hero-text h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: color: var(--dark);;
+            margin: 0 0 0.5rem 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .hero-text p {
+            font-size: 1.1rem;
+            color: black;
+            margin: 0;
+            font-weight: 400;
+        }
 
-    /* Modern stats grid */
-    .stats-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-    }
-    
-    .stat-card {
-        background: white;
-        border-radius: var(--border-radius);
-        padding: 2rem;
-        box-shadow: var(--shadow-light);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        transition: all var(--animation-speed) cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: var(--gradient-secondary);
-        transform: translateX(-100%);
-        transition: transform var(--animation-speed) ease;
-    }
-    
-    .stat-card:hover::before {
-        transform: translateX(0);
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-8px);
-        box-shadow: var(--shadow-heavy);
-    }
-    
-    .stat-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.5rem;
-    }
-    
-    .stat-icon {
-        width: 50px;
-        height: 50px;
-        background: var(--gradient-secondary);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.2rem;
-    }
-    
-    .stat-value {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--dark);
-        margin: 0;
-        line-height: 1;
-    }
-    
-    .stat-label {
-        font-size: 0.9rem;
-        color: var(--secondary);
-        font-weight: 500;
-        margin-top: 0.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
+        /* Modern stats grid */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-light);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all var(--animation-speed) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-secondary);
+            transform: translateX(-100%);
+            transition: transform var(--animation-speed) ease;
+        }
+        
+        .stat-card:hover::before {
+            transform: translateX(0);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-heavy);
+        }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-secondary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin: 0;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            font-weight: 500;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-    /* Modern dashboard layout */
-    .dashboard-layout {
-        display: grid;
-        grid-template-columns: 1fr 400px;
-        gap: 2rem;
-    }
-    
-    .main-content {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-    }
-    
-    .sidebar {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    /* Enhanced cards */
-    .modern-card {
-        background: white;
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-light);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        transition: all var(--animation-speed) ease;
-    }
-    
-    .modern-card:hover {
-        box-shadow: var(--shadow-medium);
-    }
-    
-    .card-header-modern {
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    .card-title-modern {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: var(--dark);
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    
-    .card-title-modern i {
-        color: var(--primary);
-        font-size: 1.1rem;
-    }
-    
-    .card-body-modern {
-        padding: 2rem;
-    }
-
-    /* Modern table */
-    .table-modern {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
-    }
-    
-    .table-modern th {
-        background: #f8f9fa;
-        padding: 1rem;
-        text-align: left;
-        font-weight: 600;
-        color: var(--secondary);
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.25px;
-        border-bottom: 2px solid var(--gray);
-    }
-    
-    .table-modern td {
-        padding: 1rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-    }
-    
-    .table-modern tbody tr {
-        transition: all 0.2s ease;
-    }
-    
-    .table-modern tbody tr:hover {
-        background: rgba(0, 106, 78, 0.02);
-        transform: translateX(4px);
-    }
-    
-    .table-modern a {
-        color: var(--primary);
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-    
-    .table-modern a:hover {
-        color: var(--secondary);
-    }
-
-    /* Modern badges */
-    .badge-modern {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.4rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.25px;
-    }
-    
-    .badge-pending {
-        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-        color: #856404;
-    }
-    
-    .badge-delivered {
-        background: linear-gradient(135deg, #d4edda 0%, #55a3ff 100%);
-        color: #155724;
-    }
-    
-    .badge-cancelled {
-        background: linear-gradient(135deg, #f8d7da 0%, #ff6b6b 100%);
-        color: #721c24;
-    }
-
-    /* Modern buttons */
-    .btn-modern {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.8rem 1.5rem;
-        background: var(--gradient-secondary);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        text-decoration: none;
-        transition: all var(--animation-speed) cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0, 106, 78, 0.2);
-    }
-    
-    .btn-modern:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 106, 78, 0.3);
-        color: white;
-    }
-    
-    .btn-modern:active {
-        transform: translateY(0);
-    }
-    
-    .btn-outline-modern {
-        background: transparent;
-        color: var(--primary);
-        border: 2px solid var(--primary);
-        box-shadow: none;
-    }
-    
-    .btn-outline-modern:hover {
-        background: var(--primary);
-        color: white;
-    }
-    
-    .btn-full-width {
-        width: 100%;
-        justify-content: flex-start;
-    }
-
-    /* Quick actions */
-    .quick-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    /* Account info */
-    .account-info {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-    
-    .info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .info-label {
-        font-size: 0.8rem;
-        color: var(--secondary);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .info-value {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--dark);
-    }
-
-    /* Empty states */
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: var(--secondary);
-    }
-    
-    .empty-state-icon {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, #f1f2f6 0%, #ddd 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        font-size: 2rem;
-        color: var(--primary);
-    }
-    
-    .empty-state h3 {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: var(--dark);
-    }
-    
-    .empty-state p {
-        opacity: 0.7;
-        margin-bottom: 2rem;
-        font-size: 0.95rem;
-    }
-
-    /* Responsive design */
-    @media (max-width: 1024px) {
+        /* Modern dashboard layout */
         .dashboard-layout {
-            grid-template-columns: 1fr;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
             gap: 2rem;
         }
         
         .sidebar {
-            order: -1;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .hero-section {
-            padding: 2rem 1.5rem;
-        }
-        
-        .hero-content {
+            display: flex;
             flex-direction: column;
-            text-align: center;
             gap: 1.5rem;
         }
-        
-        .hero-text h1 {
-            font-size: 2rem;
-            color: var(--primary);
+
+        /* Enhanced cards */
+        .modern-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all var(--animation-speed) ease;
         }
         
-        .stats-container {
-            grid-template-columns: 1fr;
-            gap: 1rem;
+        .modern-card:hover {
+            box-shadow: var(--shadow-medium);
         }
         
-        .stat-card {
-            padding: 1.5rem;
+        .card-header-modern {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         
-        .card-header-modern,
-        .card-body-modern {
-            padding: 1.5rem;
-        }
-        
-        .table-modern {
-            font-size: 0.85rem;
-        }
-        
-        .table-modern th,
-        .table-modern td {
-            padding: 0.75rem 0.5rem;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        .hero-section {
-            padding: 1.5rem 1rem;
-        }
-        
-        .hero-text h1 {
-            font-size: 1.75rem;
-            color: var(--primary);
-        }
-        
-        .stats-container {
+        .card-title-modern {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
             gap: 0.75rem;
         }
         
-        .stat-card {
-            padding: 1.25rem;
+        .card-title-modern i {
+            color: var(--primary);
+            font-size: 1.1rem;
         }
         
-        .stat-value {
-            font-size: 2rem;
+        .card-body-modern {
+            padding: 2rem;
         }
-    }
 
-    /* Animations */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
+        /* Modern table */
+        .table-modern {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
         }
-        to {
-            opacity: 1;
+        
+        .table-modern th {
+            background: #f8f9fa;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25px;
+            border-bottom: 2px solid var(--gray);
+        }
+        
+        .table-modern td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        
+        .table-modern tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .table-modern tbody tr:hover {
+            background: rgba(0, 106, 78, 0.02);
+            transform: translateX(4px);
+        }
+        
+        .table-modern a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .table-modern a:hover {
+            color: var(--secondary);
+        }
+
+        /* Modern badges */
+        .badge-modern {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.25px;
+        }
+        
+        .badge-pending {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+        }
+        
+        .badge-delivered {
+            background: linear-gradient(135deg, #d4edda 0%, #55a3ff 100%);
+            color: #155724;
+        }
+        
+        .badge-cancelled {
+            background: linear-gradient(135deg, #f8d7da 0%, #ff6b6b 100%);
+            color: #721c24;
+        }
+
+        /* Modern buttons */
+        .btn-modern {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: var(--gradient-secondary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all var(--animation-speed) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 106, 78, 0.2);
+        }
+        
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 106, 78, 0.3);
+            color: white;
+        }
+        
+        .btn-modern:active {
             transform: translateY(0);
         }
-    }
-    
-    .animate-fade-in {
-        animation: fadeInUp 0.6s ease-out;
-    }
-    
-    .animate-delay-1 { animation-delay: 0.1s; }
-    .animate-delay-2 { animation-delay: 0.2s; }
-    .animate-delay-3 { animation-delay: 0.3s; }
-    .animate-delay-4 { animation-delay: 0.4s; }
-</style>
+        
+        .btn-outline-modern {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: none;
+        }
+        
+        .btn-outline-modern:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-full-width {
+            width: 100%;
+            justify-content: flex-start;
+        }
 
-<!-- Hero Section -->
-<div class="hero-section animate-fade-in">
-    <div class="hero-content">
-        <div class="profile-section">
-            {% if visitor.profile_image %}
-                <img src="{{ visitor.profile_image.url }}" alt="Profile" class="profile-avatar">
-            {% else %}
-                <div class="profile-placeholder">
-                    <i class="fas fa-user fa-2x" style="color: white;"></i>
+        /* Quick actions */
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        /* Account info */
+        .account-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Empty states */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--secondary);
+        }
+        
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #f1f2f6 0%, #ddd 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+        
+        .empty-state h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .empty-state p {
+            opacity: 0.7;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .sidebar {
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+            
+            .hero-text h1 {
+                font-size: 2rem;
+                color: var(--primary);
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1.5rem;
+            }
+            
+            .card-header-modern,
+            .card-body-modern {
+                padding: 1.5rem;
+            }
+            
+            .table-modern {
+                font-size: 0.85rem;
+            }
+            
+            .table-modern th,
+            .table-modern td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero-section {
+                padding: 1.5rem 1rem;
+            }
+            
+            .hero-text h1 {
+                font-size: 1.75rem;
+                color: var(--primary);
+            }
+            
+            .stats-container {
+                gap: 0.75rem;
+            }
+            
+            .stat-card {
+                padding: 1.25rem;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .animate-delay-1 { animation-delay: 0.1s; }
+        .animate-delay-2 { animation-delay: 0.2s; }
+        .animate-delay-3 { animation-delay: 0.3s; }
+        .animate-delay-4 { animation-delay: 0.4s; }
+    </style>
+
+    <!-- Hero Section -->
+    <div class="hero-section animate-fade-in">
+        <div class="hero-content">
+            <div class="profile-section">
+                {% if visitor.profile_image %}
+                    <img src="{{ visitor.profile_image.url }}" alt="Profile" class="profile-avatar">
+                {% else %}
+                    <div class="profile-placeholder">
+                        <i class="fas fa-user fa-2x" style="color: white;"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="hero-text">
+                <h1>Welcome back, {{ user.get_full_name|default:user.username }}!</h1>
+                <p>Manage your orders, browse products, and track your shipments with ease.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-container">
+        <div class="stat-card animate-fade-in animate-delay-1">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-bag"></i>
                 </div>
-            {% endif %}
+            </div>
+            <div class="stat-value">{{ total_orders }}</div>
+            <div class="stat-label">Total Orders</div>
         </div>
-        <div class="hero-text">
-            <h1>Welcome back, {{ user.get_full_name|default:user.username }}!</h1>
-            <p>Manage your orders, browse products, and track your shipments with ease.</p>
+        
+        <div class="stat-card animate-fade-in animate-delay-2">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ cart.item_count|default:0 }}</div>
+            <div class="stat-label">Cart Items</div>
+        </div>
+        
+        <div class="stat-card animate-fade-in animate-delay-3">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ recent_orders.count }}</div>
+            <div class="stat-label">Recent Orders</div>
+        </div>
+        
+        <div class="stat-card animate-fade-in animate-delay-4">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+            </div>
+            <div class="stat-value">Active</div>
+            <div class="stat-label">Account Status</div>
         </div>
     </div>
-</div>
 
-<!-- Stats Section -->
-<div class="stats-container">
-    <div class="stat-card animate-fade-in animate-delay-1">
-        <div class="stat-header">
-            <div class="stat-icon">
-                <i class="fas fa-shopping-bag"></i>
-            </div>
-        </div>
-        <div class="stat-value">{{ total_orders }}</div>
-        <div class="stat-label">Total Orders</div>
-    </div>
-    
-    <div class="stat-card animate-fade-in animate-delay-2">
-        <div class="stat-header">
-            <div class="stat-icon">
-                <i class="fas fa-shopping-cart"></i>
-            </div>
-        </div>
-        <div class="stat-value">{{ cart.item_count|default:0 }}</div>
-        <div class="stat-label">Cart Items</div>
-    </div>
-    
-    <div class="stat-card animate-fade-in animate-delay-3">
-        <div class="stat-header">
-            <div class="stat-icon">
-                <i class="fas fa-clock"></i>
-            </div>
-        </div>
-        <div class="stat-value">{{ recent_orders.count }}</div>
-        <div class="stat-label">Recent Orders</div>
-    </div>
-    
-    <div class="stat-card animate-fade-in animate-delay-4">
-        <div class="stat-header">
-            <div class="stat-icon">
-                <i class="fas fa-user-check"></i>
-            </div>
-        </div>
-        <div class="stat-value">Active</div>
-        <div class="stat-label">Account Status</div>
-    </div>
-</div>
-
-<!-- Main Dashboard Layout -->
-<div class="dashboard-layout">
-    <!-- Main Content -->
-    <div class="main-content">
+    <!-- Main Dashboard Layout -->
+    <div class="dashboard-layout">
+        <!-- Main Content -->
+        <div class="main-content">
         {% if orders %}
-    <div class="table-responsive">
-        <table class="order-table">
-            <thead>
-                <tr>
-                    <th>Order #</th>
-                    <th>Client</th>
-                    <th>Destination</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Payment Status</th>
+            <div class="table-responsive">
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Client</th>
+                            <th>Destination</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Payment Status</th>
 
-                    <th class="text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                <tr class="order-row" data-status="{{ order.status|default:'pending' }}" data-client="{{ order.client_name }}">
-                    <td class="order-id">
-                        <strong>#{{ order.id }}</strong>
-                    </td>
-                    <td>
-                        <div class="client-info">
-                            <span class="client-name">{{ order.client_name}}</span>
-                            <small class="client-email">{{ order.client_email|default:"" }}</small>
-                        </div>
-                    </td>
-                    <td>
-                        {{ order.delivery_address|default:"Not specified" }}
-                    </td>
-                    <td>
-                        <div class="date-info">
-                            <span class="order-date">{{ order.ordered_at|date:"M d, Y" }}</span>
-                            <small class="order-time">{{ order.ordered_at|time:"H:i" }}</small>
-                        </div>
-                    </td>
-                    <td>
-                        {% if order.status == "delivered" %}
-                            <span class="badge badge-delivered">Delivered</span>
-                        {% elif order.status == "transit" %}
-                            <span class="badge badge-transit">In Transit</span>
-                        {% elif order.status == "processing" %}
-                            <span class="badge badge-processing">Processing</span>
-                        {% else %}
-                            <span class="badge badge-pending">Pending</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if order.payment_status == 'paid' %}
-                            <span class="badge badge-success">Paid</span>
-                        {% elif order.payment_status == 'pending' %}
-                            <span class="badge badge-warning">Pending</span>
-                            <a href="{% url 'initiate_payment' order_id=order.id %}" class="btn btn-sm btn-primary">Pay Now</a>
-                        {% elif order.payment_status == 'failed' %}
-                            <span class="badge badge-danger">Failed</span>
-                            <a href="{% url 'initiate_payment' order_id=order.id %}" class="btn btn-sm btn-primary">Retry Payment</a>
-                        {% else %}
-                            <span class="badge badge-secondary">{{ order.payment_status|title }}</span>
-                        {% endif %}
-                    </td>
-                    <td class="actions-cell">
-                        <div class="action-buttons">
-                            <a href="{% url 'order_tracking' order.id %}" class="btn-icon" title="Track Order">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </a>
-                            <a href="{% url 'assign_delivery' order.id %}" class="btn-icon" title="Assign Delivery">
-                                <i class="fas fa-truck"></i>
-                            </a>
-                            <a href="{% url 'order_detail' order.id %}" class="btn-icon" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <button class="btn-icon toggle-actions" title="More Actions">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <div class="dropdown-actions">
-                                <a href="{% url 'edit_order' order.id %}">Edit Order</a>
-                                <a href="{% url 'print_label' order.id %}">Print Label</a>
-                                <a href="#" class="text-danger delete-order" data-id="{{ order.id }}">Delete</a>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-               
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    </div>
-    
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <!-- Quick Actions -->
-        <div class="modern-card animate-fade-in">
-            <div class="card-header-modern">
-                <div class="card-title-modern">
-                    <i class="fas fa-bolt"></i>
-                    Quick Actions
-                </div>
-            </div>
-            <div class="card-body-modern">
-                <div class="quick-actions">
-                    <a href="{% url 'product_list' %}" class="btn-modern btn-full-width">
-                        <i class="fas fa-shopping-cart"></i>
-                        Browse Products
-                    </a>
-                    <a href="{% url 'visitor_profile' %}" class="btn-modern btn-outline-modern btn-full-width">
-                        <i class="fas fa-user-edit"></i>
-                        Edit Profile
-                    </a>
-                    <a href="{% url 'order_list' %}" class="btn-modern btn-outline-modern btn-full-width">
-                        <i class="fas fa-list"></i>
-                        View All Orders
-                    </a>
-                    {% if cart_items %}
-                    <a href="{% url 'cart_detail' %}" class="btn-modern btn-full-width">
-                        <i class="fas fa-shopping-cart"></i>
-                        View Cart ({{ cart.item_count }})
-                    </a>
-                    {% endif %}
-                </div>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr class="order-row" data-status="{{ order.status|default:'pending' }}" data-client="{{ order.client_name }}">
+                            <td class="order-id">
+                                <strong>#{{ order.id }}</strong>
+                            </td>
+                            <td>
+                                <div class="client-info">
+                                    <span class="client-name">{{ order.client_name}}</span>
+                                    <small class="client-email">{{ order.client_email|default:"" }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                {{ order.delivery_address|default:"Not specified" }}
+                            </td>
+                            <td>
+                                <div class="date-info">
+                                    <span class="order-date">{{ order.ordered_at|date:"M d, Y" }}</span>
+                                    <small class="order-time">{{ order.ordered_at|time:"H:i" }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                {% if order.status == "delivered" %}
+                                    <span class="badge badge-delivered">Delivered</span>
+                                {% elif order.status == "transit" %}
+                                    <span class="badge badge-transit">In Transit</span>
+                                {% elif order.status == "processing" %}
+                                    <span class="badge badge-processing">Processing</span>
+                                {% else %}
+                                    <span class="badge badge-pending">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if order.payment_status == 'paid' %}
+                                    <span class="badge badge-success">Paid</span>
+                                {% elif order.payment_status == 'pending' %}
+                                    <span class="badge badge-warning">Pending</span>
+                                    <a href="{% url 'initiate_payment' order_id=order.id %}" class="btn btn-sm btn-primary">Pay Now</a>
+                                {% elif order.payment_status == 'failed' %}
+                                    <span class="badge badge-danger">Failed</span>
+                                    <a href="{% url 'initiate_payment' order_id=order.id %}" class="btn btn-sm btn-primary">Retry Payment</a>
+                                {% else %}
+                                    <span class="badge badge-secondary">{{ order.payment_status|title }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="actions-cell">
+                                <div class="action-buttons">
+                                    <a href="{% url 'order_tracking' order.id %}" class="btn-icon" title="Track Order">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </a>
+                                    <a href="{% url 'assign_delivery' order.id %}" class="btn-icon" title="Assign Delivery">
+                                        <i class="fas fa-truck"></i>
+                                    </a>
+                                    <a href="{% url 'order_detail' order.id %}" class="btn-icon" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn-icon toggle-actions" title="More Actions">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-actions">
+                                        <a href="{% url 'edit_order' order.id %}">Edit Order</a>
+                                        <a href="{% url 'print_label' order.id %}">Print Label</a>
+                                        <a href="#" class="text-danger delete-order" data-id="{{ order.id }}">Delete</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    
+                        {% endfor %}
+                    </tbody>
+                </table>
+        {% endif %}
             </div>
         </div>
         
-        <!-- Account Information -->
-        <div class="modern-card animate-fade-in">
-            <div class="card-header-modern">
-                <div class="card-title-modern">
-                    <i class="fas fa-info-circle"></i>
-                    Account Information
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Quick Actions -->
+            <div class="modern-card animate-fade-in">
+                <div class="card-header-modern">
+                    <div class="card-title-modern">
+                        <i class="fas fa-bolt"></i>
+                        Quick Actions
+                    </div>
+                </div>
+                <div class="card-body-modern">
+                    <div class="quick-actions">
+                        <a href="{% url 'product_list' %}" class="btn-modern btn-full-width">
+                            <i class="fas fa-shopping-cart"></i>
+                            Browse Products
+                        </a>
+                        <a href="{% url 'visitor_profile' %}" class="btn-modern btn-outline-modern btn-full-width">
+                            <i class="fas fa-user-edit"></i>
+                            Edit Profile
+                        </a>
+                        <a href="{% url 'order_list' %}" class="btn-modern btn-outline-modern btn-full-width">
+                            <i class="fas fa-list"></i>
+                            View All Orders
+                        </a>
+                        {% if cart_items %}
+                        <a href="{% url 'cart_detail' %}" class="btn-modern btn-full-width">
+                            <i class="fas fa-shopping-cart"></i>
+                            View Cart ({{ cart.item_count }})
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-            <div class="card-body-modern">
-                <div class="account-info">
-                    <div class="info-item">
-                        <div class="info-label">Email Address</div>
-                        <div class="info-value">{{ user.email }}</div>
+            
+            <!-- Account Information -->
+            <div class="modern-card animate-fade-in">
+                <div class="card-header-modern">
+                    <div class="card-title-modern">
+                        <i class="fas fa-info-circle"></i>
+                        Account Information
                     </div>
-                    <div class="info-item">
-                        <div class="info-label">Phone Number</div>
-                        <div class="info-value">{{ visitor.phone_number|default:"Not provided" }}</div>
+                </div>
+                <div class="card-body-modern">
+                    <div class="account-info">
+                        <div class="info-item">
+                            <div class="info-label">Email Address</div>
+                            <div class="info-value">{{ user.email }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Phone Number</div>
+                            <div class="info-value">{{ visitor.phone_number|default:"Not provided" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Member Since</div>
+                            <div class="info-value">{{ user.date_joined|date:"M Y" }}</div>
+                        </div>
+                        <a href="{% url 'visitor_change_password' %}" class="btn-modern btn-outline-modern btn-full-width" style="margin-top: 1rem;">
+                            <i class="fas fa-lock"></i>
+                            Change Password
+                        </a>
                     </div>
-                    <div class="info-item">
-                        <div class="info-label">Member Since</div>
-                        <div class="info-value">{{ user.date_joined|date:"M Y" }}</div>
-                    </div>
-                    <a href="{% url 'visitor_change_password' %}" class="btn-modern btn-outline-modern btn-full-width" style="margin-top: 1rem;">
-                        <i class="fas fa-lock"></i>
-                        Change Password
-                    </a>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Messages Display -->
-{% if messages %}
-    <div style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
-        {% for message in messages %}
-            <div class="modern-card" style="margin-bottom: 1rem; padding: 1rem; max-width: 400px; background: {% if message.tags == 'success' %}#d4edda{% elif message.tags == 'error' %}#f8d7da{% else %}#fff3cd{% endif %}; border-left: 4px solid {% if message.tags == 'success' %}#28a745{% elif message.tags == 'error' %}#dc3545{% else %}#ffc107{% endif %};">
-                {{ message }}
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
+    <!-- Messages Display -->
+    {% if messages %}
+        <div style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+            {% for message in messages %}
+                <div class="modern-card" style="margin-bottom: 1rem; padding: 1rem; max-width: 400px; background: {% if message.tags == 'success' %}#d4edda{% elif message.tags == 'error' %}#f8d7da{% else %}#fff3cd{% endif %}; border-left: 4px solid {% if message.tags == 'success' %}#28a745{% elif message.tags == 'error' %}#dc3545{% else %}#ffc107{% endif %};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
 {% endblock %}
