@@ -89,7 +89,7 @@
     .profile-placeholder {
         width: 90px;
         height: 90px;
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--primary);
         backdrop-filter: blur(10px);
         border: 4px solid color: var(--primary);;
         border-radius: 50%;
@@ -603,66 +603,93 @@
 <div class="dashboard-layout">
     <!-- Main Content -->
     <div class="main-content">
-        <!-- Recent Orders -->
-        <div class="modern-card animate-fade-in">
-            <div class="card-header-modern">
-                <div class="card-title-modern">
-                    <i class="fas fa-shopping-bag"></i>
-                    Recent Orders
-                </div>
-                <a href="{% url 'order_list' %}" class="btn-modern btn-outline-modern">View All Orders</a>
-            </div>
-            
-            {% if recent_orders %}
-                <div class="card-body-modern" style="padding: 0;">
-                    <table class="table-modern">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Company</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for order in recent_orders %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'visitor_order_detail' order.id %}">
-                                        #{{ order.id }}
-                                    </a>
-                                </td>
-                                <td>{{ order.company.name }}</td>
-                                <td>
-                                    {% if order.status == 'pending' %}
-                                        <span class="badge-modern badge-pending">Pending</span>
-                                    {% elif order.status == 'delivered' %}
-                                        <span class="badge-modern badge-delivered">Delivered</span>
-                                    {% else %}
-                                        <span class="badge-modern badge-cancelled">Cancelled</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ order.ordered_at|date:"M d, Y" }}</td>
-                                <td><strong>₦{{ order.total_cost }}</strong></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <div class="card-body-modern">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">
-                            <i class="fas fa-shopping-bag"></i>
+        {% if orders %}
+    <div class="table-responsive">
+        <table class="order-table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Client</th>
+                    <th>Destination</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Payment Status</th>
+
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr class="order-row" data-status="{{ order.status|default:'pending' }}" data-client="{{ order.client_name }}">
+                    <td class="order-id">
+                        <strong>#{{ order.id }}</strong>
+                    </td>
+                    <td>
+                        <div class="client-info">
+                            <span class="client-name">{{ order.client_name}}</span>
+                            <small class="client-email">{{ order.client_email|default:"" }}</small>
                         </div>
-                        <h3>No orders yet</h3>
-                        <p>Start shopping to see your orders appear here.</p>
-                        <a href="{% url 'product_list' %}" class="btn-modern">Start Shopping</a>
-                    </div>
-                </div>
-            {% endif %}
-        </div>
+                    </td>
+                    <td>
+                        {{ order.delivery_address|default:"Not specified" }}
+                    </td>
+                    <td>
+                        <div class="date-info">
+                            <span class="order-date">{{ order.ordered_at|date:"M d, Y" }}</span>
+                            <small class="order-time">{{ order.ordered_at|time:"H:i" }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        {% if order.status == "delivered" %}
+                            <span class="badge badge-delivered">Delivered</span>
+                        {% elif order.status == "transit" %}
+                            <span class="badge badge-transit">In Transit</span>
+                        {% elif order.status == "processing" %}
+                            <span class="badge badge-processing">Processing</span>
+                        {% else %}
+                            <span class="badge badge-pending">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if order.payment_status == 'paid' %}
+                            <span class="badge badge-success">Paid</span>
+                        {% elif order.payment_status == 'pending' %}
+                            <span class="badge badge-warning">Pending</span>
+                            <a href="{% url 'initiate_payment' order_id=order.id %}" class="btn btn-sm btn-primary">Pay Now</a>
+                        {% elif order.payment_status == 'failed' %}
+                            <span class="badge badge-danger">Failed</span>
+                            <a href="{% url 'initiate_payment' order_id=order.id %}" class="btn btn-sm btn-primary">Retry Payment</a>
+                        {% else %}
+                            <span class="badge badge-secondary">{{ order.payment_status|title }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="actions-cell">
+                        <div class="action-buttons">
+                            <a href="{% url 'order_tracking' order.id %}" class="btn-icon" title="Track Order">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </a>
+                            <a href="{% url 'assign_delivery' order.id %}" class="btn-icon" title="Assign Delivery">
+                                <i class="fas fa-truck"></i>
+                            </a>
+                            <a href="{% url 'order_detail' order.id %}" class="btn-icon" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button class="btn-icon toggle-actions" title="More Actions">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-actions">
+                                <a href="{% url 'edit_order' order.id %}">Edit Order</a>
+                                <a href="{% url 'print_label' order.id %}">Print Label</a>
+                                <a href="#" class="text-danger delete-order" data-id="{{ order.id }}">Delete</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+               
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     </div>
     
     <!-- Sidebar -->
